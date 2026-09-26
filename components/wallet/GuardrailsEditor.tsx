@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { SubAccount } from "./types";
-import { fmtSui } from "./types";
+import type { CustomLimit, CustomMetric, SubAccount } from "./types";
+import { CUSTOM_METRICS, fmtSui } from "./types";
 
 const SUI = 1e9;
 const toSui = (mist?: string) => (mist ? Number(mist) / SUI : null);
@@ -30,14 +30,17 @@ export function GuardrailsEditor({
   const [perCounterparty, setPerCounterparty] = useState<number | "">(toSui(g.perCounterpartyCapMist) ?? "");
   const [approvalThreshold, setApprovalThreshold] = useState<number | "">(toSui(g.approvalThresholdMist) ?? "");
   const [maxRiskScore, setMaxRiskScore] = useState(g.maxRiskScore ?? 70);
+  const [custom, setCustom] = useState<CustomLimit[]>(g.custom ?? []);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function save() {
     setBusy(true);
     setSaved(false);
+    setError(null);
     try {
-      await fetch("/api/wallet/guardrails", {
+      const res = await fetch("/api/wallet/guardrails", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -49,11 +52,16 @@ export function GuardrailsEditor({
             perCounterpartyCapSui: perCounterparty === "" ? null : perCounterparty,
             approvalThresholdSui: approvalThreshold === "" ? null : approvalThreshold,
             maxRiskScore,
+            custom,
           },
         }),
       });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Could not save.");
       await onSaved();
       setSaved(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setBusy(false);
     }
@@ -112,7 +120,9 @@ export function GuardrailsEditor({
         </Field>
       </div>
 
-      <div className="mt-5 flex items-center gap-3">
+      <CustomLimits limits={custom} onChange={setCustom} />
+
+      <div className="mt-5 flex flex-wrap items-center gap-3">
         <button
           disabled={busy}
           onClick={save}
@@ -121,13 +131,204 @@ export function GuardrailsEditor({
         >
           {busy ? "Saving…" : "Save guardrails"}
         </button>
-        {saved && (
+        {saved && !error && (
           <span className="text-[12px]" style={{ color: "var(--bind-ok)" }}>
             Saved
           </span>
         )}
+        {error && (
+          <span className="text-[12px]" style={{ color: "var(--bind-danger)" }}>
+            {error}
+          </span>
+        )}
       </div>
     </section>
+  );
+}
+
+/**
+ * Limits the operator names themselves.
+ *
+ * Each one picks a dimension the engine already measures, so a custom
+ * limit is checked by exactly the same code path as the built-in ones.
+ * A free-form key/value box would have been easier to build and would
+ * have enforced nothing — the point of the title and description is that
+ * they become the text of the refusal, so a blocked payment explains
+ * itself in the operator's own words.
+ */
+function CustomLimits({
+  limits,
+  onChange,
+}: {
+  limits: CustomLimit[];
+  onChange: (next: CustomLimit[]) => void;
+}) {
+  const [adding, setAdding] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [metric, setMetric] = useState<CustomMetric>("daily");
+  const [limit, setLimit] = useState("0.5");
+
+  const spec = CUSTOM_METRICS.find((m) => m.id === metric)!;
+  const parsed = Number(limit);
+  const valid = title.trim().length > 0 && Number.isFinite(parsed) && parsed >= 0;
+
+  function add() {
+    onChange([
+      ...limits,
+      {
+        id: `lim-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+        title: title.trim(),
+        description: description.trim() || undefined,
+        metric,
+        limit: parsed,
+      },
+    ]);
+    setTitle("");
+    setDescription("");
+    setLimit("0.5");
+    setAdding(false);
+  }
+
+  return (
+    <div className="mt-6 border-t border-[var(--bind-line)] pt-5">
+      <div className="flex items-baseline justify-between">
+        <h3 className="text-[13px] font-semibold text-[var(--bind-fg)]">Your own limits</h3>
+        <span className="text-[11px] text-[var(--bind-fg-faint)]">
+          {limits.length === 0 ? "none set" : `${limits.length} set`}
+        </span>
+      </div>
+      <p className="mt-1 text-[11.5px] leading-snug text-[var(--bind-fg-faint)]">
+        Name a rule in your words. It&apos;s checked by the same engine as everything above, and what
+        you write here is what a refusal says.
+      </p>
+
+      {limits.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {limits.map((l) => {
+            const m = CUSTOM_METRICS.find((x) => x.id === l.metric);
+            return (
+              <div
+                key={l.id}
+                className="flex flex-wrap items-start gap-3 rounded-xl border border-[var(--bind-line)] bg-black/20 px-3.5 py-2.5"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13px] font-medium text-[var(--bind-fg)]">{l.title}</div>
+                  <div className="mt-0.5 text-[11px] text-[var(--bind-fg-faint)]">
+                    {m?.label ?? l.metric} · {l.metric === "risk" ? "at or above" : "over"}{" "}
+                    <span className="text-[var(--bind-fg-dim)]">
+                      {l.limit}
+                      {m?.unit === "/100" ? m.unit : ` ${m?.unit ?? ""}`}
+                    </span>
+                  </div>
+                  {l.description && (
+                    <div className="mt-1 text-[11.5px] leading-snug text-[var(--bind-fg-dim)]">
+                      {l.description}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => onChange(limits.filter((x) => x.id !== l.id))}
+                  className="flex-none text-[11px] text-[var(--bind-fg-faint)] underline underline-offset-2 transition hover:text-[var(--bind-danger)]"
+                >
+                  Remove
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {adding ? (
+        <div className="mt-3 rounded-xl border border-[var(--bind-line-strong)] bg-black/25 p-3.5">
+          <label className="block">
+            <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+              Title
+            </span>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="No big spends before I'm awake"
+              className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            />
+          </label>
+
+          <label className="mt-2.5 block">
+            <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+              Description
+            </span>
+            <input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Why this exists — shown when it stops a payment."
+              className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            />
+          </label>
+
+          <div className="mt-2.5 flex flex-wrap items-end gap-2.5">
+            <label className="min-w-44 flex-1">
+              <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+                Measure
+              </span>
+              <select
+                value={metric}
+                onChange={(e) => setMetric(e.target.value as CustomMetric)}
+                className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+              >
+                {CUSTOM_METRICS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="w-32">
+              <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+                {metric === "risk" ? "At or above" : "No more than"}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number"
+                  step={metric === "risk" || metric === "daily_count" ? "1" : "0.01"}
+                  min="0"
+                  value={limit}
+                  onChange={(e) => setLimit(e.target.value)}
+                  className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                />
+                <span className="text-[11px] text-[var(--bind-fg-faint)]">{spec.unit}</span>
+              </div>
+            </label>
+          </div>
+
+          <p className="mt-2 text-[11px] text-[var(--bind-fg-faint)]">{spec.hint}</p>
+
+          <div className="mt-3 flex gap-2">
+            <button
+              disabled={!valid}
+              onClick={add}
+              className="rounded-full px-4 py-1.5 text-[12px] font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
+              style={{ background: "var(--bind-mist)" }}
+            >
+              Add limit
+            </button>
+            <button
+              onClick={() => setAdding(false)}
+              className="rounded-full border border-[var(--bind-line-strong)] px-4 py-1.5 text-[12px] text-[var(--bind-fg-dim)] transition hover:text-[var(--bind-fg)]"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setAdding(true)}
+          className="mt-3 w-full rounded-xl border border-dashed border-[var(--bind-line-strong)] py-2.5 text-[12.5px] text-[var(--bind-fg-dim)] transition hover:border-[var(--bind-accent-2)] hover:text-[var(--bind-fg)]"
+        >
+          + Add more
+        </button>
+      )}
+    </div>
   );
 }
 

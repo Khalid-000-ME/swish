@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { findSubAccount } from "@/lib/wallet-store";
 import { toJsonSafe } from "@/lib/json";
 import { suiToMist } from "@/lib/amount";
+import { CUSTOM_METRICS, type CustomLimit } from "@/lib/guardrails";
 
 /**
  * Updates an envelope's guardrails.
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest) {
       maxRiskScore?: number;
       approvalThresholdSui?: number | null;
       allowedCoinTypes?: string[];
+      custom?: CustomLimit[];
     };
   };
 
@@ -53,6 +55,37 @@ export async function POST(req: NextRequest) {
   if (guardrails.approvalThresholdSui !== undefined) {
     next.approvalThresholdMist =
       guardrails.approvalThresholdSui === null ? undefined : suiToMist(guardrails.approvalThresholdSui).toString();
+  }
+
+  // The operator's own named limits. Validated rather than trusted: a
+  // limit with an unknown metric would be stored, shown, and silently
+  // never evaluated — a rule that looks set and isn't.
+  if (guardrails.custom !== undefined) {
+    const known = new Set(CUSTOM_METRICS.map((m) => m.id));
+    const cleaned: CustomLimit[] = [];
+
+    for (const raw of guardrails.custom) {
+      const title = String(raw?.title ?? "").trim();
+      if (!title) return NextResponse.json({ error: "every custom limit needs a title" }, { status: 400 });
+      if (!known.has(raw?.metric)) {
+        return NextResponse.json(
+          { error: `"${title}" measures ${raw?.metric}, which isn't something this wallet can check.` },
+          { status: 400 }
+        );
+      }
+      if (!Number.isFinite(raw?.limit) || raw.limit < 0) {
+        return NextResponse.json({ error: `"${title}" needs a number to compare against.` }, { status: 400 });
+      }
+
+      cleaned.push({
+        id: raw.id || `lim-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+        title: title.slice(0, 80),
+        description: String(raw.description ?? "").trim().slice(0, 240) || undefined,
+        metric: raw.metric,
+        limit: raw.metric === "risk" ? Math.max(0, Math.min(100, Math.round(raw.limit))) : raw.limit,
+      });
+    }
+    next.custom = cleaned;
   }
 
   sub.guardrails = next;

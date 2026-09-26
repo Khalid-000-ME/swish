@@ -35,8 +35,35 @@ export interface SubAccount {
     maxRiskScore?: number;
     approvalThresholdMist?: string;
     allowedCoinTypes?: string[];
+    custom?: CustomLimit[];
   };
 }
+
+export type CustomMetric =
+  | "payment"
+  | "window"
+  | "daily"
+  | "counterparty"
+  | "risk"
+  | "daily_count";
+
+/** An operator-named limit, measured on a dimension the engine checks. */
+export interface CustomLimit {
+  id: string;
+  title: string;
+  description?: string;
+  metric: CustomMetric;
+  limit: number;
+}
+
+export const CUSTOM_METRICS: Array<{ id: CustomMetric; label: string; unit: string; hint: string }> = [
+  { id: "payment", label: "Any single payment", unit: "SUI", hint: "Refuse one payment larger than this." },
+  { id: "window", label: "Total in the rolling window", unit: "SUI", hint: "Everything settled inside the window." },
+  { id: "daily", label: "Total today", unit: "SUI", hint: "Resets at midnight, local time." },
+  { id: "counterparty", label: "Total to one counterparty", unit: "SUI", hint: "All time, per address." },
+  { id: "risk", label: "Counterparty risk score", unit: "/100", hint: "Refuse at or above this score." },
+  { id: "daily_count", label: "Payments today", unit: "payments", hint: "How many, not how much." },
+];
 
 export interface AgentTrust {
   declarations: number;

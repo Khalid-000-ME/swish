@@ -26,7 +26,48 @@ export interface Guardrails {
   approvalThresholdMist?: string;
   /** Policy. Assets this envelope may spend at all. */
   allowedCoinTypes: string[];
+  /** Policy. The operator's own named limits — see CustomLimit. */
+  custom?: CustomLimit[];
 }
+
+/**
+ * A limit an operator names themselves.
+ *
+ * The temptation here is a free-form key/value bag, which would look
+ * flexible and enforce nothing — the same trap the agent brief avoids by
+ * being explicitly advice rather than policy. A limit has to be something
+ * the checker can evaluate, so a custom limit picks a `metric` the engine
+ * already measures and puts the operator's own number and words on it.
+ *
+ * The title and description are not decoration either: they are what the
+ * refusal says, so a blocked payment explains itself in the operator's
+ * language rather than in ours.
+ */
+export type CustomMetric =
+  | "payment"        // a single payment, SUI
+  | "window"         // total within the rolling window, SUI
+  | "daily"          // total today, SUI
+  | "counterparty"   // total ever paid to one counterparty, SUI
+  | "risk"           // counterparty risk score, 0-100
+  | "daily_count";   // number of settled payments today
+
+export interface CustomLimit {
+  id: string;
+  title: string;
+  description?: string;
+  metric: CustomMetric;
+  /** SUI for the amount metrics, a score for `risk`, a count otherwise. */
+  limit: number;
+}
+
+export const CUSTOM_METRICS: Array<{ id: CustomMetric; label: string; unit: string; hint: string }> = [
+  { id: "payment", label: "Any single payment", unit: "SUI", hint: "Refuse one payment larger than this." },
+  { id: "window", label: "Total in the rolling window", unit: "SUI", hint: "Everything settled inside the window." },
+  { id: "daily", label: "Total today", unit: "SUI", hint: "Resets at midnight, local time." },
+  { id: "counterparty", label: "Total to one counterparty", unit: "SUI", hint: "All time, per address." },
+  { id: "risk", label: "Counterparty risk score", unit: "/100", hint: "Refuse at or above this score." },
+  { id: "daily_count", label: "Payments today", unit: "payments", hint: "How many, not how much." },
+];
 
 export const DEFAULT_GUARDRAILS: Guardrails = {
   perTxCapMist: "50000000", // 0.05 SUI
@@ -42,13 +83,16 @@ export type BreachCode =
   | "over_daily_cap"
   | "over_counterparty_cap"
   | "risk_too_high"
-  | "asset_not_allowed";
+  | "asset_not_allowed"
+  | "custom_limit";
 
 export interface Breach {
   code: BreachCode;
   /** Chain-enforced breaches would abort the Move call anyway. */
   enforcedOnChain: boolean;
   plain: string;
+  /** Set when an operator's own named limit was the thing that tripped. */
+  customTitle?: string;
 }
 
 export interface GuardrailVerdict {
@@ -149,6 +193,62 @@ export function checkGuardrails(input: {
         code: "over_counterparty_cap",
         enforcedOnChain: false,
         plain: `This counterparty would reach ${sui(toThem + amountMist)} SUI total, over the ${sui(g.perCounterpartyCapMist)} SUI limit for any one of them.`,
+      });
+    }
+  }
+
+  // The operator's own named limits, measured on the same numbers the
+  // built-in ones use. A custom limit that couldn't be evaluated here
+  // would be a label pretending to be a rule.
+  for (const limit of g.custom ?? []) {
+    const amountSui = Number(amountMist) / 1e9;
+    let actual: number;
+    let unit: string;
+
+    switch (limit.metric) {
+      case "payment":
+        actual = amountSui;
+        unit = "SUI";
+        break;
+      case "window":
+        actual = Number(windowSpent + amountMist) / 1e9;
+        unit = "SUI";
+        break;
+      case "daily":
+        actual =
+          Number(
+            settled.filter((a) => a.ts >= startOfDay(now)).reduce((n, a) => n + BigInt(a.amountMist), 0n) +
+              amountMist
+          ) / 1e9;
+        unit = "SUI";
+        break;
+      case "counterparty":
+        actual =
+          Number(
+            settled.filter((a) => a.recipient === recipient).reduce((n, a) => n + BigInt(a.amountMist), 0n) +
+              amountMist
+          ) / 1e9;
+        unit = "SUI";
+        break;
+      case "risk":
+        actual = riskScore;
+        unit = "/100";
+        break;
+      case "daily_count":
+        actual = settled.filter((a) => a.ts >= startOfDay(now)).length + 1;
+        unit = "payments";
+        break;
+    }
+
+    // Risk is a score you must stay *below*; the rest are ceilings you
+    // may sit exactly on.
+    const tripped = limit.metric === "risk" ? actual >= limit.limit : actual > limit.limit;
+    if (tripped) {
+      breaches.push({
+        code: "custom_limit",
+        enforcedOnChain: false,
+        customTitle: limit.title,
+        plain: `${limit.title}: this would reach ${actual.toLocaleString(undefined, { maximumFractionDigits: 4 })}${unit === "/100" ? unit : " " + unit}, past the ${limit.limit}${unit === "/100" ? unit : " " + unit} you set.${limit.description ? ` ${limit.description}` : ""}`,
       });
     }
   }
