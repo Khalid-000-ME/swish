@@ -58,33 +58,36 @@ export function AgentPanel({
 
   return (
     <div className="space-y-5">
-      {/* header */}
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="h-wallet text-3xl text-[var(--swish-mist)]">{agent.name}</h1>
-          <p className="mt-1 text-sm text-[var(--swish-fg-dim)]">{agent.role}</p>
-          <div className="mt-2 flex items-center gap-3">
-            <span className="status">
-              <span className="dot" style={{ background: "var(--swish-ok)" }} />
-              Bound to your World ID
-            </span>
-            <TrustBars trust={agent.trust} />
-          </div>
+      {/*
+        The balance leads, on the page rather than inside a card — the same
+        shape as the wallet's own home screen. It was tucked in the corner
+        of the header opposite the name, which made the first question
+        anyone has about an agent the least prominent thing on its page.
+      */}
+      <header className="pt-2 text-center">
+        <h1 className="h-wallet text-2xl text-[var(--swish-fg)]">{agent.name}</h1>
+        <p className="mt-0.5 text-sm text-[var(--swish-fg-dim)]">{agent.role}</p>
+
+        <div className="mt-6 font-num text-[52px] leading-none text-[var(--swish-mist)]">
+          {fmtSui(total.toString())}
+          <span className="ml-2 text-xl text-[var(--swish-fg-dim)]">SUI</span>
         </div>
-        <div className="text-right">
-          <div className="text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">Across envelopes</div>
-          <div className="font-num text-3xl text-[var(--swish-mist)]">{fmtSui(total.toString())} SUI</div>
+        <div className="mt-2 text-[12px] text-[var(--swish-fg-faint)]">
+          allocated across {agent.subAccounts.length} envelope
+          {agent.subAccounts.length === 1 ? "" : "s"}
+          <span className="mx-2">·</span>
+          <span className="font-num">{fmtSui(agent.addressBalanceMist, 4)}</span> for its own gas
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+          <span className="status">
+            <span className="dot" style={{ background: "var(--swish-ok)" }} />
+            Bound to your World ID
+          </span>
+          <TrustBars trust={agent.trust} />
           <button
             onClick={() => setStatus(agent.status === "frozen" ? "active" : "frozen")}
-            // Solid tint rather than a full-strength outline. A neon red
-            // ring in the corner of every agent page made freezing look
-            // like the thing you were meant to do next.
-            className="mt-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition hover:brightness-125"
-            style={
-              agent.status === "frozen"
-                ? { background: "var(--swish-ok-dim)", borderColor: "var(--swish-ok-edge)", color: "var(--swish-ok)" }
-                : { background: "var(--swish-danger-dim)", borderColor: "var(--swish-danger-edge)", color: "var(--swish-danger)" }
-            }
+            className={`btn btn-sm ${agent.status === "frozen" ? "btn-ok" : "btn-danger"}`}
           >
             {agent.status === "frozen" ? "Unfreeze agent" : "Freeze agent"}
           </button>

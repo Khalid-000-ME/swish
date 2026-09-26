@@ -1,6 +1,7 @@
 import type { DiffResult, DryRunResult, Intercepta, ScenarioId } from "./types";
 import { createAgentIdentity, recallSealed } from "./agent-keys";
 import { defaultBrief } from "./agent-brief";
+import type { McpServer } from "./mcp-servers";
 import type { Guardrails } from "./guardrails";
 
 /**
@@ -70,6 +71,10 @@ export interface Agent {
   /** The operator's own description of the job, in Markdown. Fed to the
    *  model verbatim before every run — see lib/agent-brief.ts. */
   brief: string;
+  /** Tools from registered MCP servers this agent may call, as
+   *  `serverId::toolName`. Enforced where the loop is built, not just
+   *  shown — see lib/mcp-servers.ts. */
+  mcpTools?: string[];
   /** False when no master key is configured: the address is real and can
    *  receive, but nothing here can sign for it. */
   signable: boolean;
@@ -152,6 +157,23 @@ export interface WalletState {
   agents: Agent[];
   activity: ActivityItem[];
   bannedAddresses: Array<{ address: string; bannedAt: number; reason: string }>;
+  /** Servers the operator registered for agents to call out to. */
+  mcpServers: McpServer[];
+  /**
+   * The published vault, as a pool the operator owns.
+   *
+   * It used to have no representation of its own: the first agent's
+   * envelope *was* the vault object, so the wallet's "in vaults" figure
+   * and that agent's balance were necessarily the same number, topping up
+   * the vault topped up one agent, and every agent after the first got
+   * nothing backed by anything. An envelope is supposed to be carved out
+   * of the vault, not be it.
+   */
+  vault: {
+    objectId?: string;
+    /** Refreshed from the vault object; the pool every envelope draws on. */
+    balanceMist: string;
+  };
 }
 
 const LIVE_VAULT = process.env.SWISH_VAULT_ID;
@@ -171,6 +193,8 @@ function seed(): WalletState {
     agents: [],
     activity: [],
     bannedAddresses: [],
+    mcpServers: [],
+    vault: { objectId: LIVE_VAULT, balanceMist: "0" },
   };
 }
 
@@ -279,7 +303,6 @@ export function hireAgent(input: {
   for (let n = 2; s.agents.some((a) => a.id === id); n++) id = `${base}-${n}`;
 
   const accent = ACCENTS[s.agents.length % ACCENTS.length];
-  const firstAgent = s.agents.length === 0;
 
   const identity = createAgentIdentity();
 
@@ -300,13 +323,20 @@ export function hireAgent(input: {
     trust: { declarations: 0, clean: 0, caught: 0, humanApproved: 0, recent: [] },
     subAccounts: [
       {
-        // The first agent takes the real on-chain vault when one exists, so
-        // the wallet's headline agent is genuinely live rather than a mock.
-        id: firstAgent && LIVE_VAULT ? LIVE_VAULT : `${id}-env-1`,
+        // Every envelope is its own thing, with its own id. The first one
+        // used to *be* the vault object, which made the agent and the
+        // vault indistinguishable and left later agents backed by nothing.
+        id: `${id}-env-1`,
         label: input.envelopeLabel,
         purpose: `What ${input.name} may spend on for this job`,
-        onChain: Boolean(firstAgent && LIVE_VAULT),
-        vaultObjectId: firstAgent && LIVE_VAULT ? LIVE_VAULT : undefined,
+        // Backed by the published vault: withdrawals for this envelope come
+        // out of that pool. It is an allocation from the vault, not the
+        // vault itself.
+        onChain: Boolean(LIVE_VAULT),
+        vaultObjectId: LIVE_VAULT,
+        // What the operator earmarked, which is a claim on the pool rather
+        // than a separate balance. Sums above the pool are shown as
+        // over-allocated rather than silently treated as money.
         balanceMist: input.startingMist,
         perTxCapMist: input.perTxCapMist,
         windowMs: 60_000,
@@ -343,16 +373,30 @@ export function completeOnboarding(): Onboarding {
   return s.onboarding;
 }
 
-/** Vault holdings + whatever is sitting at each agent's own address. */
-export function totalHoldingsMist(): { vault: bigint; agents: bigint; total: bigint } {
+/**
+ * What the wallet actually holds, and what has been promised out of it.
+ *
+ * `vault` is the pool, read from the vault object. `allocated` is the sum
+ * of every envelope's claim on it — which is not more money, it's the same
+ * money spoken for. Adding the two together, which the old version did,
+ * counted the vault once per envelope.
+ */
+export function totalHoldingsMist(): {
+  vault: bigint;
+  allocated: bigint;
+  agents: bigint;
+  total: bigint;
+  overAllocated: boolean;
+} {
   const s = walletState();
-  let vault = 0n;
+  const vault = BigInt(s.vault.balanceMist);
+  let allocated = 0n;
   let agents = 0n;
   for (const a of s.agents) {
     agents += BigInt(a.addressBalanceMist);
-    for (const sub of a.subAccounts) vault += BigInt(sub.balanceMist);
+    for (const sub of a.subAccounts) allocated += BigInt(sub.balanceMist);
   }
-  return { vault, agents, total: vault + agents };
+  return { vault, allocated, agents, total: vault + agents, overAllocated: allocated > vault };
 }
 
 /**
@@ -399,6 +443,8 @@ export function replaceWalletState(incoming: WalletState): { hydrated: boolean; 
     agents,
     activity: incoming.activity ?? [],
     bannedAddresses: incoming.bannedAddresses ?? [],
+    mcpServers: incoming.mcpServers ?? [],
+    vault: incoming.vault ?? { objectId: LIVE_VAULT, balanceMist: "0" },
   };
   return { hydrated: true };
 }
@@ -410,6 +456,14 @@ export function stripSecrets(state: WalletState): WalletState {
     agents: state.agents.map((agent) => {
       const copy = { ...agent };
       delete copy.sealedSecret;
+      return copy;
+    }),
+    // An MCP server's Authorization header is a credential like any other.
+    // The browser persists this snapshot to localStorage, so it must not
+    // travel in it.
+    mcpServers: state.mcpServers.map((server) => {
+      const copy = { ...server };
+      delete copy.authHeader;
       return copy;
     }),
   };
@@ -425,19 +479,13 @@ export async function refreshAgentBalances(): Promise<void> {
   const s = walletState();
   const { suiClient, readVaultBalance } = await import("./sui");
 
-  // An envelope backed by a real vault shows what the vault holds, not
-  // what was typed at hire time. Those had drifted far enough apart that
-  // the UI offered money the chain would refuse.
-  await Promise.all(
-    s.agents.flatMap((agent) =>
-      agent.subAccounts
-        .filter((sub) => sub.onChain && sub.vaultObjectId)
-        .map(async (sub) => {
-          const onChain = await readVaultBalance(sub.vaultObjectId!);
-          if (onChain !== null) sub.balanceMist = onChain.toString();
-        })
-    )
-  );
+  // The vault is one pool, read once. Envelopes keep their own
+  // allocations — overwriting each of them with the pool's balance was
+  // what made every envelope show the same number.
+  if (s.vault.objectId) {
+    const onChain = await readVaultBalance(s.vault.objectId);
+    if (onChain !== null) s.vault.balanceMist = onChain.toString();
+  }
 
   await Promise.all(
     s.agents.map(async (agent) => {

@@ -82,6 +82,8 @@ export interface Agent {
   signable: boolean;
   /** Markdown the operator wrote; read by the model before every run. */
   brief: string;
+  /** Tools this agent may call on registered MCP servers, `serverId::tool`. */
+  mcpTools?: string[];
   worldVerified: boolean;
   worldNullifier: string;
   boundAt: number;
@@ -151,7 +153,15 @@ export interface Onboarding {
 
 export interface WalletSnapshot {
   onboarding: Onboarding;
-  holdings: { vault: string; agents: string; total: string };
+  holdings: {
+    /** The published vault's own balance — the pool. */
+    vault: string;
+    /** The sum of every envelope's claim on that pool. */
+    allocated: string;
+    agents: string;
+    total: string;
+    overAllocated: boolean;
+  };
   operator: {
     worldVerified: boolean;
     worldNullifier: string;
@@ -170,6 +180,24 @@ export interface WalletSnapshot {
   worldSandbox: boolean;
   /** Set when World has already verified this operator for this action. */
   worldKnownHuman: KnownHuman | null;
+  mcpServers: McpServerView[];
+}
+
+export interface McpToolView {
+  name: string;
+  description?: string;
+}
+
+/** A registered server as the browser sees it — never its auth header. */
+export interface McpServerView {
+  id: string;
+  label: string;
+  url: string;
+  tools: McpToolView[];
+  addedAt: number;
+  lastProbedAt?: number;
+  error?: string;
+  hasAuth: boolean;
 }
 
 export const SUI = 1e9;

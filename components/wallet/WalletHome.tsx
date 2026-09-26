@@ -28,9 +28,21 @@ export function WalletHome({ snap }: { snap: WalletSnapshot }) {
           <span className="ml-2 text-2xl text-[var(--swish-fg-dim)]">SUI</span>
         </div>
         <div className="mt-2 text-sm text-[var(--swish-fg-dim)]">
-          <span className="font-num">{fmtSui(snap.holdings.vault, 4)}</span> in vaults
+          <span className="font-num">{fmtSui(snap.holdings.vault, 4)}</span> in the vault
           <span className="mx-2 text-[var(--swish-fg-faint)]">·</span>
           <span className="font-num">{fmtSui(snap.holdings.agents, 4)}</span> held by agents
+        </div>
+
+        {/* Allocation is the same money spoken for, not more of it, so it
+            reads as a second line rather than adding to the total. */}
+        <div className="mt-1 text-[12px] text-[var(--swish-fg-faint)]">
+          <span className="font-num">{fmtSui(snap.holdings.allocated, 4)}</span> allocated across
+          envelopes
+          {snap.holdings.overAllocated && (
+            <span className="ml-2" style={{ color: "var(--swish-warn)" }}>
+              — more than the vault holds
+            </span>
+          )}
         </div>
 
         <div className="mt-6 grid grid-cols-5 gap-2.5">

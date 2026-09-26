@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFaucetHost, requestSuiFromFaucetV2 } from "@mysten/sui/faucet";
-import { findAgent, findSubAccount, refreshAgentBalances } from "@/lib/wallet-store";
+import { findAgent, findSubAccount, refreshAgentBalances, walletState } from "@/lib/wallet-store";
 import { fundAgentAddress, fundAgentFromVault, isMintConfigured } from "@/lib/mint";
 import { suiToMist } from "@/lib/amount";
 import { toJsonSafe } from "@/lib/json";
@@ -62,10 +62,27 @@ export async function POST(req: NextRequest) {
       }
 
       const want = suiToMist(amountSui ?? 0.2);
+
+      // Two ceilings, and both matter. The envelope's allocation is what
+      // the operator earmarked for this agent; the vault's balance is what
+      // actually exists. Checking only the first would let an
+      // over-allocated wallet promise money the chain would refuse, and
+      // checking only the second would let one agent spend another's
+      // budget.
       if (want > BigInt(sub.balanceMist)) {
         return NextResponse.json(
           {
-            error: `${sub.label} holds ${Number(sub.balanceMist) / 1e9} SUI — not enough for ${amountSui ?? 0.2}.`,
+            error: `${sub.label} is allocated ${Number(sub.balanceMist) / 1e9} SUI — not enough for ${amountSui ?? 0.2}.`,
+          },
+          { status: 409 }
+        );
+      }
+
+      const pool = BigInt(walletState().vault.balanceMist);
+      if (want > pool) {
+        return NextResponse.json(
+          {
+            error: `The vault only holds ${Number(pool) / 1e9} SUI. Top it up with scripts/topup.sh.`,
           },
           { status: 409 }
         );
@@ -77,8 +94,8 @@ export async function POST(req: NextRequest) {
         amountMist: want,
       });
 
-      // The envelope's own figure has to follow the chain, or the wallet
-      // would keep showing money that has already left.
+      // The allocation shrinks by what was taken, and the pool is re-read
+      // from chain rather than guessed at.
       sub.balanceMist = (BigInt(sub.balanceMist) - want).toString();
       await refreshAgentBalances();
 
