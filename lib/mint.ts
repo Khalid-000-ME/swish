@@ -243,3 +243,28 @@ export async function addToAllowlistOnChain(input: {
   const t = await callAndGetEffects(tx, keypair, address);
   return { digest: t.digest };
 }
+
+/**
+ * Takes an address back off the on-chain allow-list.
+ *
+ * The mirror of the above, and for the same reason: withdrawing standing
+ * permission only in the wallet's own copy would leave the vault still
+ * willing to pay that address the moment anything else signed for it.
+ */
+export async function removeFromAllowlistOnChain(input: {
+  vaultObjectId: string;
+  address: string;
+}): Promise<{ digest: string }> {
+  const { keypair, address } = executor();
+  const tx = new Transaction();
+  tx.setSender(address);
+
+  tx.moveCall({
+    target: `${pkg()}::allowance_vault::set_allowlist_remove`,
+    typeArguments: ["0x2::sui::SUI"],
+    arguments: [tx.object(input.vaultObjectId), tx.pure.address(input.address)],
+  });
+
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { digest: t.digest };
+}
