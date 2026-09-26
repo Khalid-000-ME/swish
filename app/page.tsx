@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SwishLogo } from "@/components/brand/Logo";
+import { SwishLogo, SwishMark } from "@/components/brand/Logo";
 import { HeroBackground } from "@/components/HeroBackground";
 
 /**
@@ -41,34 +41,44 @@ export default function Home() {
           </Link>
         </header>
 
-        <section className="flex flex-1 flex-col items-center justify-center py-16 text-center">
-          <h1 className="fade-up font-display hero-title max-w-4xl text-balance text-5xl leading-[1.06] sm:text-[68px]">
-            The only wallet you will ever need for the agentic economy.
-          </h1>
+        {/*
+          Copy left, mark right. The mark is set far larger than the text
+          because at matching weights the two compete and the eye settles
+          on neither; at this size it reads as the surface the words sit
+          on. It stacks above the copy on narrow screens, where a column
+          of text beside anything is just two cramped columns.
+        */}
+        <section className="grid flex-1 items-center gap-10 py-14 md:grid-cols-[1fr_auto] md:gap-8">
+          <div className="order-2 text-center md:order-1 md:text-left">
+            <h1 className="fade-up font-display hero-title text-balance text-[44px] leading-[1.05] sm:text-[60px] lg:text-[68px]">
+              The only wallet you will ever need for the agentic economy.
+            </h1>
 
-          <p
-            className="fade-up mt-8 max-w-xl text-balance text-[19px] leading-relaxed text-[var(--swish-sky)]"
-            style={{ animationDelay: "80ms" }}
-          >
-            An agent can only spend what it said it would.
-          </p>
+            <p
+              className="fade-up mt-7 max-w-md text-balance text-[18px] leading-relaxed text-[var(--swish-sky)] md:mx-0"
+              style={{ animationDelay: "80ms" }}
+            >
+              An agent can only spend what it said it would.
+            </p>
 
-          <div
-            className="fade-up mt-11 flex flex-wrap items-center justify-center gap-3"
-            style={{ animationDelay: "140ms" }}
-          >
-            <Link
-              href="/wallet"
-              className="btn btn-primary btn-lg shadow-[0_8px_30px_-8px_rgba(238,243,255,0.45)]"
+            <div
+              className="fade-up mt-9 flex flex-wrap items-center justify-center gap-3 md:justify-start"
+              style={{ animationDelay: "140ms" }}
             >
-              Open the wallet
-            </Link>
-            <a
-              href="https://github.com/Khalid-000-ME/swish"
-              className="btn btn-secondary btn-lg"
-            >
-              View source
-            </a>
+              <Link
+                href="/wallet"
+                className="btn btn-primary btn-lg shadow-[0_8px_30px_-8px_rgba(238,243,255,0.45)]"
+              >
+                Open the wallet
+              </Link>
+              <a href="https://github.com/Khalid-000-ME/swish" className="btn btn-secondary btn-lg">
+                View source
+              </a>
+            </div>
+          </div>
+
+          <div className="fade-up order-1 flex justify-center md:order-2 md:justify-end">
+            <SwishMark fluid size={420} className="w-[62vw] max-w-[420px] md:w-[34vw] md:max-w-none" />
           </div>
         </section>
 

@@ -78,12 +78,18 @@ export function openSecret(sealed: string): string | null {
  * described as encrypted at rest: worthless without
  * SWISH_AGENT_KEY_SECRET, which is deliberately not in this file.
  */
-const KEYSTORE = resolve(process.env.SWISH_KEYSTORE_PATH ?? ".bind-keys.json");
+const KEYSTORE = resolve(process.env.SWISH_KEYSTORE_PATH ?? ".swish-keys.json");
+/** Written under the old name before the project was renamed. */
+const LEGACY_KEYSTORE = resolve(".bind-keys.json");
 
 function readKeystore(): Record<string, string> {
   try {
-    if (!existsSync(KEYSTORE)) return {};
-    const parsed = JSON.parse(readFileSync(KEYSTORE, "utf8"));
+    // Read whichever exists, so a rename never strands a key. Keys are
+    // the one thing here that cannot be regenerated: lose one and the
+    // address it controls is gone for good, funds included.
+    const path = existsSync(KEYSTORE) ? KEYSTORE : existsSync(LEGACY_KEYSTORE) ? LEGACY_KEYSTORE : null;
+    if (!path) return {};
+    const parsed = JSON.parse(readFileSync(path, "utf8"));
     return parsed && typeof parsed === "object" ? parsed : {};
   } catch {
     // A corrupt keystore shouldn't take the wallet down with it; the

@@ -25,11 +25,22 @@ export function SwishMark({
   size = 12,
   className = "",
   priority = true,
+  fluid = false,
 }: {
-  /** Height in px. */
+  /** Height in px. Ignored when `fluid` — the container decides instead. */
   size?: number;
   className?: string;
   priority?: boolean;
+  /**
+   * Size to the container rather than to `size`.
+   *
+   * The fixed inline width is what keeps the mark crisp at chrome sizes,
+   * but it also beats any width class handed in, so a responsive hero
+   * mark silently rendered at 12px tall. `fluid` drops the inline width
+   * and lets the className own it; `size` still sets the intrinsic
+   * dimensions Next needs to build a srcset.
+   */
+  fluid?: boolean;
 }) {
   const width = Math.round(size * ASPECT);
   return (
@@ -43,9 +54,9 @@ export function SwishMark({
       // its default srcset and a 20px-tall mark ends up resampled from
       // something barely larger than it, which softens the diagonals.
       quality={100}
-      sizes={`${width * 3}px`}
-      className={`flex-none ${className}`}
-      style={{ width, height: size }}
+      sizes={fluid ? "(max-width: 768px) 56vw, 30vw" : `${width * 3}px`}
+      className={`${fluid ? "h-auto" : "flex-none"} ${className}`}
+      style={fluid ? undefined : { width, height: size }}
     />
   );
 }

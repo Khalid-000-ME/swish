@@ -43,6 +43,7 @@ yarn-error.log*
 next-env.d.ts
 
 # Sealed agent secrets — encrypted, but still key material.
+.swish-keys.json
 .bind-keys.json
 
 # Remembered World verification — survives a wallet reset.
