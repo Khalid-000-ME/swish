@@ -32,8 +32,13 @@ export function HeroBackground({ columns = 6 }: { columns?: number }) {
   return (
     <div className="absolute inset-0 overflow-hidden bg-[var(--bind-black)]">
       <Grainient
-        color1="#eef3ff"
-        color2="#2454e8"
+        // Darker stops than the palette's literal values. The shader
+        // blends toward its lightest colour across most of the frame, so
+        // handing it pure mist and pure accent produced a wall of bright
+        // blue with no black in it at all. Sky and deep navy keep the
+        // near-black dominant, which is what the reference actually is.
+        color1="#9fb9f5"
+        color2="#12256e"
         color3="#05070c"
         // Slow enough to read as weather rather than animation — it should
         // be something you notice on the second look, not the first.
@@ -43,18 +48,40 @@ export function HeroBackground({ columns = 6 }: { columns?: number }) {
         warpAmplitude={64}
         // Pushes the blend so black holds most of the frame and the blue
         // and light sit where the old linear-gradient put them.
-        colorBalance={0.22}
-        blendSoftness={0.22}
+        // Negative balance pushes the blend edges up the range, so the
+        // dark stop covers the frame and the blue arrives as a glow rather
+        // than a fill.
+        colorBalance={-0.34}
+        blendSoftness={0.3}
         rotationAmount={140}
         noiseScale={1.6}
-        // Real grain, moving, at a scale that stays fine on a 4K display.
-        grainAmount={0.055}
-        grainScale={620}
+        // The shader's own grain is subtle by design; on top of a gradient
+        // this dark it was barely there. Pushed up, and doubled by a second
+        // static layer below, because one moving grain reads as video noise
+        // while grain over grain reads as film.
+        grainAmount={0.16}
+        grainScale={900}
         grainAnimated
-        contrast={1.22}
-        saturation={1.05}
-        zoom={1.15}
-        centerY={-0.08}
+        contrast={1.35}
+        saturation={1.15}
+        gamma={1.25}
+        zoom={1.3}
+        centerY={-0.22}
+      />
+
+      {/* A fine, still grain over the moving one. Tiled at its natural size
+          rather than stretched, so a noise pixel stays a pixel — the mistake
+          the SVG version made. */}
+      <div className="hero-grain pointer-events-none absolute inset-0" />
+
+      {/* Vignette. The shader's blue reaches the corners at full strength,
+          which pulls the eye outward; this keeps the frame closed. */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(120% 85% at 50% 42%, transparent 30%, rgba(5,7,12,0.45) 78%, rgba(5,7,12,0.8) 100%)",
+        }}
       />
 
       <svg

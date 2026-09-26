@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BindConsole } from "@/components/BindConsole";
+import { SwishConsole } from "@/components/SwishConsole";
 
 export default function AppPage() {
   return (
@@ -11,12 +11,12 @@ export default function AppPage() {
       <header className="relative z-10 mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
         <Link href="/" className="flex items-center gap-2 text-sm font-medium text-[var(--bind-fg)]">
           <span className="dot" style={{ background: "var(--bind-accent-2)" }} />
-          Bind
+          Swish
         </Link>
         <span className="chip bg-white/5 text-[var(--bind-fg-faint)]">Sui · World · Intercepta</span>
       </header>
       <div className="relative z-10">
-        <BindConsole />
+        <SwishConsole />
       </div>
     </main>
   );
