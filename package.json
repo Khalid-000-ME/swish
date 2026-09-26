@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.65",
+    "@ai-sdk/groq": "^4.0.50",
     "@ai-sdk/react": "^4.0.119",
     "@anthropic-ai/sdk": "^0.128.0",
     "@mysten/sui": "^2.33.1",

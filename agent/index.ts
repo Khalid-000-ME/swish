@@ -1,5 +1,6 @@
 import { ToolLoopAgent, isStepCount } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
+import { groq } from "@ai-sdk/groq";
 import { BindSession } from "./session";
 import { buildBindTools, type ToolOutputs } from "./tools";
 import { SYSTEM_PROMPT, TOOL_ORDER } from "./prompt";
@@ -39,18 +40,29 @@ const SCENARIO_PROMPTS: Record<ScenarioId, string> = {
  * nicely in the prompt. That's the same "structural, not policy" move the
  * rest of this project makes everywhere else.
  *
- * Falls back to a scripted run of the identical tool sequence when no
- * ANTHROPIC_API_KEY is configured, so the demo works before a key is ever
- * added — disclosed via `mode` on the result, surfaced in the UI.
+ * Model choice, cheapest-first: Groq's free tier (openai/gpt-oss-120b —
+ * an open-weight model built with tool-calling as a first-class feature,
+ * not a repurposed chat model) if GROQ_API_KEY is set, else Anthropic's
+ * claude-sonnet-5 if ANTHROPIC_API_KEY is set, else a scripted stand-in
+ * calling the identical tool sequence with no key at all. Whichever ran
+ * is disclosed via `mode` on the result, surfaced in the UI — this isn't
+ * about picking a "real" provider over a "fake" one, it's the same
+ * disclosure discipline as everywhere else in this project.
  */
 export async function runBindAgent(scenario: ScenarioId): Promise<AgentRunResult> {
   const session = new BindSession(scenario);
   const outputs: ToolOutputs = {};
   const tools = buildBindTools(session, outputs);
 
-  if (process.env.ANTHROPIC_API_KEY) {
+  const model = process.env.GROQ_API_KEY
+    ? groq("openai/gpt-oss-120b")
+    : process.env.ANTHROPIC_API_KEY
+      ? anthropic("claude-sonnet-5")
+      : null;
+
+  if (model) {
     const agent = new ToolLoopAgent({
-      model: anthropic("claude-sonnet-5"),
+      model,
       instructions: SYSTEM_PROMPT,
       tools,
       stopWhen: isStepCount(TOOL_ORDER.length + 2),
@@ -91,14 +103,14 @@ async function runScripted(scenario: ScenarioId, session: BindSession, outputs: 
   // whether or not the demo happens to be running against a live vault.
   await tools.readVaultState.execute!({}, opts("1"));
   await tools.purchaseData.execute!({ feedId: "market-data-1" }, opts("2"));
-  await tools.computeAmount.execute!({ unitPriceSui: 0.6, units: 1 }, opts("3"));
+  await tools.computeAmount.execute!({ unitPriceSui: 0.2, units: 1 }, opts("3"));
 
   const recipient = session.recipientForScenario();
   const escalated = scenario === "villain_escalation" || scenario === "override_denied";
   await tools.declareIntent.execute!(
     {
       recipient,
-      amountSui: escalated ? 1.8 : 0.6,
+      amountSui: escalated ? 0.4 : 0.2,
       reason: escalated
         ? "Vendor note referenced an urgent balance transfer; following it to complete the purchase."
         : "Routine payment for one unit of purchased market data.",
