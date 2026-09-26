@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { WalletSnapshot } from "./types";
 import { EmptyState } from "./bits";
+import { McpServers } from "./McpServers";
 
 /**
  * Agent-to-agent.
@@ -46,7 +47,13 @@ const SUGGESTIONS = [
   "Summarise everything that got refused today and why.",
 ];
 
-export function A2APanel({ snap }: { snap: WalletSnapshot }) {
+export function A2APanel({
+  snap,
+  onChanged,
+}: {
+  snap: WalletSnapshot;
+  onChanged: () => Promise<void>;
+}) {
   const [mcp, setMcp] = useState<Mcp | null>(null);
   const [prompt, setPrompt] = useState("");
   const [agentId, setAgentId] = useState(snap.agents[0]?.id ?? "");
@@ -106,16 +113,19 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
       <header>
         <h1 className="h-wallet text-3xl text-[var(--swish-mist)]">Agent to agent</h1>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--swish-fg-dim)]">
-          Other agents reach this wallet over MCP, and get refused by the same rules you set. Below,
-          you can do the same thing from here — in a sentence.
+          Both directions. Your agents connect out to MCP servers you register, using only the tools
+          you tick. Other people&apos;s agents connect in to this wallet, and get refused by the same
+          rules you set.
         </p>
       </header>
+
+      <McpServers snap={snap} onChanged={onChanged} />
 
       {/* ───────────────────── the endpoint ───────────────────── */}
       <section className="card overflow-hidden">
         <div className="flex flex-wrap items-center gap-2 border-b border-[var(--swish-line)] px-4 py-3">
           <span className="dot" style={{ background: mcp ? "var(--swish-ok)" : "var(--swish-warn)" }} />
-          <span className="text-sm font-medium text-[var(--swish-fg)]">MCP server</span>
+          <span className="text-sm font-medium text-[var(--swish-fg)]">This wallet&apos;s own server</span>
           <span className="ml-auto text-[11px] text-[var(--swish-fg-faint)]">
             {mcp ? `protocol ${mcp.protocolVersion}` : "checking…"}
           </span>
@@ -131,7 +141,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
                 if (config) navigator.clipboard?.writeText(config);
                 setCopied(true);
               }}
-              className="flex-none rounded-full border border-[var(--swish-line-strong)] px-3.5 py-2 text-[11.5px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)]"
+              className="btn btn-secondary btn-sm flex-none"
             >
               {copied ? "Copied config" : "Copy client config"}
             </button>
@@ -225,7 +235,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
                       setPrompt(s);
                       send(s);
                     }}
-                    className="rounded-full border border-[var(--swish-line)] px-3 py-1.5 text-left text-[11.5px] text-[var(--swish-fg-dim)] transition hover:border-[var(--swish-accent-2)] hover:text-[var(--swish-fg)]"
+                    className="btn btn-secondary btn-sm font-normal"
                   >
                     {s}
                   </button>

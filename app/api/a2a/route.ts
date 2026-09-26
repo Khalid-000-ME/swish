@@ -3,6 +3,7 @@ import { ToolLoopAgent, tool, isStepCount } from "ai";
 import { z } from "zod";
 import { candidateModels } from "@/agent";
 import { approveRequest, createRequest } from "@/lib/connections";
+import { callTool, parseToolKey, type McpServer, type McpTool } from "@/lib/mcp-servers";
 import { findAgent, findSubAccount, walletState } from "@/lib/wallet-store";
 import { guardrailsFor } from "@/lib/guardrails";
 import { toJsonSafe } from "@/lib/json";
@@ -123,7 +124,45 @@ export async function POST(req: NextRequest) {
     return parsed;
   }
 
+  // Tools this agent was granted on registered outside servers. Built from
+  // the grant rather than from the server's list, so a tool the operator
+  // didn't tick is not something the model can decide to call — the
+  // allow-list is the tool set, not a filter applied afterwards.
+  const remoteTool = (server: McpServer, spec: McpTool, name: string) =>
+    tool({
+      description: `${spec.description ?? spec.name} (via ${server.label})`,
+      // The remote owns its own schema, so passthrough keeps this honest
+      // rather than inventing one that might not match.
+      inputSchema: z.object({}).passthrough(),
+      execute: async (input: Record<string, unknown>) => {
+        try {
+          const out = await callTool(server, spec.name, input);
+          steps.push({ tool: name, input, output: out, ok: true });
+          return out;
+        } catch (err) {
+          const out = { error: err instanceof Error ? err.message : String(err) };
+          steps.push({ tool: name, input, output: out, ok: false });
+          return out;
+        }
+      },
+    });
+
+  const outbound: Record<string, ReturnType<typeof remoteTool>> = {};
+  for (const key of agent.mcpTools ?? []) {
+    const parsed = parseToolKey(key);
+    if (!parsed) continue;
+    const server = state.mcpServers.find((s) => s.id === parsed.serverId);
+    const spec = server?.tools.find((t) => t.name === parsed.toolName);
+    if (!server || !spec) continue;
+
+    // Names are namespaced because two servers may both offer "search",
+    // and a model handed two identically-named tools cannot pick.
+    const safe = `${server.label}_${spec.name}`.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60);
+    outbound[safe] = remoteTool(server, spec, safe);
+  }
+
   const tools = {
+    ...outbound,
     list_agents: tool({
       description: "List the agents this connection may use, with envelopes, balances and limits.",
       inputSchema: z.object({}),
@@ -166,8 +205,18 @@ export async function POST(req: NextRequest) {
         stopWhen: isStepCount(MAX_STEPS),
       });
 
+      const granted = Object.keys(outbound);
       const result = await loop.generate({
-        prompt: `You are working with agent "${agent.name}" (id ${agent.id}) and its envelope "${sub.label}" (id ${sub.id}).\n\n${prompt.trim()}`,
+        prompt: [
+          `You are working with agent "${agent.name}" (id ${agent.id}) and its envelope "${sub.label}" (id ${sub.id}).`,
+          granted.length > 0
+            ? `This agent has been granted these tools on outside MCP servers: ${granted.join(", ")}. Use them when they fit; they can look things up, but they cannot move money.`
+            : "",
+          "",
+          prompt.trim(),
+        ]
+          .filter(Boolean)
+          .join("\n"),
       });
 
       return NextResponse.json(
