@@ -33,10 +33,23 @@ export async function GET(req: Request) {
   const signingKeyHex = process.env.WORLD_RP_SIGNING_KEY ?? process.env.WORLD_RP_PRIVATE_KEY;
   const environment = process.env.WORLD_ENVIRONMENT === "staging" ? "staging" : "production";
 
+  // Two different questions, and they are not interchangeable:
+  //
+  //   uniqueness (WORLD_UNIQUENESS=true) — "has this human done this
+  //     before?" Scoped to an action, and World refuses a second claim
+  //     with `nullifier_replayed`. Right for an airdrop or a vote.
+  //
+  //   personhood (default) — "is this a real human?" Sign-in shaped, no
+  //     action, repeatable. Right here: binding an agent to a verified
+  //     operator doesn't require that the operator has never verified
+  //     before, and making onboarding once-per-lifetime-per-human was a
+  //     design mistake, not a security property.
+  const uniqueness = process.env.WORLD_UNIQUENESS === "true";
+
   const missing = [
     !appId && "WORLD_APP_ID",
     !rpId && "WORLD_RP_ID",
-    !action && "WORLD_ACTION",
+    uniqueness && !action && "WORLD_ACTION (required when WORLD_UNIQUENESS=true)",
     !signingKeyHex && "WORLD_RP_SIGNING_KEY (or WORLD_RP_PRIVATE_KEY)",
   ].filter(Boolean) as string[];
 
@@ -45,7 +58,13 @@ export async function GET(req: Request) {
   }
 
   if (!sign) {
-    return NextResponse.json({ configured: true, app_id: appId, action, environment });
+    return NextResponse.json({
+      configured: true,
+      app_id: appId,
+      action: uniqueness ? action : "",
+      environment,
+      uniqueness,
+    });
   }
 
   try {
@@ -53,13 +72,18 @@ export async function GET(req: Request) {
     // (version || nonce || createdAt || expiresAt || action). Hand-rolling
     // this with a generic ECDSA sign does not work — it's a specific
     // 49/81-byte preimage, not a free-form string.
-    const sig = signRequest({ signingKeyHex: signingKeyHex!, action: action! });
+    // The signed message includes the action only for uniqueness proofs;
+    // omitting it is what makes the proof repeatable.
+    const sig = uniqueness
+      ? signRequest({ signingKeyHex: signingKeyHex!, action: action! })
+      : signRequest({ signingKeyHex: signingKeyHex! });
 
     return NextResponse.json({
       configured: true,
       app_id: appId,
-      action,
+      action: uniqueness ? action : "",
       environment,
+      uniqueness,
       rp_context: {
         rp_id: rpId,
         nonce: sig.nonce,

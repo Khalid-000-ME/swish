@@ -189,6 +189,20 @@ export async function verifyWorldProof(
 
     if (!res.ok) {
       console.error("[bind/world] verify rejected", res.status, JSON.stringify(data));
+
+      // Worth naming this one specifically: it means World *did*
+      // recognise the person and refused to issue a second uniqueness
+      // claim for the same action. The integration is working; the
+      // request was asking the wrong question.
+      if (String(data?.code ?? "") === "nullifier_replayed") {
+        return {
+          success: false,
+          nullifierHash: "",
+          detail:
+            "This World ID has already verified for this action. Uniqueness proofs are one-per-human-per-action by design — set WORLD_UNIQUENESS=false for repeatable personhood checks, or register a new action.",
+        };
+      }
+
       return {
         success: false,
         nullifierHash: "",

@@ -10,6 +10,7 @@ interface WorldConfig {
   app_id?: `app_${string}`;
   action?: string;
   environment?: "staging" | "production";
+  uniqueness?: boolean;
   rp_context?: RpContext;
 }
 
@@ -130,7 +131,9 @@ export function WorldVerify({
               setError(
                 code === "duplicate_nonce"
                   ? "That request was already used. Try again — a fresh one will be issued."
-                  : `World verification failed: ${code}`
+                  : code === "nullifier_replayed"
+                    ? "World recognised you — you've already verified for this action. That's uniqueness working, not a failure. Set WORLD_UNIQUENESS=false to allow repeat verification, or use a new action."
+                    : `World verification failed: ${code}`
               );
               onCancelled?.();
             }}
