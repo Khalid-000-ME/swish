@@ -38,11 +38,6 @@ export function WalletHome({ snap }: { snap: WalletSnapshot }) {
         <div className="mt-1 text-[12px] text-[var(--swish-fg-faint)]">
           <span className="font-num">{fmtSui(snap.holdings.allocated, 4)}</span> allocated across
           envelopes
-          {snap.holdings.overAllocated && (
-            <span className="ml-2" style={{ color: "var(--swish-warn)" }}>
-              — more than the vault holds
-            </span>
-          )}
         </div>
 
         <div className="mt-6 grid grid-cols-5 gap-2.5">

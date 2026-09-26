@@ -162,7 +162,6 @@ export interface WalletSnapshot {
     allocated: string;
     agents: string;
     total: string;
-    overAllocated: boolean;
   };
   operator: {
     worldVerified: boolean;

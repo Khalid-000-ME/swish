@@ -386,7 +386,6 @@ export function totalHoldingsMist(): {
   allocated: bigint;
   agents: bigint;
   total: bigint;
-  overAllocated: boolean;
 } {
   const s = walletState();
   const vault = BigInt(s.vault.balanceMist);
@@ -396,7 +395,7 @@ export function totalHoldingsMist(): {
     agents += BigInt(a.addressBalanceMist);
     for (const sub of a.subAccounts) allocated += BigInt(sub.balanceMist);
   }
-  return { vault, allocated, agents, total: vault + agents, overAllocated: allocated > vault };
+  return { vault, allocated, agents, total: vault + agents };
 }
 
 /**
