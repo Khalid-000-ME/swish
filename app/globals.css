@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+:root {
+  /* Sampled from the reference mesh: near-black -> royal blue -> pale mist */
+  --bind-black: #05070c;
+  --bind-navy: #0a1338;
+  --bind-navy-2: #12256e;
+  --bind-accent: #2454e8;
+  --bind-accent-2: #4f7bf0;
+  --bind-sky: #9fb9f5;
+  --bind-mist: #eef3ff;
+
+  --bind-fg: #eef1fb;
+  --bind-fg-dim: #a7b0cc;
+  --bind-fg-faint: #6b7394;
+  --bind-line: rgba(238, 243, 255, 0.12);
+  --bind-line-strong: rgba(238, 243, 255, 0.22);
+  --bind-surface: rgba(238, 243, 255, 0.04);
+  --bind-surface-2: rgba(238, 243, 255, 0.07);
+
+  --bind-ok: #33d17a;
+  --bind-ok-dim: rgba(51, 209, 122, 0.14);
+  --bind-warn: #f5b942;
+  --bind-warn-dim: rgba(245, 185, 66, 0.14);
+  --bind-danger: #f04f5c;
+  --bind-danger-dim: rgba(240, 79, 92, 0.14);
+}
+
+@theme inline {
+  --font-sans: var(--font-space-grotesk);
+  --font-display: var(--font-instrument-serif);
+
+  --color-accent: var(--bind-accent);
+  --color-accent-2: var(--bind-accent-2);
+  --color-sky: var(--bind-sky);
+  --color-mist: var(--bind-mist);
+  --color-ink: var(--bind-black);
+  --color-navy: var(--bind-navy);
+
+  --color-fg: var(--bind-fg);
+  --color-fg-dim: var(--bind-fg-dim);
+  --color-fg-faint: var(--bind-fg-faint);
+
+  --color-ok: var(--bind-ok);
+  --color-warn: var(--bind-warn);
+  --color-danger: var(--bind-danger);
+}
+
+* {
+  border-color: var(--bind-line);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bind-black);
+  color: var(--bind-fg);
+}
+
+::selection {
+  background: var(--bind-accent);
+  color: var(--bind-mist);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Mesh gradient: layered CSS gradient + inline SVG turbulence grain.      */
+/* Kept to the hero only — product screens stay calm so diff panels read  */
+/* cleanly under demo lighting.                                           */
+/* ---------------------------------------------------------------------- */
+
+.mesh-gradient {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(20, 34, 92, 0.9) 0%, transparent 60%),
+    linear-gradient(
+      180deg,
+      var(--bind-black) 0%,
+      var(--bind-navy) 22%,
+      var(--bind-navy-2) 42%,
+      var(--bind-accent) 66%,
+      var(--bind-sky) 86%,
+      var(--bind-mist) 100%
+    );
+}
+
+.mesh-grain {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+.mesh-columns {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.4;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.card {
+  background: var(--bind-surface);
+  border: 1px solid var(--bind-line);
+  border-radius: 1rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border: 1px solid var(--bind-line-strong);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(36, 84, 232, 0.45); }
+  100% { box-shadow: 0 0 0 10px rgba(36, 84, 232, 0); }
+}
+.pulse {
+  animation: pulse-ring 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
