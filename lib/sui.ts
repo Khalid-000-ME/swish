@@ -143,3 +143,32 @@ export async function dryRun(tx: Transaction, sender: string): Promise<DryRunRes
 export function isLiveChainConfigured(): boolean {
   return Boolean(BIND_PACKAGE_ID);
 }
+
+/**
+ * What a published vault actually holds, read from the object itself.
+ *
+ * The wallet's own `balanceMist` for an envelope is whatever the operator
+ * typed at hire time — it was never reconciled with the chain, so a vault
+ * holding 0.01 SUI could show as 0.3 and a withdrawal would be refused by
+ * a number the UI never displayed.
+ *
+ * `Vault<T>` starts `id: UID` (a 32-byte ObjectID) followed immediately by
+ * `Balance<T>`, which is a single u64. So the balance is bytes 32..39,
+ * little-endian. That offset is an assumption about the struct's field
+ * order; if a field is ever added ahead of `balance` in
+ * allowance_vault.move, this reads the wrong eight bytes. Returns null
+ * rather than guessing when the object can't be read.
+ */
+export async function readVaultBalance(vaultObjectId: string): Promise<bigint | null> {
+  try {
+    const res = await suiClient().getObject({ objectId: vaultObjectId, include: { content: true } });
+    const bytes = res.object?.content;
+    if (!bytes || bytes.length < 40) return null;
+
+    let n = 0n;
+    for (let i = 39; i >= 32; i--) n = (n << 8n) | BigInt(bytes[i]);
+    return n;
+  } catch {
+    return null;
+  }
+}

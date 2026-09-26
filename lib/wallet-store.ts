@@ -414,7 +414,21 @@ export function stripSecrets(state: WalletState): WalletState {
  */
 export async function refreshAgentBalances(): Promise<void> {
   const s = walletState();
-  const { suiClient } = await import("./sui");
+  const { suiClient, readVaultBalance } = await import("./sui");
+
+  // An envelope backed by a real vault shows what the vault holds, not
+  // what was typed at hire time. Those had drifted far enough apart that
+  // the UI offered money the chain would refuse.
+  await Promise.all(
+    s.agents.flatMap((agent) =>
+      agent.subAccounts
+        .filter((sub) => sub.onChain && sub.vaultObjectId)
+        .map(async (sub) => {
+          const onChain = await readVaultBalance(sub.vaultObjectId!);
+          if (onChain !== null) sub.balanceMist = onChain.toString();
+        })
+    )
+  );
 
   await Promise.all(
     s.agents.map(async (agent) => {

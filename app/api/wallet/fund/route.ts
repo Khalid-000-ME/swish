@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFaucetHost, requestSuiFromFaucetV2 } from "@mysten/sui/faucet";
-import { findAgent, refreshAgentBalances } from "@/lib/wallet-store";
-import { fundAgentAddress, isMintConfigured } from "@/lib/mint";
+import { findAgent, findSubAccount, refreshAgentBalances } from "@/lib/wallet-store";
+import { fundAgentAddress, fundAgentFromVault, isMintConfigured } from "@/lib/mint";
 import { suiToMist } from "@/lib/amount";
 import { toJsonSafe } from "@/lib/json";
 
@@ -21,10 +21,11 @@ import { toJsonSafe } from "@/lib/json";
  */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const { agentId, amountSui, source } = body as {
+  const { agentId, subAccountId, amountSui, source } = body as {
     agentId?: string;
+    subAccountId?: string;
     amountSui?: number;
-    source?: "operator" | "faucet";
+    source?: "operator" | "faucet" | "vault";
   };
 
   if (!agentId) return NextResponse.json({ error: "agentId is required" }, { status: 400 });
@@ -40,9 +41,58 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const viaFaucet = source === "faucet" || !isMintConfigured();
+  const viaFaucet = source === "faucet" || (!isMintConfigured() && source !== "vault");
 
   try {
+    // Straight out of the envelope the operator already set aside. This is
+    // the owner spending their own budget — `owner_withdraw` is owner-only
+    // and never touches the agent's cap, window or allow-list.
+    if (source === "vault") {
+      const sub = subAccountId ? findSubAccount(agentId, subAccountId) : agent.subAccounts[0];
+      if (!sub) return NextResponse.json({ error: "no such envelope" }, { status: 404 });
+
+      if (!isMintConfigured() || !sub.onChain || !sub.vaultObjectId) {
+        return NextResponse.json(
+          {
+            error:
+              "This envelope isn't a published vault, so there's nothing on chain to withdraw from. Use your own key instead.",
+          },
+          { status: 409 }
+        );
+      }
+
+      const want = suiToMist(amountSui ?? 0.2);
+      if (want > BigInt(sub.balanceMist)) {
+        return NextResponse.json(
+          {
+            error: `${sub.label} holds ${Number(sub.balanceMist) / 1e9} SUI — not enough for ${amountSui ?? 0.2}.`,
+          },
+          { status: 409 }
+        );
+      }
+
+      const { digest } = await fundAgentFromVault({
+        vaultObjectId: sub.vaultObjectId,
+        recipient: agent.address,
+        amountMist: want,
+      });
+
+      // The envelope's own figure has to follow the chain, or the wallet
+      // would keep showing money that has already left.
+      sub.balanceMist = (BigInt(sub.balanceMist) - want).toString();
+      await refreshAgentBalances();
+
+      return NextResponse.json(
+        toJsonSafe({
+          via: "vault",
+          address: agent.address,
+          digest,
+          fromEnvelope: sub.label,
+          balanceMist: findAgent(agentId)?.addressBalanceMist ?? "0",
+        })
+      );
+    }
+
     if (viaFaucet) {
       await requestSuiFromFaucetV2({ host: getFaucetHost("testnet"), recipient: agent.address });
       // The faucet is asynchronous: it accepts the request and the coin
@@ -76,7 +126,9 @@ export async function POST(req: NextRequest) {
       {
         error: viaFaucet
           ? `The testnet faucet turned this down: ${message}. It rate-limits per address and per IP, so waiting a few minutes usually clears it.`
-          : `Could not send from your own key: ${message}`,
+          : source === "vault"
+            ? `The vault refused the withdrawal: ${message}. If this mentions an unknown function, the package predates owner_withdraw — run scripts/upgrade.sh.`
+            : `Could not send from your own key: ${message}`,
         address: agent.address,
       },
       { status: 502 }

@@ -9,6 +9,7 @@ import { GuardrailsEditor } from "./GuardrailsEditor";
 import { ExplorerLink } from "./ExplorerLink";
 import { FundAgent } from "./FundAgent";
 import { AgentBrief } from "./AgentBrief";
+import { FundFromVault } from "./FundFromVault";
 
 export function AgentPanel({
   agent,
@@ -87,6 +88,8 @@ export function AgentPanel({
       </header>
 
       <FundAgent agent={agent} onChanged={onChanged} />
+
+      <FundFromVault agent={agent} onChanged={onChanged} />
 
       <AgentBrief agent={agent} onChanged={onChanged} />
 

@@ -245,6 +245,41 @@ export async function addToAllowlistOnChain(input: {
 }
 
 /**
+ * Moves money out of the vault to an agent's own address.
+ *
+ * This is the owner spending their own budget, not the agent spending
+ * theirs: `owner_withdraw` asserts the caller is the vault's owner and
+ * goes nowhere near the per-payment cap, the rolling window, the
+ * allow-list or a Declaration. Those exist to bound the agent.
+ *
+ * Available only since the package upgrade that added the function — a
+ * vault published before it will abort, which the caller reports rather
+ * than swallowing.
+ */
+export async function fundAgentFromVault(input: {
+  vaultObjectId: string;
+  recipient: string;
+  amountMist: bigint;
+}): Promise<{ digest: string }> {
+  const { keypair, address } = executor();
+  const tx = new Transaction();
+  tx.setSender(address);
+
+  tx.moveCall({
+    target: `${pkg()}::allowance_vault::owner_withdraw`,
+    typeArguments: ["0x2::sui::SUI"],
+    arguments: [
+      tx.object(input.vaultObjectId),
+      tx.pure.u64(input.amountMist),
+      tx.pure.address(input.recipient),
+    ],
+  });
+
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { digest: t.digest };
+}
+
+/**
  * Sends SUI from the operator's own key to an agent's address.
  *
  * Nothing about the vault — an agent's address is an ordinary Sui
