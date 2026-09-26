@@ -1,4 +1,4 @@
-import { ToolLoopAgent, isStepCount } from "ai";
+import { ToolLoopAgent, isStepCount, type LanguageModel } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { groq } from "@ai-sdk/groq";
 import { BindSession } from "./session";
@@ -45,70 +45,84 @@ function scenarioPrompt(scenario: ScenarioId, payee: string): string {
  * nicely in the prompt. That's the same "structural, not policy" move the
  * rest of this project makes everywhere else.
  *
- * Model choice, cheapest-first: Groq's free tier (openai/gpt-oss-120b —
- * an open-weight model built with tool-calling as a first-class feature,
- * not a repurposed chat model) if GROQ_API_KEY is set, else Anthropic's
- * claude-sonnet-5 if ANTHROPIC_API_KEY is set, else a scripted stand-in
- * calling the identical tool sequence with no key at all. Whichever ran
- * is disclosed via `mode` on the result, surfaced in the UI — this isn't
- * about picking a "real" provider over a "fake" one, it's the same
- * disclosure discipline as everywhere else in this project.
+ * Model choice is a *chain*, not a single pick: every configured provider
+ * is tried, cheapest first, before anything falls back to the scripted
+ * stand-in. Groq's free tier (openai/gpt-oss-120b — tool-calling is a
+ * first-class feature of that model, not bolted on) goes first if
+ * GROQ_API_KEY is set; Anthropic's claude-sonnet-5 goes next if
+ * ANTHROPIC_API_KEY is set. Having *both* configured is what makes "live"
+ * reliable in practice — Groq's free tier is 8,000 tokens/minute, which
+ * a handful of back-to-back tasks exhausts, and Anthropic catches exactly
+ * that case rather than the whole run degrading to scripted. Whichever
+ * one actually answered is disclosed via `mode`, surfaced in the UI.
  */
+function candidateModels(): Array<{ label: string; model: LanguageModel }> {
+  const candidates: Array<{ label: string; model: LanguageModel }> = [];
+  if (process.env.GROQ_API_KEY) candidates.push({ label: "groq/gpt-oss-120b", model: groq("openai/gpt-oss-120b") });
+  if (process.env.ANTHROPIC_API_KEY) candidates.push({ label: "anthropic/claude-sonnet-5", model: anthropic("claude-sonnet-5") });
+  return candidates;
+}
+
+async function runWithModel(
+  model: LanguageModel,
+  scenario: ScenarioId,
+  session: BindSession,
+  outputs: ToolOutputs,
+  tools: ReturnType<typeof buildBindTools>
+): Promise<AgentRunResult> {
+  const agent = new ToolLoopAgent({
+    model,
+    instructions: SYSTEM_PROMPT,
+    tools,
+    stopWhen: isStepCount(TOOL_ORDER.length + 2),
+    prepareStep: async () => {
+      const next = session.nextExpectedTool([...TOOL_ORDER]);
+      return next ? { activeTools: [next] as (keyof typeof tools)[] } : {};
+    },
+  });
+
+  const result = await agent.generate({
+    prompt: scenarioPrompt(scenario, session.recipientForScenario()),
+  });
+
+  // A model that stops early — refuses, runs out of steps, or talks
+  // instead of calling its last tool — leaves us without a declaration to
+  // check. Treated as a failure of *this* provider, not of "live mode" —
+  // the caller moves to the next candidate rather than giving up.
+  if (!outputs.declaration || !outputs.ptb) {
+    throw new Error("model finished without completing declareIntent/buildTransaction");
+  }
+
+  return {
+    mode: "live",
+    narration: result.text,
+    steps: session.log.map((l) => ({ tool: l.tool, input: l.input, output: l.output })),
+    session,
+    outputs,
+  };
+}
+
 export async function runBindAgent(scenario: ScenarioId): Promise<AgentRunResult> {
-  const session = new BindSession(scenario);
-  const outputs: ToolOutputs = {};
-  const tools = buildBindTools(session, outputs);
-
-  const model = process.env.GROQ_API_KEY
-    ? groq("openai/gpt-oss-120b")
-    : process.env.ANTHROPIC_API_KEY
-      ? anthropic("claude-sonnet-5")
-      : null;
-
-  if (model) {
-    const agent = new ToolLoopAgent({
-      model,
-      instructions: SYSTEM_PROMPT,
-      tools,
-      stopWhen: isStepCount(TOOL_ORDER.length + 2),
-      prepareStep: async () => {
-        const next = session.nextExpectedTool([...TOOL_ORDER]);
-        return next ? { activeTools: [next] as (keyof typeof tools)[] } : {};
-      },
-    });
-
+  for (const { label, model } of candidateModels()) {
+    const session = new BindSession(scenario);
+    const outputs: ToolOutputs = {};
+    const tools = buildBindTools(session, outputs);
     try {
-      const result = await agent.generate({
-        prompt: scenarioPrompt(scenario, session.recipientForScenario()),
-      });
-
-      // A model that stops early — refuses, runs out of steps, or talks
-      // instead of calling its last tool — leaves us without a
-      // declaration to check. That's not an error to surface at the
-      // wallet; it's a reason to fall back to the deterministic sequence.
-      if (!outputs.declaration || !outputs.ptb) {
-        throw new Error("model finished without completing declareIntent/buildTransaction");
-      }
-
-      return {
-        mode: "live",
-        narration: result.text,
-        steps: session.log.map((l) => ({ tool: l.tool, input: l.input, output: l.output })),
-        session,
-        outputs,
-      };
+      return await runWithModel(model, scenario, session, outputs, tools);
     } catch (err) {
-      // A provider outage or a free-tier rate limit shouldn't take the
-      // wallet down — it degrades to the scripted sequence, which runs
-      // the identical tools in the identical order. `mode` still reports
-      // "scripted", so the UI never claims a live model ran when it didn't.
-      console.warn("[bind/agent] model call failed, falling back to scripted:", err instanceof Error ? err.message : err);
-      const fresh = new BindSession(scenario);
-      const freshOutputs: ToolOutputs = {};
-      return runScripted(scenario, fresh, freshOutputs);
+      // A provider outage or a rate limit shouldn't take the wallet down
+      // — try the next configured provider before giving up on "live".
+      console.warn(`[bind/agent] ${label} failed, trying next candidate:`, err instanceof Error ? err.message : err);
     }
   }
 
+  // No configured provider produced a result — the deterministic
+  // sequence, calling the identical tools in the identical order. `mode`
+  // reports "scripted" here, so the UI never claims a live model ran
+  // when it didn't — the same disclosure discipline as everywhere else
+  // in this project.
+  const session = new BindSession(scenario);
+  const outputs: ToolOutputs = {};
   return runScripted(scenario, session, outputs);
 }
 
