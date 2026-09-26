@@ -34,7 +34,7 @@ export function WalletHome({ snap }: { snap: WalletSnapshot }) {
         </div>
 
         <div className="mt-6 grid grid-cols-5 gap-2.5">
-          <ActionButton href="/onboarding" label="Hire" glyph="+" />
+          <ActionButton href="/wallet/hire" label="Hire" glyph="+" />
           <ActionButton href="/wallet/caught" label="Review" glyph="⚑" badge={snap.caught.length} />
           <ActionButton href="/wallet/approvals" label="Approve" glyph="✓" badge={snap.approvals.length} />
           <ActionButton href="/wallet/connections" label="Sites" glyph="⇄" />
@@ -111,6 +111,7 @@ function AgentList({ snap }: { snap: WalletSnapshot }) {
       <EmptyState
         title="No agents yet"
         line="Hire one and it shows up here with its own address and budget."
+        action={{ href: "/wallet/hire", label: "Hire an agent" }}
       />
     );
   }

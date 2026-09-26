@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { AgentTrust } from "./types";
 
 export const OUTCOME_STYLE: Record<string, { label: string; color: string; bg: string }> = {
@@ -64,11 +65,29 @@ export function SourceBadge({ live, liveLabel, simLabel }: { live: boolean; live
   );
 }
 
-export function EmptyState({ title, line }: { title: string; line: string }) {
+export function EmptyState({
+  title,
+  line,
+  action,
+}: {
+  title: string;
+  line: string;
+  /** An empty screen that tells you what's missing should also offer the
+   *  way out of it. */
+  action?: { href: string; label: string };
+}) {
   return (
     <div className="card flex flex-col items-center justify-center gap-1 p-12 text-center">
       <div className="text-sm font-medium text-[var(--swish-fg)]">{title}</div>
       <div className="max-w-sm text-sm text-[var(--swish-fg-faint)]">{line}</div>
+      {action && (
+        <Link
+          href={action.href}
+          className="mt-4 rounded-full bg-[var(--swish-mist)] px-5 py-2.5 text-[13px] font-semibold text-[var(--swish-black)] transition hover:opacity-90"
+        >
+          {action.label}
+        </Link>
+      )}
     </div>
   );
 }

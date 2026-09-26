@@ -268,7 +268,16 @@ export function hireAgent(input: {
   perTxCapMist: string;
 }): Agent {
   const s = walletState();
-  const id = input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || `agent-${s.agents.length + 1}`;
+
+  // The id comes from the name, so two agents called the same thing would
+  // have collided — findAgent returns the first match, and the second
+  // agent's page, guardrails and activity would all have silently belonged
+  // to the first. Only reachable now that a second agent can be hired at
+  // all, which is what surfaced it.
+  const base = input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "agent";
+  let id = base;
+  for (let n = 2; s.agents.some((a) => a.id === id); n++) id = `${base}-${n}`;
+
   const accent = ACCENTS[s.agents.length % ACCENTS.length];
   const firstAgent = s.agents.length === 0;
 
