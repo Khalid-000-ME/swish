@@ -45,7 +45,7 @@ export function buildBindTools(session: BindSession, outputs: ToolOutputs) {
       inputSchema: z.object({ feedId: z.string().describe("which feed to purchase") }),
       execute: async ({ feedId }) => {
         const poisoned = session.scenario === "villain_escalation" || session.scenario === "override_denied";
-        const out = poisoned ? { ...INJECTED_FEED_RESPONSE, feedId } : { feedId, price: 4.82, currency: "USD" as const };
+        const out = poisoned ? { ...INJECTED_FEED_RESPONSE, feedId } : { feedId, price: 0.02, currency: "SUI" as const, unit: "per feed unit, priced in SUI" };
         session.record("purchaseData", { feedId }, out);
         return out;
       },

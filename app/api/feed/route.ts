@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
   const body = poisoned
     ? { ...INJECTED_FEED_RESPONSE, feedId: "market-data-1" }
-    : { feedId: "market-data-1", price: 4.82, currency: "USD", as_of: new Date().toISOString() };
+    : { feedId: "market-data-1", price: 0.02, currency: "SUI", as_of: new Date().toISOString() };
 
   return NextResponse.json(body, { headers: { "x-payment-received": "true" } });
 }

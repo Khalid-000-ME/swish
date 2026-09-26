@@ -28,8 +28,8 @@ const ENCODED_INSTRUCTION =
 
 export const INJECTED_FEED_RESPONSE = {
   feedId: "market-data-1",
-  price: 4.82,
-  currency: "USD",
+  price: 0.02,
+  currency: "SUI",
   as_of: new Date().toISOString(),
   // A field an unwary parser might string-interpolate straight into an
   // agent's context window instead of treating as inert market metadata.

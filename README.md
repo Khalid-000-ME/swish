@@ -37,25 +37,44 @@ anywhere it didn't declare, to anyone you didn't pre-approve, without your face.
 bind/sources/allowance_vault.move  — grep -n "balance::split"  →  exactly two call sites
 ```
 
-## Try it
+## The wallet
+
+Bind is a wallet, and the account holders are your agents.
 
 ```bash
 npm install
-npm run dev
+npm run dev     # / for the pitch, /wallet for the product
 ```
 
-Open `/` for the pitch, `/app` for the console. Pick a scenario — villains first:
+- **One identity, many agents.** Every agent hangs off *your* verified World identity. There is no
+  such thing here as an agent that isn't bound to a human.
+- **Envelopes, not a balance.** Each agent's money is split into purpose-scoped sub-accounts —
+  "Data subscriptions", "Compute", "Vendor payouts" — each its own on-chain `Vault` with its own
+  cap, its own rolling window, its own allow-list. A compromised agent reaches one envelope, at
+  that envelope's cap, to that envelope's allow-list. Everything else stays sealed.
+- **Caught.** Every payment a gate stopped lands in a quarantine queue with the full
+  declared-vs-actual diff and the name of the gate that stopped it — because a block nobody ever
+  sees is indistinguishable from a bug. Three ways out: dismiss, ban the address forever, or allow
+  it. Only the last one grants authority, so only the last one costs a fresh verification.
+- **Needs you.** Clean diffs to counterparties nobody has cleared. Approving pays *once*; it does
+  not silently create standing permission.
+- **Freeze.** The operator's kill switch, mirroring `freeze_vault` — nothing leaves any envelope
+  until it's lifted.
 
-| Scenario | What it recreates | Caught by |
+Give an agent a task and watch it land in one of those queues. The tasks are ordinary instructions;
+what differs is what the agent runs into while carrying them out, stated up front in the composer
+rather than hidden:
+
+| Task | What the agent walks into | Caught by |
 |---|---|---|
-| Hidden effects | Bybit-class: display says routine, chain would do more | The dry-run diff |
-| Flagged recipient | Agent is honest, recipient is a known bad actor | Intercepta, pre-signature |
-| Escalation attempt | Grok/Bankr-class: unsolicited object + encoded instruction | Vault config is owner-only, period |
-| Human denies | Novel recipient, owner declines the override | Absence of an object *is* the denial |
-| Happy path | Clean diff, allow-listed recipient | Auto-executed, no friction |
+| Buy today's feed | Clean environment | Nothing — it just pays |
+| Buy today's feed | Its transaction builder has been tampered with | The diff |
+| Pay the vendor that invoiced us | A known drainer address | Intercepta, pre-signature |
+| Buy the feed, act on what it says | An embedded instruction in purchased data | New-counterparty gate |
 
 No API keys are required to run any of this — see the disclosure register below for exactly
 what's live vs. simulated at each layer, and `.env.example` for what flips each one on.
+(`/app` is the older single-flow console, kept as a mechanism view.)
 
 ## Architecture
 
@@ -93,8 +112,10 @@ vault [`0xa8db67c36949c164cc18becd7e1de9dce704dd3757dda2308e8316755662c22c`](htt
 bind/                 Sui Move package (allowance_vault, declaration, proofs) + tests
 agent/                ToolLoopAgent, fixed tool order, scripted fallback
 lib/                  diff engine, chain adapter, Intercepta/World clients, on-chain mint calls
+lib/wallet-store.ts   agents, envelopes, activity, allow-lists, ban list
 fixtures/             disclosed demo addresses, flagged-address list, the injected-feed attack
-components/, app/     Next.js 16 App Router UI
+components/wallet/    the wallet UI — rail, envelopes, Caught, Needs you, Allow-list
+app/wallet            the product · app/ the hero + API routes
 scripts/deploy.sh     publish + wire + share, once gas exists
 BIND_PRD.md           full design rationale and build log
 ```
