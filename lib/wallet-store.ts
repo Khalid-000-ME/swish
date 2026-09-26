@@ -321,3 +321,27 @@ export function totalHoldingsMist(): { vault: bigint; agents: bigint; total: big
   }
   return { vault, agents, total: vault + agents };
 }
+
+/**
+ * Restores a snapshot the browser kept. Refuses when the server already
+ * has a wallet in progress — the browser's copy is a backup for a cold
+ * start, not an authority that can overwrite live state.
+ */
+export function replaceWalletState(incoming: WalletState): { hydrated: boolean; reason?: string } {
+  const current = walletState();
+  if (current.onboarding.complete || current.agents.length > 0) {
+    return { hydrated: false, reason: "server already has wallet state" };
+  }
+  if (!incoming?.onboarding || !Array.isArray(incoming.agents)) {
+    return { hydrated: false, reason: "snapshot is not a wallet" };
+  }
+
+  g.__bindWallet = {
+    onboarding: incoming.onboarding,
+    operator: incoming.operator,
+    agents: incoming.agents,
+    activity: incoming.activity ?? [],
+    bannedAddresses: incoming.bannedAddresses ?? [],
+  };
+  return { hydrated: true };
+}

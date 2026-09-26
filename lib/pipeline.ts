@@ -7,7 +7,7 @@ import { mintDeclarationOnChain, mintMatchProofOnChain, executeDeclaredOnChain, 
 import { pendingStore } from "./store";
 import { suiToMist } from "./amount";
 import type { BuiltPtb } from "@/agent/tools";
-import type { Declaration, DryRunResult, ExecutionEvent, ScenarioId } from "./types";
+import type { Declaration, DryRunResult, ExecutionEvent, Intercepta, ScenarioId } from "./types";
 import { BindSession } from "@/agent/session";
 
 const DEMO_SENDER =
@@ -63,7 +63,7 @@ async function computeDryRun(session: BindSession, decl: Declaration, ptb: Built
 export interface ScenarioRunResult extends ExecutionEvent {
   agent: Pick<AgentRunResult, "mode" | "narration" | "steps">;
   dryRunSource: "chain" | "simulated";
-  interceptaSource: "live" | "mock";
+  interceptaSource: Intercepta["source"];
   worldSandbox: boolean;
 }
 

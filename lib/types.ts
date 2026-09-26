@@ -84,7 +84,7 @@ export interface Intercepta {
   flagged: boolean;
   reason?: string;
   riskScore: number; // 0-100
-  source: "live" | "mock";
+  source: "live" | "mock" | "unsupported" | "unconfigured" | "error";
 }
 
 export type ScenarioId =

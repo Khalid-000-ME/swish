@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { walletState, findSubAccount } from "@/lib/wallet-store";
 import { validateAgentCallback } from "@/lib/world";
+import { addToAllowlistOnChain, isMintConfigured } from "@/lib/mint";
 import { toJsonSafe } from "@/lib/json";
 
 /**
@@ -67,6 +68,24 @@ export async function POST(req: NextRequest) {
     const sub = findSubAccount(item.agentId, item.subAccountId);
     if (!sub) return NextResponse.json({ error: "sub-account no longer exists" }, { status: 404 });
 
+    // The chain decides, so put it there first — a local-only promotion
+    // would abort with E_NOT_ALLOWLISTED the first time it was used.
+    let onChainDigest: string | undefined;
+    if (isMintConfigured() && sub.onChain && sub.vaultObjectId) {
+      try {
+        onChainDigest = (await addToAllowlistOnChain({ vaultObjectId: sub.vaultObjectId, address: item.recipient })).digest;
+      } catch (e) {
+        return NextResponse.json(
+          toJsonSafe({
+            item,
+            promoted: false,
+            reason: `Could not add this address to the on-chain vault: ${e instanceof Error ? e.message : e}`,
+          }),
+          { status: 502 }
+        );
+      }
+    }
+
     if (!sub.allowlist.some((a) => a.address === item.recipient)) {
       sub.allowlist.push({
         address: item.recipient,
@@ -82,7 +101,7 @@ export async function POST(req: NextRequest) {
     item.reviewAction = "address_promoted";
     item.reviewedAt = Date.now();
 
-    return NextResponse.json(toJsonSafe({ item, promoted: true, subAccount: sub }));
+    return NextResponse.json(toJsonSafe({ item, promoted: true, subAccount: sub, onChainDigest }));
   } catch (err) {
     console.error("[bind] /api/wallet/review failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });

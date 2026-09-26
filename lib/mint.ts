@@ -213,3 +213,33 @@ export async function executeWithOverrideOnChain(input: {
   const t = await callAndGetEffects(tx, keypair, address);
   return { digest: t.digest };
 }
+
+/**
+ * Adds an address to the on-chain vault's allow-list.
+ *
+ * This has to happen, not just the wallet's local list: `execute_declared`
+ * asserts `vec_set::contains(&v.allowlist, &recipient)` on chain, so an
+ * address promoted only in the UI would abort with E_NOT_ALLOWLISTED the
+ * first time the agent tried to use it. Local state and chain state have
+ * to agree, and the chain is the one that decides.
+ *
+ * Note this is signed by the executor, which must be the vault's `owner`
+ * — `set_allowlist_add` is owner-only by design.
+ */
+export async function addToAllowlistOnChain(input: {
+  vaultObjectId: string;
+  address: string;
+}): Promise<{ digest: string }> {
+  const { keypair, address } = executor();
+  const tx = new Transaction();
+  tx.setSender(address);
+
+  tx.moveCall({
+    target: `${pkg()}::allowance_vault::set_allowlist_add`,
+    typeArguments: ["0x2::sui::SUI"],
+    arguments: [tx.object(input.vaultObjectId), tx.pure.address(input.address)],
+  });
+
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { digest: t.digest };
+}

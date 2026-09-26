@@ -2,6 +2,7 @@
 
 import { Onboarding } from "@/components/wallet/Onboarding";
 import { useWallet, WalletLoading } from "@/components/wallet/WalletShell";
+import { SuiProviders } from "@/components/providers/SuiProviders";
 
 export default function OnboardingPage() {
   const { snap, refresh } = useWallet();
@@ -14,7 +15,9 @@ export default function OnboardingPage() {
         style={{ background: "radial-gradient(70% 100% at 50% 0%, var(--bind-navy-2), transparent)" }}
       />
       <div className="relative z-10">
-        <Onboarding snap={snap} onChanged={refresh} />
+        <SuiProviders>
+          <Onboarding snap={snap} onChanged={refresh} />
+        </SuiProviders>
       </div>
     </main>
   );

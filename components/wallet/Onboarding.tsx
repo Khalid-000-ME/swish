@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { OnboardingStep, WalletSnapshot } from "./types";
 import { ExplorerLink } from "./ExplorerLink";
 import { WorldVerify } from "./WorldVerify";
+import { SignInStep } from "./SignInStep";
 
 const STEPS: Array<{ id: OnboardingStep; label: string; caption: string }> = [
   { id: "signin", label: "Sign in", caption: "Your Sui address" },
@@ -82,7 +83,7 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
       </div>
 
       <div className="card p-6">
-        {step === "signin" && <SignInStep busy={busy} onSubmit={(address) => post({ step: "signin", address })} />}
+        {step === "signin" && <SignInStep busy={busy} onSignedIn={(address) => post({ step: "signin", address })} />}
         {step === "verify" && (
           <VerifyStep
             busy={busy}
@@ -101,42 +102,6 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
           </p>
         )}
       </div>
-    </div>
-  );
-}
-
-function SignInStep({ busy, onSubmit }: { busy: boolean; onSubmit: (address: string) => void }) {
-  const [address, setAddress] = useState("");
-  return (
-    <div>
-      <h2 className="text-lg font-semibold text-[var(--bind-fg)]">Sign in with your Sui address</h2>
-      <p className="mt-1.5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
-        This address owns every vault below it. Agents get their own addresses, but they never own
-        anything — you do.
-      </p>
-
-      <input
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-        placeholder="0x…"
-        spellCheck={false}
-        className="mt-5 w-full rounded-xl border border-[var(--bind-line-strong)] bg-black/30 px-4 py-3 font-mono text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
-      />
-
-      <button
-        disabled={busy || !address.trim()}
-        onClick={() => onSubmit(address.trim())}
-        className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-        style={{ background: "var(--bind-mist)" }}
-      >
-        Continue
-      </button>
-
-      <p className="mt-3 text-[11px] leading-snug text-[var(--bind-fg-faint)]">
-        Paste the address you want to operate from — `sui client active-address` prints it. Connecting
-        a browser wallet or signing in through zkLogin lands in this same step; this build takes the
-        address directly so the flow works without a wallet extension installed.
-      </p>
     </div>
   );
 }

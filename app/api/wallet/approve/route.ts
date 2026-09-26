@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { completeOverride } from "@/lib/override";
 import { walletState, findAgent, findSubAccount, recordOutcome } from "@/lib/wallet-store";
 import { toJsonSafe } from "@/lib/json";
+import { addToAllowlistOnChain, isMintConfigured } from "@/lib/mint";
 
 /**
  * The operator resolving a parked declaration. Approving runs the real
@@ -43,6 +44,16 @@ export async function POST(req: NextRequest) {
         const spent = BigInt(item.amountMist);
         sub.balanceMist = (BigInt(sub.balanceMist) - spent).toString();
         sub.windowSpentMist = (BigInt(sub.windowSpentMist) + spent).toString();
+
+        if (alsoAllow && isMintConfigured() && sub.onChain && sub.vaultObjectId) {
+          // Same reason as the Caught promotion path: the on-chain
+          // allow-list is the one execute_declared actually checks.
+          try {
+            await addToAllowlistOnChain({ vaultObjectId: sub.vaultObjectId, address: item.recipient });
+          } catch (e) {
+            console.error("[bind] on-chain allowlist add failed", e);
+          }
+        }
 
         if (alsoAllow && !sub.allowlist.some((a) => a.address === item.recipient)) {
           sub.allowlist.push({
