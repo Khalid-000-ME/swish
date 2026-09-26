@@ -88,7 +88,7 @@ function ActionButton({
   return (
     <Link
       href={href}
-      className="card relative flex flex-col items-center gap-1.5 py-4 transition hover:bg-white/[0.06]"
+      className="card relative flex flex-col items-center gap-1.5 py-4 transition hover:bg-[var(--bind-surface-2)]"
     >
       <span className="text-lg leading-none text-[var(--bind-fg)]">{glyph}</span>
       <span className="text-[13px] text-[var(--bind-fg)]">{label}</span>
@@ -124,7 +124,7 @@ function AgentList({ snap }: { snap: WalletSnapshot }) {
           <Link
             key={a.id}
             href={`/wallet/agent/${a.id}`}
-            className="flex items-center gap-3.5 rounded-xl px-2 py-3 transition hover:bg-white/[0.04]"
+            className="flex items-center gap-3.5 rounded-xl px-2 py-3 transition hover:bg-[var(--bind-surface)]"
           >
             <span
               className="flex h-10 w-10 flex-none items-center justify-center rounded-full text-sm font-semibold"
@@ -186,7 +186,7 @@ function ActivityList({
       {items.slice(0, 20).map((item) => {
         const agent = snap.agents.find((a) => a.id === item.agentId);
         const row = (
-          <div className="flex items-center gap-3.5 rounded-xl px-2 py-3 transition hover:bg-white/[0.04]">
+          <div className="flex items-center gap-3.5 rounded-xl px-2 py-3 transition hover:bg-[var(--bind-surface)]">
             <span
               className="flex h-10 w-10 flex-none items-center justify-center rounded-full text-sm font-semibold"
               style={{ background: agent?.accent ?? "var(--bind-surface-2)", color: "var(--bind-black)" }}

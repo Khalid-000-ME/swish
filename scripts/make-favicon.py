@@ -59,14 +59,16 @@ def main() -> None:
     crop.save(ROOT / "app" / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48), (64, 64)])
     print("wrote app/icon.png and app/favicon.ico")
 
-    # The in-app mark: the glyph alone, on transparency, centred in a square
-    # with room around it.
+    # Two in-app assets, both the glyph alone on transparency.
     #
-    # The component used to scale the padded source 1.9x inside a clipped
-    # tile, which was the wrong shape of fix. The glyph is wide — roughly
-    # 780x270 — so enlarging it until it filled a square tile vertically
-    # pushed its ends off both sides. Framing it here means the component
-    # can just draw it at its own aspect ratio.
+    #   swish-glyph.png  the bare glyph at its own 2.9:1 proportions, for
+    #                    the header lockup.
+    #   swish-mark.png   the same glyph centred in a square, for anywhere
+    #                    that needs a square icon (the extension).
+    #
+    # Neither is the padded source. The component used to scale that source
+    # 1.9x inside a clipped tile to fill the frame, which pushed the ends of
+    # a wide glyph past both edges.
     glyph = src.crop((x0, y0, x1 + 1, y1 + 1))
     grey = glyph.convert("L")
     transparent = Image.new("RGBA", glyph.size, (0, 0, 0, 0))
@@ -77,13 +79,21 @@ def main() -> None:
             if a > 0.02:
                 tp[x, y] = (255, 255, 255, int(a * 255))
 
-    side = int(max(glyph.size) * 1.14)
+    # 1.7x the glyph's long edge. Tighter than this and the mark runs to
+    # the tile's edges and reads as zoomed in; looser and it gets lost at
+    # navbar size. Compared at 96px before picking.
+    bare = transparent.resize(
+        (1024, round(1024 * glyph.height / glyph.width)), Image.LANCZOS
+    )
+    bare.save(ROOT / "public" / "swish-glyph.png")
+
+    side = int(max(glyph.size) * 1.7)
     square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
     square.alpha_composite(
         transparent, ((side - glyph.width) // 2, (side - glyph.height) // 2)
     )
     square.resize((512, 512), Image.LANCZOS).save(ROOT / "public" / "swish-mark.png")
-    print(f"wrote public/swish-mark.png (glyph {glyph.size}, framed {side}x{side})")
+    print(f"wrote public/swish-glyph.png {bare.size} and public/swish-mark.png (square)")
 
 
 if __name__ == "__main__":

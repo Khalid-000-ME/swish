@@ -159,7 +159,7 @@ export function WorldVerify({
     <div>
       <div
         className="mb-3 rounded-lg border px-3 py-2.5 text-[12px] leading-snug"
-        style={{ borderColor: "var(--bind-warn)", background: "var(--bind-warn-dim)", color: "var(--bind-fg-dim)" }}
+        style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)", color: "var(--bind-fg-dim)" }}
       >
         <strong style={{ color: "var(--bind-warn)" }}>No World app configured.</strong> This button
         does not verify anybody — it simulates the outcome so the rest of the flow is walkable. Set{" "}
@@ -170,7 +170,7 @@ export function WorldVerify({
         disabled={busy}
         onClick={() => onVerified(null)}
         className="w-full rounded-full border py-3 text-sm font-semibold transition disabled:opacity-40"
-        style={{ borderColor: "var(--bind-warn)", color: "var(--bind-warn)" }}
+        style={{ borderColor: "var(--bind-warn-edge)", color: "var(--bind-warn)" }}
       >
         Simulate verification
       </button>
@@ -179,7 +179,7 @@ export function WorldVerify({
         <button
           disabled={busy}
           onClick={onCancelled}
-          className="mt-2 w-full rounded-full py-2.5 text-sm text-[var(--bind-fg-faint)] transition hover:bg-white/5 disabled:opacity-40"
+          className="mt-2 w-full rounded-full py-2.5 text-sm text-[var(--bind-fg-faint)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
         >
           Cancel
         </button>

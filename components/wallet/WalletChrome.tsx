@@ -42,7 +42,7 @@ export function WalletChrome({
             </Link>
           ) : (
             <Link href="/" className="transition hover:opacity-80">
-              <SwishLogo size={28} />
+              <SwishLogo size={13} />
             </Link>
           )}
 
@@ -127,7 +127,7 @@ function StartOver() {
           disabled={busy}
           onClick={reset}
           className="rounded-full border px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-40"
-          style={{ borderColor: "var(--bind-danger)", color: "var(--bind-danger)" }}
+          style={{ borderColor: "var(--bind-danger-edge)", color: "var(--bind-danger)" }}
         >
           {busy ? "Clearing…" : "Yes, start over"}
         </button>

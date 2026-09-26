@@ -34,7 +34,7 @@ export default function Home() {
 
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-5xl flex-col px-6">
         <header className="flex items-center justify-between py-7">
-          <SwishLogo size={32} />
+          <SwishLogo size={14} />
           <Link href="/wallet" className="glass-chip glass-chip-hover text-[13px] font-medium">
             Open the wallet
             <span className="text-[var(--bind-sky)]">→</span>

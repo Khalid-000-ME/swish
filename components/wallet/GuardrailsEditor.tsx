@@ -210,7 +210,7 @@ function CustomLimits({
             return (
               <div
                 key={l.id}
-                className="flex flex-wrap items-start gap-3 rounded-xl border border-[var(--bind-line)] bg-black/20 px-3.5 py-2.5"
+                className="flex flex-wrap items-start gap-3 rounded-xl border border-[var(--bind-line)] surface-inset px-3.5 py-2.5"
               >
                 <div className="min-w-0 flex-1">
                   <div className="text-[13px] font-medium text-[var(--bind-fg)]">{l.title}</div>
@@ -240,7 +240,7 @@ function CustomLimits({
       )}
 
       {adding ? (
-        <div className="mt-3 rounded-xl border border-[var(--bind-line-strong)] bg-black/25 p-3.5">
+        <div className="mt-3 rounded-xl border border-[var(--bind-line-strong)] surface-inset p-3.5">
           <label className="block">
             <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
               Title
@@ -249,7 +249,7 @@ function CustomLimits({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="No big spends before I'm awake"
-              className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+              className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
             />
           </label>
 
@@ -261,7 +261,7 @@ function CustomLimits({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Why this exists — shown when it stops a payment."
-              className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+              className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
             />
           </label>
 
@@ -273,7 +273,7 @@ function CustomLimits({
               <select
                 value={metric}
                 onChange={(e) => setMetric(e.target.value as CustomMetric)}
-                className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
               >
                 {CUSTOM_METRICS.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -294,7 +294,7 @@ function CustomLimits({
                   min="0"
                   value={limit}
                   onChange={(e) => setLimit(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                  className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
                 />
                 <span className="text-[11px] text-[var(--bind-fg-faint)]">{spec.unit}</span>
               </div>
@@ -348,7 +348,7 @@ function Field({
       <div className="mb-1.5 flex items-center gap-2">
         <span className="text-[13px] text-[var(--bind-fg)]">{label}</span>
         {onChain && (
-          <span className="chip text-[10px]" style={{ color: "var(--bind-ok)", borderColor: "var(--bind-ok)" }}>
+          <span className="status" style={{ color: "var(--bind-ok)" }}>
             on-chain
           </span>
         )}
@@ -365,7 +365,7 @@ function Row({ label, hint, value, onChain }: { label: string; hint: string; val
       <div className="mb-1 flex items-center gap-2">
         <span className="text-[13px] text-[var(--bind-fg)]">{label}</span>
         {onChain && (
-          <span className="chip text-[10px]" style={{ color: "var(--bind-ok)", borderColor: "var(--bind-ok)" }}>
+          <span className="status" style={{ color: "var(--bind-ok)" }}>
             on-chain
           </span>
         )}
@@ -394,7 +394,7 @@ function NumberInput({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))}
-        className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+        className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
       />
       <span className="text-[12px] text-[var(--bind-fg-faint)]">SUI</span>
     </div>

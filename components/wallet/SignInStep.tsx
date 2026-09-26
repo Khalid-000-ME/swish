@@ -47,7 +47,7 @@ export function SignInStep({
           anything — you do.
         </p>
 
-        <div className="mt-5 rounded-xl border border-[var(--bind-line)] bg-black/20 p-4">
+        <div className="mt-5 rounded-xl border border-[var(--bind-line)] surface-inset p-4">
           <div className="text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
             Public address
           </div>
@@ -58,7 +58,7 @@ export function SignInStep({
 
         <div
           className="mt-3 rounded-xl border p-4"
-          style={{ borderColor: "var(--bind-warn)", background: "var(--bind-warn-dim)" }}
+          style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)" }}
         >
           <div className="flex items-center justify-between gap-3">
             <div className="text-[11px] uppercase tracking-wider" style={{ color: "var(--bind-warn)" }}>
@@ -72,7 +72,7 @@ export function SignInStep({
             </button>
           </div>
 
-          <div className="mt-2 break-all rounded-lg bg-black/40 px-3 py-2.5 font-mono text-[11px] leading-relaxed text-[var(--bind-fg)]">
+          <div className="mt-2 break-all rounded-lg surface-sunken px-3 py-2.5 font-mono text-[11px] leading-relaxed text-[var(--bind-fg)]">
             {revealed ? created.secretKey : "•".repeat(created.secretKey.length)}
           </div>
 
@@ -149,7 +149,7 @@ export function SignInStep({
             onChange={(e) => setTyped(e.target.value)}
             placeholder="0x…"
             spellCheck={false}
-            className="w-full rounded-xl border border-[var(--bind-line-strong)] bg-black/30 px-4 py-3 font-mono text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-xl border border-[var(--bind-line-strong)] surface-inset px-4 py-3 font-mono text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
           />
           <button
             disabled={busy || !typed.trim()}

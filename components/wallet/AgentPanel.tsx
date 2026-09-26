@@ -64,7 +64,7 @@ export function AgentPanel({
           <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">{agent.name}</h1>
           <p className="mt-1 text-sm text-[var(--bind-fg-dim)]">{agent.role}</p>
           <div className="mt-2 flex items-center gap-3">
-            <span className="chip text-[11px]" style={{ color: "var(--bind-ok)", borderColor: "var(--bind-ok)" }}>
+            <span className="status">
               <span className="dot" style={{ background: "var(--bind-ok)" }} />
               Bound to your World ID
             </span>
@@ -76,11 +76,15 @@ export function AgentPanel({
           <div className="font-num text-3xl text-[var(--bind-mist)]">{fmtSui(total.toString())} SUI</div>
           <button
             onClick={() => setStatus(agent.status === "frozen" ? "active" : "frozen")}
-            className="mt-2 rounded-full border px-3 py-1.5 text-xs font-medium transition hover:bg-white/5"
-            style={{
-              borderColor: agent.status === "frozen" ? "var(--bind-ok)" : "var(--bind-danger)",
-              color: agent.status === "frozen" ? "var(--bind-ok)" : "var(--bind-danger)",
-            }}
+            // Solid tint rather than a full-strength outline. A neon red
+            // ring in the corner of every agent page made freezing look
+            // like the thing you were meant to do next.
+            className="mt-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition hover:brightness-125"
+            style={
+              agent.status === "frozen"
+                ? { background: "var(--bind-ok-dim)", borderColor: "var(--bind-ok-edge)", color: "var(--bind-ok)" }
+                : { background: "var(--bind-danger-dim)", borderColor: "var(--bind-danger-edge)", color: "var(--bind-danger)" }
+            }
           >
             {agent.status === "frozen" ? "Unfreeze agent" : "Freeze agent"}
           </button>
@@ -96,7 +100,7 @@ export function AgentPanel({
       {agent.status === "frozen" && (
         <div
           className="rounded-xl border px-4 py-3 text-sm"
-          style={{ borderColor: "var(--bind-danger)", background: "var(--bind-danger-dim)", color: "var(--bind-danger)" }}
+          style={{ borderColor: "var(--bind-danger-edge)", background: "var(--bind-danger-dim)", color: "var(--bind-danger)" }}
         >
           Frozen. Nothing leaves any of this agent&apos;s envelopes until you unfreeze it — not a pending
           declaration, not an approved one.
@@ -139,7 +143,7 @@ export function AgentPanel({
               key={t.id}
               disabled={running !== null || agent.status === "frozen"}
               onClick={() => runTask(t.id)}
-              className="group rounded-xl border border-[var(--bind-line)] p-3.5 text-left transition hover:border-[var(--bind-line-strong)] hover:bg-white/[0.04] disabled:opacity-40"
+              className="group rounded-xl border border-[var(--bind-line)] p-3.5 text-left transition hover:border-[var(--bind-line-strong)] hover:bg-[var(--bind-surface)] disabled:opacity-40"
             >
               <div className="text-sm font-medium text-[var(--bind-fg)]">{t.label}</div>
               <div className="mt-1 text-[12px] leading-snug text-[var(--bind-fg-dim)]">{t.detail}</div>
@@ -175,7 +179,7 @@ export function AgentPanel({
               <div key={item.id} className="card overflow-hidden">
                 <button
                   onClick={() => setExpanded(expanded === item.id ? null : item.id)}
-                  className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-white/[0.03]"
+                  className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-[var(--bind-surface)]"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
@@ -228,7 +232,7 @@ function EnvelopeCard({
   return (
     <button
       onClick={onSelect}
-      className="card relative overflow-hidden p-4 text-left transition hover:bg-white/[0.05]"
+      className="card relative overflow-hidden p-4 text-left transition hover:bg-[var(--bind-surface-2)]"
       style={{ borderColor: selected ? sub.accent : undefined }}
     >
       <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: sub.accent }} />
@@ -240,7 +244,7 @@ function EnvelopeCard({
           </div>
         </div>
         {sub.onChain && (
-          <span className="chip text-[10px]" style={{ color: "var(--bind-ok)", borderColor: "var(--bind-ok)" }}>
+          <span className="status" style={{ color: "var(--bind-ok)" }}>
             on-chain
           </span>
         )}

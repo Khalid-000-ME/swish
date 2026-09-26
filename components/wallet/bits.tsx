@@ -12,7 +12,7 @@ export const OUTCOME_STYLE: Record<string, { label: string; color: string; bg: s
 export function OutcomePill({ outcome }: { outcome: string }) {
   const s = OUTCOME_STYLE[outcome] ?? { label: outcome, color: "var(--bind-fg-dim)", bg: "var(--bind-surface)" };
   return (
-    <span className="chip text-[11px]" style={{ color: s.color, background: s.bg, borderColor: s.color }}>
+    <span className="pill" style={{ color: s.color, background: s.bg }}>
       <span className="dot" style={{ background: s.color }} />
       {s.label}
     </span>
@@ -57,13 +57,7 @@ export function WindowMeter({ spent, cap, accent }: { spent: string; cap: string
 
 export function SourceBadge({ live, liveLabel, simLabel }: { live: boolean; liveLabel: string; simLabel: string }) {
   return (
-    <span
-      className="chip text-[10px]"
-      style={{
-        color: live ? "var(--bind-ok)" : "var(--bind-fg-faint)",
-        borderColor: live ? "var(--bind-ok)" : "var(--bind-line-strong)",
-      }}
-    >
+    <span className="status" style={live ? { color: "var(--bind-fg-dim)" } : undefined}>
       <span className="dot" style={{ background: live ? "var(--bind-ok)" : "var(--bind-fg-faint)" }} />
       {live ? liveLabel : simLabel}
     </span>

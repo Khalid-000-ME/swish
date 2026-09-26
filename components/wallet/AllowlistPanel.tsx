@@ -151,20 +151,20 @@ function ClearForm({
   }
 
   return (
-    <div className="border-t border-[var(--bind-line)] bg-black/20 px-4 py-3">
+    <div className="border-t border-[var(--bind-line)] surface-inset px-4 py-3">
       <div className="flex flex-wrap items-center gap-2">
         <input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="0x… counterparty address"
           spellCheck={false}
-          className="min-w-0 flex-[2] rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 font-mono text-[12px] text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+          className="min-w-0 flex-[2] rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 font-mono text-[12px] text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
         />
         <input
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder="Who they are"
-          className="min-w-0 flex-1 rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-[12px] text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+          className="min-w-0 flex-1 rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-[12px] text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
         />
         <button
           disabled={busy || address.trim().length === 0}

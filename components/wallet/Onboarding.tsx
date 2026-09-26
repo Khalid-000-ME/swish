@@ -49,7 +49,7 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
   return (
     <div className="mx-auto w-full max-w-xl px-5 py-10">
       <div className="mb-8 text-center">
-        <SwishMark size={44} className="mb-4" />
+        <SwishMark size={18} className="mx-auto mb-5" />
         <h1 className="h-wallet text-4xl text-[var(--bind-mist)]">Set up your wallet</h1>
         <p className="mt-2 text-sm text-[var(--bind-fg-dim)]">
           Four steps. Nothing can hold money until all four are done.
@@ -151,7 +151,7 @@ function VerifyStep({
 
         <div
           className="mt-5 rounded-xl border p-4"
-          style={{ borderColor: "var(--bind-ok)", background: "var(--bind-ok-dim)" }}
+          style={{ borderColor: "var(--bind-ok-edge)", background: "var(--bind-ok-dim)" }}
         >
           <div className="flex items-center gap-2">
             <span className="dot" style={{ background: "var(--bind-ok)" }} />
@@ -210,7 +210,7 @@ function VaultStep({ busy, chainLive, onNext }: { busy: boolean; chainLive: bool
         out of it — capped, allow-listed, and revocable — and can never reach past that.
       </p>
 
-      <div className="mt-5 rounded-xl border border-[var(--bind-line)] bg-black/20 p-4">
+      <div className="mt-5 rounded-xl border border-[var(--bind-line)] surface-inset p-4">
         <div className="flex items-center gap-2">
           <span className="dot" style={{ background: chainLive ? "var(--bind-ok)" : "var(--bind-warn)" }} />
           <span className="text-sm font-medium text-[var(--bind-fg)]">
@@ -263,7 +263,7 @@ function HireStep({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Atlas"
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
           />
         </Field>
         <Field label="What it does">
@@ -271,14 +271,14 @@ function HireStep({
             value={role}
             onChange={(e) => setRole(e.target.value)}
             placeholder="Market data & research"
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
           />
         </Field>
         <Field label="Envelope">
           <input
             value={envelopeLabel}
             onChange={(e) => setEnvelopeLabel(e.target.value)}
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
           />
         </Field>
 
@@ -290,7 +290,7 @@ function HireStep({
               min="0"
               value={startingSui}
               onChange={(e) => setStartingSui(Number(e.target.value))}
-              className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+              className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
             />
           </Field>
           <Field label="Cap per payment (SUI)">
@@ -300,7 +300,7 @@ function HireStep({
               min="0"
               value={perTxCapSui}
               onChange={(e) => setPerTxCapSui(Number(e.target.value))}
-              className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+              className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
             />
           </Field>
         </div>

@@ -12,7 +12,7 @@ export function DiffView({ item }: { item: ActivityItem }) {
   const clean = item.diff.violations.length === 0;
 
   return (
-    <div className="rounded-xl border border-[var(--bind-line)] bg-black/20">
+    <div className="rounded-xl border border-[var(--bind-line)] surface-inset">
       <div className="grid grid-cols-1 divide-y divide-[var(--bind-line)] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
         <div className="p-4">
           <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-[var(--bind-fg-faint)]">

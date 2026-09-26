@@ -54,7 +54,7 @@ export function FundAgent({ agent, onChanged }: { agent: Agent; onChanged: () =>
     return (
       <div
         className="rounded-xl border px-4 py-3"
-        style={{ borderColor: "var(--bind-danger)", background: "var(--bind-danger-dim)" }}
+        style={{ borderColor: "var(--bind-danger-edge)", background: "var(--bind-danger-dim)" }}
       >
         <div className="text-sm font-medium" style={{ color: "var(--bind-danger)" }}>
           {agent.name} has no signing key
@@ -82,7 +82,7 @@ export function FundAgent({ agent, onChanged }: { agent: Agent; onChanged: () =>
       className="rounded-xl border px-4 py-3"
       style={
         thin
-          ? { borderColor: "var(--bind-warn)", background: "var(--bind-warn-dim)" }
+          ? { borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)" }
           : { borderColor: "var(--bind-line-strong)" }
       }
     >

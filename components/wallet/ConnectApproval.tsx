@@ -142,7 +142,7 @@ export function ConnectApproval({
               const next = snap.agents.find((a) => a.id === e.target.value);
               setSubAccountId(next?.subAccounts[0]?.id ?? "");
             }}
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
           >
             {snap.agents.map((a) => (
               <option key={a.id} value={a.id}>
@@ -159,7 +159,7 @@ export function ConnectApproval({
           <select
             value={sub?.id ?? ""}
             onChange={(e) => setSubAccountId(e.target.value)}
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
           >
             {agent?.subAccounts.map((s) => (
               <option key={s.id} value={s.id}>
@@ -212,7 +212,7 @@ export function ConnectApproval({
         <button
           disabled={busy}
           onClick={() => decide("reject")}
-          className="flex-1 rounded-full border py-3 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-white/5 disabled:opacity-40"
+          className="flex-1 rounded-full border py-3 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
           style={{ borderColor: "var(--bind-line-strong)" }}
         >
           Reject
@@ -224,7 +224,7 @@ export function ConnectApproval({
 
 function Small({ label, suffix, children }: { label: string; suffix: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2">
+    <div className="rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2">
       <div className="text-[10px] uppercase tracking-wider text-[var(--bind-fg-faint)]">{label}</div>
       <div className="flex items-baseline gap-1">
         {children}

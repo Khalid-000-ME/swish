@@ -86,7 +86,7 @@ function ApprovalCard({
             <span>· {timeAgo(item.ts)}</span>
           </div>
         </div>
-        <span className="chip text-[11px]" style={{ color: "var(--bind-warn)", borderColor: "var(--bind-warn)" }}>
+        <span className="pill" style={{ color: "var(--bind-warn)", background: "var(--bind-warn-dim)" }}>
           new counterparty
         </span>
       </div>
@@ -110,15 +110,15 @@ function ApprovalCard({
           <button
             disabled={busy}
             onClick={() => decide("approve", true)}
-            className="rounded-full border px-4 py-2 text-sm font-medium transition hover:bg-white/5 disabled:opacity-40"
-            style={{ borderColor: "var(--bind-ok)", color: "var(--bind-ok)" }}
+            className="rounded-full border px-4 py-2 text-sm font-medium transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
+            style={{ borderColor: "var(--bind-ok-edge)", color: "var(--bind-ok)" }}
           >
             Pay &amp; always allow
           </button>
           <button
             disabled={busy}
             onClick={() => decide("deny")}
-            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-white/5 disabled:opacity-40"
+            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
             style={{ borderColor: "var(--bind-line-strong)" }}
           >
             Decline

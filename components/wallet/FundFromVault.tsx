@@ -84,7 +84,7 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
         {stage.kind === "done" ? (
           <div
             className="rounded-xl border px-4 py-3"
-            style={{ borderColor: "var(--bind-ok)", background: "var(--bind-ok-dim)" }}
+            style={{ borderColor: "var(--bind-ok-edge)", background: "var(--bind-ok-dim)" }}
           >
             <div className="text-sm font-medium" style={{ color: "var(--bind-ok)" }}>
               Sent {stage.amountSui} SUI to {agent.name}
@@ -105,7 +105,7 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
         ) : stage.kind === "confirming" ? (
           <div
             className="rounded-xl border px-4 py-3"
-            style={{ borderColor: "var(--bind-warn)", background: "var(--bind-warn-dim)" }}
+            style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)" }}
           >
             <div className="text-sm font-medium" style={{ color: "var(--bind-warn)" }}>
               Approve this withdrawal
@@ -150,7 +150,7 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
                   <select
                     value={sub.id}
                     onChange={(e) => setSubId(e.target.value)}
-                    className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                    className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
                   >
                     {onChain.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -172,7 +172,7 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
                     min="0"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                    className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
                   />
                   <span className="text-[12px] text-[var(--bind-fg-faint)]">SUI</span>
                 </div>

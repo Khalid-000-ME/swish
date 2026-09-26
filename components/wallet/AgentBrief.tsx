@@ -133,7 +133,7 @@ export function AgentBrief({ agent, onChanged }: { agent: Agent; onChanged: () =
           spellCheck={false}
           rows={18}
           placeholder="# What this agent is for…"
-          className="block w-full resize-y bg-black/25 px-4 py-4 font-mono text-[12px] leading-relaxed text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)]"
+          className="block w-full resize-y surface-inset px-4 py-4 font-mono text-[12px] leading-relaxed text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)]"
         />
       ) : (
         <div

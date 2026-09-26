@@ -49,7 +49,7 @@ export function GatePanel({
       </div>
 
       {outcome === "awaiting_human" && (
-        <div className="rounded-lg border p-4" style={{ borderColor: "var(--bind-warn)", background: "var(--bind-warn-dim)" }}>
+        <div className="rounded-lg border p-4" style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)" }}>
           <div className="mb-1 text-sm font-semibold" style={{ color: "var(--bind-warn)" }}>
             World ID for Agents — verification required
           </div>

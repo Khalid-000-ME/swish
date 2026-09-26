@@ -123,7 +123,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
 
         <div className="px-4 py-4">
           <div className="flex flex-wrap items-center gap-2">
-            <code className="min-w-0 flex-1 truncate rounded-lg bg-black/35 px-3 py-2 font-mono text-[12px] text-[var(--bind-fg)]">
+            <code className="min-w-0 flex-1 truncate rounded-lg surface-sunken px-3 py-2 font-mono text-[12px] text-[var(--bind-fg)]">
               {mcp?.endpoint ?? "—"}
             </code>
             <button
@@ -141,7 +141,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
             {["list_agents", "get_guardrails", "list_tasks", "propose_payment", "list_activity"].map((t) => (
               <span
                 key={t}
-                className="rounded-lg border border-[var(--bind-line)] bg-black/20 px-2.5 py-1.5 text-center font-mono text-[10.5px] text-[var(--bind-fg-dim)]"
+                className="rounded-lg border border-[var(--bind-line)] surface-inset px-2.5 py-1.5 text-center font-mono text-[10.5px] text-[var(--bind-fg-dim)]"
               >
                 {t}
               </span>
@@ -172,7 +172,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
               <select
                 value={agent?.id}
                 onChange={(e) => setAgentId(e.target.value)}
-                className="ml-auto rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-1.5 text-[12px] text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                className="ml-auto rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-1.5 text-[12px] text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
               >
                 {snap.agents.map((a) => (
                   <option key={a.id} value={a.id}>
@@ -192,7 +192,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
               }}
               rows={3}
               placeholder={`Ask ${agent?.name ?? "your agent"} to do something…`}
-              className="w-full resize-y rounded-xl border border-[var(--bind-line-strong)] bg-black/30 px-3.5 py-3 text-[13px] leading-relaxed text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+              className="w-full resize-y rounded-xl border border-[var(--bind-line-strong)] surface-inset px-3.5 py-3 text-[13px] leading-relaxed text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
             />
 
             <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -251,7 +251,7 @@ function Transcript({ run, onReset }: { run: Run; onReset: () => void }) {
       {steps.map((s, i) => (
         <details
           key={i}
-          className="rounded-xl border border-[var(--bind-line)] bg-black/20 px-3.5 py-2.5"
+          className="rounded-xl border border-[var(--bind-line)] surface-inset px-3.5 py-2.5"
         >
           <summary className="flex cursor-pointer items-center gap-2 text-[12px]">
             <span
@@ -263,14 +263,14 @@ function Transcript({ run, onReset }: { run: Run; onReset: () => void }) {
               {s.ok ? "answered" : "refused"}
             </span>
           </summary>
-          <pre className="mt-2 max-h-52 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-black/40 px-3 py-2 font-mono text-[10.5px] leading-relaxed text-[var(--bind-fg-dim)]">
+          <pre className="mt-2 max-h-52 overflow-auto whitespace-pre-wrap break-all rounded-lg surface-sunken px-3 py-2 font-mono text-[10.5px] leading-relaxed text-[var(--bind-fg-dim)]">
             {JSON.stringify(s.output, null, 2)}
           </pre>
         </details>
       ))}
 
       {run.kind === "done" && (
-        <div className="rounded-xl border border-[var(--bind-line-strong)] bg-black/20 px-4 py-3">
+        <div className="rounded-xl border border-[var(--bind-line-strong)] surface-inset px-4 py-3">
           <p className="text-[13px] leading-relaxed text-[var(--bind-fg)]">{run.narration}</p>
           <div className="mt-2 flex items-center gap-3">
             <button
@@ -289,7 +289,7 @@ function Transcript({ run, onReset }: { run: Run; onReset: () => void }) {
       {run.kind === "failed" && (
         <div
           className="rounded-xl border px-4 py-3"
-          style={{ borderColor: "var(--bind-danger)", background: "var(--bind-danger-dim)" }}
+          style={{ borderColor: "var(--bind-danger-edge)", background: "var(--bind-danger-dim)" }}
         >
           <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--bind-danger)" }}>
             {run.message}

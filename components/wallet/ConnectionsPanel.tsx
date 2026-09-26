@@ -97,8 +97,8 @@ export function ConnectionsPanel({ snap }: { snap: WalletSnapshot }) {
               <Link
                 key={r.id}
                 href={`/connect?request=${r.id}`}
-                className="card flex items-center justify-between p-4 transition hover:bg-white/[0.05]"
-                style={{ borderColor: "var(--bind-warn)" }}
+                className="card flex items-center justify-between p-4 transition hover:bg-[var(--bind-surface-2)]"
+                style={{ borderColor: "var(--bind-warn-edge)" }}
               >
                 <div>
                   <div className="text-sm font-medium text-[var(--bind-fg)]">{r.origin}</div>
@@ -106,7 +106,7 @@ export function ConnectionsPanel({ snap }: { snap: WalletSnapshot }) {
                     asked {timeAgo(r.requestedAt)} · expires 5 min after asking
                   </div>
                 </div>
-                <span className="chip text-[11px]" style={{ color: "var(--bind-warn)", borderColor: "var(--bind-warn)" }}>
+                <span className="pill" style={{ color: "var(--bind-warn)", background: "var(--bind-warn-dim)" }}>
                   Review
                 </span>
               </Link>
@@ -146,8 +146,8 @@ export function ConnectionsPanel({ snap }: { snap: WalletSnapshot }) {
                       <button
                         disabled={busy === c.id}
                         onClick={() => revoke(c.id)}
-                        className="flex-none rounded-full border px-3 py-1.5 text-[12px] font-medium transition hover:bg-white/5 disabled:opacity-40"
-                        style={{ borderColor: "var(--bind-danger)", color: "var(--bind-danger)" }}
+                        className="flex-none rounded-full border px-3 py-1.5 text-[12px] font-medium transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
+                        style={{ borderColor: "var(--bind-danger-edge)", color: "var(--bind-danger)" }}
                       >
                         Revoke
                       </button>

@@ -151,7 +151,7 @@ function CaughtCard({
           <button
             disabled={busy}
             onClick={() => setPromoting(true)}
-            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-white/5 disabled:opacity-40"
+            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
             style={{ borderColor: "var(--bind-line-strong)" }}
           >
             Allow this address…
@@ -159,7 +159,7 @@ function CaughtCard({
           <button
             disabled={busy}
             onClick={() => review("dismiss")}
-            className="rounded-full px-4 py-2 text-sm font-medium text-[var(--bind-fg-dim)] transition hover:bg-white/5 disabled:opacity-40"
+            className="rounded-full px-4 py-2 text-sm font-medium text-[var(--bind-fg-dim)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
           >
             Dismiss
           </button>
@@ -167,7 +167,7 @@ function CaughtCard({
       ) : (
         <div
           className="space-y-3 border-t p-4"
-          style={{ borderColor: "var(--bind-warn)", background: "var(--bind-warn-dim)" }}
+          style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)" }}
         >
           <div>
             <div className="text-sm font-semibold" style={{ color: "var(--bind-warn)" }}>
@@ -188,7 +188,7 @@ function CaughtCard({
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="Name this counterparty (e.g. Helios Data Co.)"
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] bg-black/30 px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
           />
 
           <div className="flex flex-wrap gap-2">
@@ -203,7 +203,7 @@ function CaughtCard({
             <button
               disabled={busy}
               onClick={() => setPromoting(false)}
-              className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-white/5 disabled:opacity-40"
+              className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
               style={{ borderColor: "var(--bind-line-strong)" }}
             >
               Cancel

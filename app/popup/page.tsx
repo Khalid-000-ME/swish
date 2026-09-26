@@ -124,8 +124,8 @@ export default function PopupPage() {
           href="/wallet/caught"
           target="_blank"
           rel="noreferrer"
-          className="mt-4 flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-[12px] transition hover:bg-white/5"
-          style={{ borderColor: "var(--bind-warn)", background: "var(--bind-warn-dim)", color: "var(--bind-warn)" }}
+          className="mt-4 flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-[12px] transition hover:bg-[var(--bind-surface-2)]"
+          style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)", color: "var(--bind-warn)" }}
         >
           <span className="pulse dot" style={{ background: "var(--bind-warn)" }} />
           {needsYou} thing{needsYou === 1 ? "" : "s"} need you
@@ -140,7 +140,7 @@ export default function PopupPage() {
             href={`/wallet/agent/${a.id}`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-white/[0.05]"
+            className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-[var(--bind-surface-2)]"
           >
             <span
               className="flex h-9 w-9 flex-none items-center justify-center rounded-full text-[13px] font-semibold"
@@ -195,7 +195,7 @@ export default function PopupPage() {
         <Open href="/wallet" label="Open full wallet" primary />
         <button
           onClick={load}
-          className="w-full rounded-full border py-2 text-[12px] text-[var(--bind-fg-dim)] transition hover:bg-white/5"
+          className="w-full rounded-full border py-2 text-[12px] text-[var(--bind-fg-dim)] transition hover:bg-[var(--bind-surface-2)]"
           style={{ borderColor: "var(--bind-line-strong)" }}
         >
           Refresh
@@ -213,7 +213,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       </div>
       <div className="relative z-10">
         <div className="mb-4 px-1">
-          <SwishLogo size={24} />
+          <SwishLogo size={11} />
         </div>
         {children}
       </div>
