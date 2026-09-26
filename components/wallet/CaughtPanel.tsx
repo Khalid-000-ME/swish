@@ -17,8 +17,8 @@ export function CaughtPanel({ snap, onChanged }: { snap: WalletSnapshot; onChang
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Caught</h1>
-        <p className="mt-1 max-w-2xl text-sm text-[var(--bind-fg-dim)]">
+        <h1 className="h-wallet text-3xl text-[var(--swish-mist)]">Caught</h1>
+        <p className="mt-1 max-w-2xl text-sm text-[var(--swish-fg-dim)]">
           Payments your agents proposed that never happened. Each one names which gate stopped it and what
           it would have actually done — so a block is something you can read, not something you have to
           trust.
@@ -40,19 +40,19 @@ export function CaughtPanel({ snap, onChanged }: { snap: WalletSnapshot; onChang
 
       {snap.bannedAddresses.length > 0 && (
         <section>
-          <h2 className="mb-2 text-sm font-semibold text-[var(--bind-fg)]">Banned addresses</h2>
-          <div className="card divide-y divide-[var(--bind-line)]">
+          <h2 className="mb-2 text-sm font-semibold text-[var(--swish-fg)]">Banned addresses</h2>
+          <div className="card divide-y divide-[var(--swish-line)]">
             {snap.bannedAddresses.map((b) => (
               <div key={b.address} className="flex items-start justify-between gap-4 p-4">
                 <div className="min-w-0">
-                  <ExplorerLink value={b.address} kind="address" className="font-mono text-[12px] text-[var(--bind-fg)] underline decoration-[var(--bind-line-strong)] underline-offset-2 transition hover:text-[var(--bind-accent-2)]" />
-                  <div className="mt-0.5 text-[12px] text-[var(--bind-fg-faint)]">{b.reason}</div>
+                  <ExplorerLink value={b.address} kind="address" className="font-mono text-[12px] text-[var(--swish-fg)] underline decoration-[var(--swish-line-strong)] underline-offset-2 transition hover:text-[var(--swish-accent-2)]" />
+                  <div className="mt-0.5 text-[12px] text-[var(--swish-fg-faint)]">{b.reason}</div>
                 </div>
-                <span className="flex-none text-[11px] text-[var(--bind-fg-faint)]">{timeAgo(b.bannedAt)}</span>
+                <span className="flex-none text-[11px] text-[var(--swish-fg-faint)]">{timeAgo(b.bannedAt)}</span>
               </div>
             ))}
           </div>
-          <p className="mt-2 px-1 text-[11px] text-[var(--bind-fg-faint)]">
+          <p className="mt-2 px-1 text-[11px] text-[var(--swish-fg-faint)]">
             No agent in this wallet can pay a banned address again, whatever it declares and whatever a
             future screen says.
           </p>
@@ -103,17 +103,17 @@ function CaughtCard({
   return (
     <article
       className="card overflow-hidden"
-      style={{ borderColor: "color-mix(in srgb, var(--bind-danger) 45%, transparent)" }}
+      style={{ borderColor: "color-mix(in srgb, var(--swish-danger) 45%, transparent)" }}
     >
       <div className="flex flex-wrap items-start justify-between gap-3 p-4 pb-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="dot" style={{ background: "var(--bind-danger)" }} />
-            <span className="text-sm font-semibold text-[var(--bind-fg)]">
+            <span className="dot" style={{ background: "var(--swish-danger)" }} />
+            <span className="text-sm font-semibold text-[var(--swish-fg)]">
               {agent?.name ?? item.agentId} · {item.task}
             </span>
           </div>
-          <div className="mt-1 flex items-center gap-1.5 text-[12px] text-[var(--bind-fg-faint)]">
+          <div className="mt-1 flex items-center gap-1.5 text-[12px] text-[var(--swish-fg-faint)]">
             <span className="font-num">{fmtSui(item.amountMist)} SUI →</span>
             <ExplorerLink value={item.recipient} kind="address" />
             <span>· {timeAgo(item.ts)}</span>
@@ -121,45 +121,45 @@ function CaughtCard({
         </div>
         <div
           className="rounded-lg px-3 py-1.5 text-right"
-          style={{ background: "var(--bind-danger-dim)" }}
+          style={{ background: "var(--swish-danger-dim)" }}
         >
-          <div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--bind-danger)" }}>
+          <div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--swish-danger)" }}>
             Stopped by
           </div>
-          <div className="text-sm font-medium" style={{ color: "var(--bind-danger)" }}>
+          <div className="text-sm font-medium" style={{ color: "var(--swish-danger)" }}>
             {caughtBy.who}
           </div>
         </div>
       </div>
 
-      <p className="px-4 pb-3 text-sm text-[var(--bind-fg-dim)]">{caughtBy.line}</p>
+      <p className="px-4 pb-3 text-sm text-[var(--swish-fg-dim)]">{caughtBy.line}</p>
 
       <div className="px-4 pb-4">
         <DiffView item={item} />
       </div>
 
       {!promoting ? (
-        <div className="flex flex-wrap gap-2 border-t border-[var(--bind-line)] p-4">
+        <div className="flex flex-wrap gap-2 border-t border-[var(--swish-line)] p-4">
           <button
             disabled={busy}
             onClick={() => review("ban")}
             className="rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-40"
-            style={{ background: "var(--bind-danger)", color: "var(--bind-black)" }}
+            style={{ background: "var(--swish-danger)", color: "var(--swish-black)" }}
           >
             Ban this address
           </button>
           <button
             disabled={busy}
             onClick={() => setPromoting(true)}
-            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
-            style={{ borderColor: "var(--bind-line-strong)" }}
+            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--swish-fg)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
+            style={{ borderColor: "var(--swish-line-strong)" }}
           >
             Allow this address…
           </button>
           <button
             disabled={busy}
             onClick={() => review("dismiss")}
-            className="rounded-full px-4 py-2 text-sm font-medium text-[var(--bind-fg-dim)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
+            className="rounded-full px-4 py-2 text-sm font-medium text-[var(--swish-fg-dim)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
           >
             Dismiss
           </button>
@@ -167,19 +167,19 @@ function CaughtCard({
       ) : (
         <div
           className="space-y-3 border-t p-4"
-          style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)" }}
+          style={{ borderColor: "var(--swish-warn-edge)", background: "var(--swish-warn-dim)" }}
         >
           <div>
-            <div className="text-sm font-semibold" style={{ color: "var(--bind-warn)" }}>
+            <div className="text-sm font-semibold" style={{ color: "var(--swish-warn)" }}>
               This one grants standing authority
             </div>
-            <p className="mt-1 text-[12px] leading-snug text-[var(--bind-fg-dim)]">
+            <p className="mt-1 text-[12px] leading-snug text-[var(--swish-fg-dim)]">
               Dismissing and banning cost nothing — they take authority away. Adding{" "}
               {shortAddr(item.recipient)} to <strong>{item.subAccountId === agent?.subAccounts[0]?.id ? agent?.subAccounts[0]?.label : "this envelope"}</strong>{" "}
               means future payments to it go through without asking you again, so it costs a fresh
               verification.
               {snap.worldSandbox && (
-                <span className="italic text-[var(--bind-fg-faint)]"> (Sandbox — fake identity.)</span>
+                <span className="italic text-[var(--swish-fg-faint)]"> (Sandbox — fake identity.)</span>
               )}
             </p>
           </div>
@@ -188,7 +188,7 @@ function CaughtCard({
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="Name this counterparty (e.g. Helios Data Co.)"
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
           />
 
           <div className="flex flex-wrap gap-2">
@@ -196,15 +196,15 @@ function CaughtCard({
               disabled={busy}
               onClick={() => review("promote", "approve")}
               className="rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-40"
-              style={{ background: "var(--bind-ok)", color: "var(--bind-black)" }}
+              style={{ background: "var(--swish-ok)", color: "var(--swish-black)" }}
             >
               Verify with World ID &amp; allow
             </button>
             <button
               disabled={busy}
               onClick={() => setPromoting(false)}
-              className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
-              style={{ borderColor: "var(--bind-line-strong)" }}
+              className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--swish-fg)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
+              style={{ borderColor: "var(--swish-line-strong)" }}
             >
               Cancel
             </button>

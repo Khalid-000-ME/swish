@@ -2,68 +2,68 @@
 
 :root {
   /* Sampled from the reference mesh: near-black -> royal blue -> pale mist */
-  --bind-black: #05070c;
-  --bind-navy: #0a1338;
-  --bind-navy-2: #12256e;
-  --bind-accent: #2454e8;
-  --bind-accent-2: #4f7bf0;
-  --bind-sky: #9fb9f5;
-  --bind-mist: #eef3ff;
+  --swish-black: #05070c;
+  --swish-navy: #0a1338;
+  --swish-navy-2: #12256e;
+  --swish-accent: #2454e8;
+  --swish-accent-2: #4f7bf0;
+  --swish-sky: #9fb9f5;
+  --swish-mist: #eef3ff;
 
-  --bind-fg: #eef1fb;
-  --bind-fg-dim: #a7b0cc;
-  --bind-fg-faint: #6b7394;
+  --swish-fg: #eef1fb;
+  --swish-fg-dim: #a7b0cc;
+  --swish-fg-faint: #6b7394;
   /* Solid, not translucent. Tinted overlays meant every card picked up
      whatever was behind it — the mesh glow at the top of a page, another
      card underneath — so nothing had one colour and edges disappeared
      wherever two surfaces met. These are the same values the overlays
-     resolved to over --bind-black, fixed in place and given the navy cast
+     resolved to over --swish-black, fixed in place and given the navy cast
      the rest of the palette has. */
-  --bind-line: #1e2638;
-  --bind-line-strong: #333d54;
-  --bind-surface: #0c101c;
-  --bind-surface-2: #131a2a;
+  --swish-line: #1e2638;
+  --swish-line-strong: #333d54;
+  --swish-surface: #0c101c;
+  --swish-surface-2: #131a2a;
 
-  --bind-ok: #33d17a;
-  --bind-warn: #f5b942;
-  --bind-danger: #f04f5c;
+  --swish-ok: #33d17a;
+  --swish-warn: #f5b942;
+  --swish-danger: #f04f5c;
 
   /* Solid fills for status cards, at the values the old 14% overlays
-     resolved to over --bind-black. As overlays they picked up whatever was
+     resolved to over --swish-black. As overlays they picked up whatever was
      behind them, so the same warning looked different on two screens. The
      matching -edge tokens are for borders: a status card outlined in its
      full-strength colour reads as neon, and when three of them are on one
      screen nothing looks more urgent than anything else. */
-  --bind-ok-dim: #0b231b;
-  --bind-ok-edge: #1c5b3c;
-  --bind-warn-dim: #272014;
-  --bind-warn-edge: #6b5322;
-  --bind-danger-dim: #261117;
-  --bind-danger-edge: #6e2b33;
+  --swish-ok-dim: #0b231b;
+  --swish-ok-edge: #1c5b3c;
+  --swish-warn-dim: #272014;
+  --swish-warn-edge: #6b5322;
+  --swish-danger-dim: #261117;
+  --swish-danger-edge: #6e2b33;
 }
 
 @theme inline {
   --font-sans: var(--font-bricolage);
   --font-display: var(--font-instrument-serif);
 
-  --color-accent: var(--bind-accent);
-  --color-accent-2: var(--bind-accent-2);
-  --color-sky: var(--bind-sky);
-  --color-mist: var(--bind-mist);
-  --color-ink: var(--bind-black);
-  --color-navy: var(--bind-navy);
+  --color-accent: var(--swish-accent);
+  --color-accent-2: var(--swish-accent-2);
+  --color-sky: var(--swish-sky);
+  --color-mist: var(--swish-mist);
+  --color-ink: var(--swish-black);
+  --color-navy: var(--swish-navy);
 
-  --color-fg: var(--bind-fg);
-  --color-fg-dim: var(--bind-fg-dim);
-  --color-fg-faint: var(--bind-fg-faint);
+  --color-fg: var(--swish-fg);
+  --color-fg-dim: var(--swish-fg-dim);
+  --color-fg-faint: var(--swish-fg-faint);
 
-  --color-ok: var(--bind-ok);
-  --color-warn: var(--bind-warn);
-  --color-danger: var(--bind-danger);
+  --color-ok: var(--swish-ok);
+  --color-warn: var(--swish-warn);
+  --color-danger: var(--swish-danger);
 }
 
 * {
-  border-color: var(--bind-line);
+  border-color: var(--swish-line);
 }
 
 html {
@@ -71,13 +71,13 @@ html {
 }
 
 body {
-  background: var(--bind-black);
-  color: var(--bind-fg);
+  background: var(--swish-black);
+  color: var(--swish-fg);
 }
 
 ::selection {
-  background: var(--bind-accent);
-  color: var(--bind-mist);
+  background: var(--swish-accent);
+  color: var(--swish-mist);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -91,12 +91,12 @@ body {
     radial-gradient(120% 90% at 50% 0%, rgba(20, 34, 92, 0.9) 0%, transparent 60%),
     linear-gradient(
       180deg,
-      var(--bind-black) 0%,
-      var(--bind-navy) 22%,
-      var(--bind-navy-2) 42%,
-      var(--bind-accent) 66%,
-      var(--bind-sky) 86%,
-      var(--bind-mist) 100%
+      var(--swish-black) 0%,
+      var(--swish-navy) 22%,
+      var(--swish-navy-2) 42%,
+      var(--swish-accent) 66%,
+      var(--swish-sky) 86%,
+      var(--swish-mist) 100%
     );
 }
 
@@ -145,16 +145,16 @@ body {
 }
 
 .card {
-  background: var(--bind-surface);
-  border: 1px solid var(--bind-line);
+  background: var(--swish-surface);
+  border: 1px solid var(--swish-line);
   border-radius: 1rem;
 }
 
 /* A card sitting on a card. Raised rather than "more transparent", which
    is what made nested panels muddy. */
 .card-raised {
-  background: var(--bind-surface-2);
-  border: 1px solid var(--bind-line);
+  background: var(--swish-surface-2);
+  border: 1px solid var(--swish-line);
   border-radius: 0.75rem;
 }
 
@@ -170,8 +170,8 @@ body {
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.01em;
-  background: var(--bind-surface-2);
-  border: 1px solid var(--bind-line);
+  background: var(--swish-surface-2);
+  border: 1px solid var(--swish-line);
 }
 
 /* A status is a dot and a word. No pill.
@@ -186,7 +186,7 @@ body {
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.01em;
-  color: var(--bind-fg-faint);
+  color: var(--swish-fg-faint);
 }
 
 /* Kept as a pill because it labels a row in a list, where the fill is
@@ -228,13 +228,13 @@ body {
 /* Rendered agent briefs. Deliberately typographic rather than styled to
    match the rest of the chrome — this is a document the operator wrote,
    and it should read like one. */
-.brief-preview { color: var(--bind-fg-dim); font-size: 13px; line-height: 1.65; }
+.brief-preview { color: var(--swish-fg-dim); font-size: 13px; line-height: 1.65; }
 .brief-preview > :first-child { margin-top: 0; }
 .brief-preview > :last-child { margin-bottom: 0; }
 .brief-preview h1,
 .brief-preview h2,
 .brief-preview h3 {
-  color: var(--bind-mist);
+  color: var(--swish-mist);
   font-family: var(--font-instrument-serif), serif;
   font-weight: 400;
   line-height: 1.2;
@@ -249,9 +249,9 @@ body {
 .brief-preview li { margin: 0.3em 0; }
 .brief-preview ul { list-style: disc; }
 .brief-preview ol { list-style: decimal; }
-.brief-preview strong { color: var(--bind-fg); font-weight: 600; }
-.brief-preview em { color: var(--bind-fg); font-style: italic; }
-.brief-preview a { color: var(--bind-accent-2); text-decoration: underline; text-underline-offset: 2px; }
+.brief-preview strong { color: var(--swish-fg); font-weight: 600; }
+.brief-preview em { color: var(--swish-fg); font-style: italic; }
+.brief-preview a { color: var(--swish-accent-2); text-decoration: underline; text-underline-offset: 2px; }
 .brief-preview code {
   background: rgba(0, 0, 0, 0.35);
   border-radius: 4px;
@@ -267,12 +267,12 @@ body {
 }
 .brief-preview pre code { background: none; padding: 0; }
 .brief-preview blockquote {
-  border-left: 2px solid var(--bind-line-strong);
-  color: var(--bind-fg-faint);
+  border-left: 2px solid var(--swish-line-strong);
+  color: var(--swish-fg-faint);
   margin: 0.8em 0;
   padding-left: 12px;
 }
-.brief-preview hr { border: 0; border-top: 1px solid var(--bind-line); margin: 1.2em 0; }
+.brief-preview hr { border: 0; border-top: 1px solid var(--swish-line); margin: 1.2em 0; }
 
 /* The hero's second grain layer.
    A 160x160 fractal-noise tile, repeated at its natural size. The point is
@@ -331,7 +331,7 @@ body {
   box-shadow:
     inset 0 1px 0 rgba(238, 243, 255, 0.14),
     0 1px 2px rgba(5, 7, 12, 0.4);
-  color: var(--bind-fg);
+  color: var(--swish-fg);
   letter-spacing: 0.005em;
 }
 
@@ -352,7 +352,7 @@ body {
    letterforms readable at every point in the loop without looking like a
    drop shadow. */
 .hero-title {
-  color: var(--bind-mist);
+  color: var(--swish-mist);
   text-shadow:
     0 1px 0 rgba(5, 7, 12, 0.28),
     0 2px 22px rgba(5, 7, 12, 0.55);

@@ -9,7 +9,7 @@ import { bytesToHex, hexToBytes, utf8ToBytes, concatBytes } from "@noble/hashes/
  * before minting a MatchProof / OverrideApproval — so a proof existing on
  * chain is never just "the backend's say-so", it's independently checkable.
  *
- * Dev-mode: if BIND_ATTEST_PRIVKEY is unset, a key is generated in-memory
+ * Dev-mode: if SWISH_ATTEST_PRIVKEY is unset, a key is generated in-memory
  * for the life of the process and logged once. Fine for a hackathon demo;
  * disclosed here so nobody mistakes it for a production key-management story.
  */
@@ -19,13 +19,13 @@ let cachedKey: { priv: Uint8Array; pub: Uint8Array } | null = null;
 async function getKeypair() {
   if (cachedKey) return cachedKey;
 
-  const envKey = process.env.BIND_ATTEST_PRIVKEY;
+  const envKey = process.env.SWISH_ATTEST_PRIVKEY;
   const priv = envKey ? hexToBytes(envKey.replace(/^0x/, "")) : ed.utils.randomSecretKey();
   const pub = await ed.getPublicKeyAsync(priv);
 
   if (!envKey) {
     console.warn(
-      "[swish/attest] BIND_ATTEST_PRIVKEY not set — generated an ephemeral dev key. " +
+      "[swish/attest] SWISH_ATTEST_PRIVKEY not set — generated an ephemeral dev key. " +
         `Public key (register this in AttestorRegistry on-chain): 0x${bytesToHex(pub)}`
     );
   }

@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
             resource: "/api/feed",
             description: "One unit of Swish's demo market-data feed.",
             mimeType: "application/json",
-            payTo: process.env.BIND_DEMO_SENDER ?? "0x0",
+            payTo: process.env.SWISH_DEMO_SENDER ?? "0x0",
             maxAmountRequired: PRICE_MIST,
             asset: "0x2::sui::SUI",
           },

@@ -34,10 +34,10 @@ export default function Home() {
 
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-5xl flex-col px-6">
         <header className="flex items-center justify-between py-7">
-          <SwishLogo size={14} />
+          <SwishLogo size={20} />
           <Link href="/wallet" className="glass-chip glass-chip-hover text-[13px] font-medium">
             Open the wallet
-            <span className="text-[var(--bind-sky)]">→</span>
+            <span className="text-[var(--swish-sky)]">→</span>
           </Link>
         </header>
 
@@ -49,7 +49,7 @@ export default function Home() {
           </h1>
 
           <p
-            className="fade-up mt-8 max-w-xl text-balance text-[19px] leading-relaxed text-[var(--bind-sky)]"
+            className="fade-up mt-8 max-w-xl text-balance text-[19px] leading-relaxed text-[var(--swish-sky)]"
             style={{ animationDelay: "80ms" }}
           >
             The only wallet you will ever need for the agentic economy.
@@ -61,13 +61,13 @@ export default function Home() {
           >
             <Link
               href="/wallet"
-              className="rounded-full bg-[var(--bind-mist)] px-7 py-3.5 text-sm font-semibold text-[var(--bind-black)] shadow-[0_8px_30px_-8px_rgba(238,243,255,0.5)] transition hover:-translate-y-px hover:shadow-[0_12px_38px_-8px_rgba(238,243,255,0.65)]"
+              className="rounded-full bg-[var(--swish-mist)] px-7 py-3.5 text-sm font-semibold text-[var(--swish-black)] shadow-[0_8px_30px_-8px_rgba(238,243,255,0.5)] transition hover:-translate-y-px hover:shadow-[0_12px_38px_-8px_rgba(238,243,255,0.65)]"
             >
               Open the wallet
             </Link>
             <a
               href="https://github.com/Khalid-000-ME/swish"
-              className="glass-chip glass-chip-hover px-7 py-3.5 text-sm font-semibold text-[var(--bind-mist)]"
+              className="glass-chip glass-chip-hover px-7 py-3.5 text-sm font-semibold text-[var(--swish-mist)]"
             >
               View source
             </a>
@@ -86,10 +86,10 @@ export default function Home() {
                   className="opacity-55 transition group-hover:opacity-90"
                 />
                 <span className="text-left leading-tight">
-                  <span className="block text-[13px] font-medium text-[var(--bind-fg-dim)]">
+                  <span className="block text-[13px] font-medium text-[var(--swish-fg-dim)]">
                     {s.name}
                   </span>
-                  <span className="block text-[10.5px] uppercase tracking-[0.14em] text-[var(--bind-fg-faint)]">
+                  <span className="block text-[10.5px] uppercase tracking-[0.14em] text-[var(--swish-fg-faint)]">
                     {s.role}
                   </span>
                 </span>

@@ -82,23 +82,23 @@ export function ConnectApproval({
     }
   }
 
-  if (loading) return <div className="p-10 text-center text-sm text-[var(--bind-fg-faint)]">Loading request…</div>;
+  if (loading) return <div className="p-10 text-center text-sm text-[var(--swish-fg-faint)]">Loading request…</div>;
 
   if (done) {
     return (
       <div className="mx-auto max-w-md p-10 text-center">
-        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">
+        <h1 className="h-wallet text-3xl text-[var(--swish-mist)]">
           {done === "approved" ? "Connected" : "Rejected"}
         </h1>
-        <p className="mt-2 text-sm text-[var(--bind-fg-dim)]">
+        <p className="mt-2 text-sm text-[var(--swish-fg-dim)]">
           {done === "approved"
             ? "The site can now ask this agent for payments, within the limits you set. You can revoke it any time."
             : "Nothing was granted."}
         </p>
         <button
           onClick={() => router.push("/wallet/connections")}
-          className="mt-6 rounded-full px-5 py-2.5 text-sm font-semibold text-[var(--bind-black)]"
-          style={{ background: "var(--bind-mist)" }}
+          className="mt-6 rounded-full px-5 py-2.5 text-sm font-semibold text-[var(--swish-black)]"
+          style={{ background: "var(--swish-mist)" }}
         >
           View connections
         </button>
@@ -109,8 +109,8 @@ export function ConnectApproval({
   if (!request) {
     return (
       <div className="mx-auto max-w-md p-10 text-center">
-        <h1 className="h-wallet text-2xl text-[var(--bind-mist)]">Request not found</h1>
-        <p className="mt-2 text-sm text-[var(--bind-fg-dim)]">
+        <h1 className="h-wallet text-2xl text-[var(--swish-mist)]">Request not found</h1>
+        <p className="mt-2 text-sm text-[var(--swish-fg-dim)]">
           It may have already been handled, or expired — requests are good for five minutes.
         </p>
       </div>
@@ -120,19 +120,19 @@ export function ConnectApproval({
   return (
     <div className="mx-auto w-full max-w-md px-5 py-10">
       <div className="mb-6 text-center">
-        <div className="text-[12px] uppercase tracking-wider text-[var(--bind-fg-faint)]">Connection request</div>
-        <h1 className="mt-1 h-wallet text-3xl text-[var(--bind-mist)]">{request.origin}</h1>
+        <div className="text-[12px] uppercase tracking-wider text-[var(--swish-fg-faint)]">Connection request</div>
+        <h1 className="mt-1 h-wallet text-3xl text-[var(--swish-mist)]">{request.origin}</h1>
         {request.reason && (
-          <p className="mt-2 text-sm italic text-[var(--bind-fg-dim)]">&ldquo;{request.reason}&rdquo;</p>
+          <p className="mt-2 text-sm italic text-[var(--swish-fg-dim)]">&ldquo;{request.reason}&rdquo;</p>
         )}
-        <p className="mt-1 text-[11px] text-[var(--bind-fg-faint)]">
+        <p className="mt-1 text-[11px] text-[var(--swish-fg-faint)]">
           Said by the site, not verified.
         </p>
       </div>
 
       <div className="card space-y-4 p-5">
         <div>
-          <label className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+          <label className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
             Agent
           </label>
           <select
@@ -142,7 +142,7 @@ export function ConnectApproval({
               const next = snap.agents.find((a) => a.id === e.target.value);
               setSubAccountId(next?.subAccounts[0]?.id ?? "");
             }}
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
           >
             {snap.agents.map((a) => (
               <option key={a.id} value={a.id}>
@@ -153,13 +153,13 @@ export function ConnectApproval({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+          <label className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
             Envelope
           </label>
           <select
             value={sub?.id ?? ""}
             onChange={(e) => setSubAccountId(e.target.value)}
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
           >
             {agent?.subAccounts.map((s) => (
               <option key={s.id} value={s.id}>
@@ -174,26 +174,26 @@ export function ConnectApproval({
             <input
               type="number" step="0.01" min="0" value={perTxCapSui}
               onChange={(e) => setPerTxCapSui(Number(e.target.value))}
-              className="w-full bg-transparent text-sm text-[var(--bind-fg)] outline-none"
+              className="w-full bg-transparent text-sm text-[var(--swish-fg)] outline-none"
             />
           </Small>
           <Small label="Expires in" suffix="min">
             <input
               type="number" min="1" value={ttlMinutes}
               onChange={(e) => setTtlMinutes(Number(e.target.value))}
-              className="w-full bg-transparent text-sm text-[var(--bind-fg)] outline-none"
+              className="w-full bg-transparent text-sm text-[var(--swish-fg)] outline-none"
             />
           </Small>
           <Small label="Max actions" suffix="">
             <input
               type="number" min="1" value={maxActions}
               onChange={(e) => setMaxActions(Number(e.target.value))}
-              className="w-full bg-transparent text-sm text-[var(--bind-fg)] outline-none"
+              className="w-full bg-transparent text-sm text-[var(--swish-fg)] outline-none"
             />
           </Small>
         </div>
 
-        <p className="text-[11px] leading-snug text-[var(--bind-fg-faint)]">
+        <p className="text-[11px] leading-snug text-[var(--swish-fg-faint)]">
           {request.origin} gets no key. It can ask {agent?.name ?? "this agent"} to propose payments, and
           each one still goes through the diff, the screen and this envelope&apos;s allow-list. Anything
           it asks for above these limits is refused before signing.
@@ -204,16 +204,16 @@ export function ConnectApproval({
         <button
           disabled={busy || !agent || !sub}
           onClick={() => decide("approve")}
-          className="flex-1 rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-          style={{ background: "var(--bind-ok)" }}
+          className="flex-1 rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+          style={{ background: "var(--swish-ok)" }}
         >
           Connect
         </button>
         <button
           disabled={busy}
           onClick={() => decide("reject")}
-          className="flex-1 rounded-full border py-3 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
-          style={{ borderColor: "var(--bind-line-strong)" }}
+          className="flex-1 rounded-full border py-3 text-sm font-medium text-[var(--swish-fg)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
+          style={{ borderColor: "var(--swish-line-strong)" }}
         >
           Reject
         </button>
@@ -224,11 +224,11 @@ export function ConnectApproval({
 
 function Small({ label, suffix, children }: { label: string; suffix: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wider text-[var(--bind-fg-faint)]">{label}</div>
+    <div className="rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wider text-[var(--swish-fg-faint)]">{label}</div>
       <div className="flex items-baseline gap-1">
         {children}
-        {suffix && <span className="text-[11px] text-[var(--bind-fg-faint)]">{suffix}</span>}
+        {suffix && <span className="text-[11px] text-[var(--swish-fg-faint)]">{suffix}</span>}
       </div>
     </div>
   );

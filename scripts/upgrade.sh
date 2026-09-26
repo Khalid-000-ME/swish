@@ -8,7 +8,7 @@
 # functions while the original type identity is preserved, so the vault
 # that's already out there keeps working and keeps its allow-list.
 #
-# Only BIND_PACKAGE_ID changes: calls target the newest package address,
+# Only SWISH_PACKAGE_ID changes: calls target the newest package address,
 # while objects keep the original one in their type. Everything else in
 # .env.local is left alone.
 #
@@ -57,11 +57,11 @@ node -e '
 const fs = require("fs");
 const path = ".env.local";
 const lines = fs.readFileSync(path, "utf8").split("\n");
-const i = lines.findIndex((l) => l.startsWith("BIND_PACKAGE_ID="));
-const line = `BIND_PACKAGE_ID=${process.argv[1]}`;
+const i = lines.findIndex((l) => l.startsWith("SWISH_PACKAGE_ID="));
+const line = `SWISH_PACKAGE_ID=${process.argv[1]}`;
 if (i >= 0) lines[i] = line; else lines.push(line);
 fs.writeFileSync(path, lines.join("\n").replace(/\n+$/, "") + "\n");
 ' "$PACKAGE_ID"
 
-echo "==> Done. BIND_PACKAGE_ID updated; every other id is unchanged."
+echo "==> Done. SWISH_PACKAGE_ID updated; every other id is unchanged."
 echo "    Restart the dev server to pick it up."

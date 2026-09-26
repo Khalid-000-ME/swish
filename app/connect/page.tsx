@@ -18,7 +18,7 @@ export default function ConnectPage({
   if (!request) {
     return (
       <WalletChrome snap={snap} back={{ href: "/wallet", label: "Wallet" }}>
-        <div className="mx-auto max-w-md p-10 text-center text-sm text-[var(--bind-fg-dim)]">
+        <div className="mx-auto max-w-md p-10 text-center text-sm text-[var(--swish-fg-dim)]">
           No connection request specified.
         </div>
       </WalletChrome>

@@ -32,8 +32,8 @@ export function AgentTranscript({ mode, narration, steps }: { mode: string; narr
   return (
     <div className="card p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[var(--bind-fg)]">Agent</h3>
-        <span className="chip bg-white/5 text-[var(--bind-fg-faint)]">
+        <h3 className="text-sm font-semibold text-[var(--swish-fg)]">Agent</h3>
+        <span className="chip bg-white/5 text-[var(--swish-fg-faint)]">
           {mode === "live" ? "claude-sonnet-5" : "scripted — no ANTHROPIC_API_KEY"}
         </span>
       </div>
@@ -41,18 +41,18 @@ export function AgentTranscript({ mode, narration, steps }: { mode: string; narr
       <ol className="space-y-2.5">
         {steps.map((s, i) => (
           <li key={i} className="flex items-start gap-3 text-sm">
-            <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-white/8 text-[10px] font-semibold text-[var(--bind-fg-dim)]">
+            <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-white/8 text-[10px] font-semibold text-[var(--swish-fg-dim)]">
               {i + 1}
             </span>
             <div>
-              <span className="font-medium text-[var(--bind-fg)]">{TOOL_LABEL[s.tool] ?? s.tool}</span>
-              <span className="ml-2 text-[var(--bind-fg-faint)]">{summarize(s.tool, s.output)}</span>
+              <span className="font-medium text-[var(--swish-fg)]">{TOOL_LABEL[s.tool] ?? s.tool}</span>
+              <span className="ml-2 text-[var(--swish-fg-faint)]">{summarize(s.tool, s.output)}</span>
             </div>
           </li>
         ))}
       </ol>
 
-      <p className="mt-4 border-t border-[var(--bind-line)] pt-4 text-sm italic leading-relaxed text-[var(--bind-fg-dim)]">
+      <p className="mt-4 border-t border-[var(--swish-line)] pt-4 text-sm italic leading-relaxed text-[var(--swish-fg-dim)]">
         “{narration}”
       </p>
     </div>

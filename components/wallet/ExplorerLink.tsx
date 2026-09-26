@@ -29,7 +29,7 @@ export function ExplorerLink({
       onClick={(e) => e.stopPropagation()}
       className={
         className ??
-        "font-mono text-[12px] text-[var(--bind-fg-dim)] underline decoration-[var(--bind-line-strong)] underline-offset-2 transition hover:text-[var(--bind-accent-2)] hover:decoration-[var(--bind-accent-2)]"
+        "font-mono text-[12px] text-[var(--swish-fg-dim)] underline decoration-[var(--swish-line-strong)] underline-offset-2 transition hover:text-[var(--swish-accent-2)] hover:decoration-[var(--swish-accent-2)]"
       }
     >
       {label ?? (full ? value : shortAddr(value))}

@@ -61,19 +61,19 @@ export function AgentPanel({
       {/* header */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">{agent.name}</h1>
-          <p className="mt-1 text-sm text-[var(--bind-fg-dim)]">{agent.role}</p>
+          <h1 className="h-wallet text-3xl text-[var(--swish-mist)]">{agent.name}</h1>
+          <p className="mt-1 text-sm text-[var(--swish-fg-dim)]">{agent.role}</p>
           <div className="mt-2 flex items-center gap-3">
             <span className="status">
-              <span className="dot" style={{ background: "var(--bind-ok)" }} />
+              <span className="dot" style={{ background: "var(--swish-ok)" }} />
               Bound to your World ID
             </span>
             <TrustBars trust={agent.trust} />
           </div>
         </div>
         <div className="text-right">
-          <div className="text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">Across envelopes</div>
-          <div className="font-num text-3xl text-[var(--bind-mist)]">{fmtSui(total.toString())} SUI</div>
+          <div className="text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">Across envelopes</div>
+          <div className="font-num text-3xl text-[var(--swish-mist)]">{fmtSui(total.toString())} SUI</div>
           <button
             onClick={() => setStatus(agent.status === "frozen" ? "active" : "frozen")}
             // Solid tint rather than a full-strength outline. A neon red
@@ -82,8 +82,8 @@ export function AgentPanel({
             className="mt-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition hover:brightness-125"
             style={
               agent.status === "frozen"
-                ? { background: "var(--bind-ok-dim)", borderColor: "var(--bind-ok-edge)", color: "var(--bind-ok)" }
-                : { background: "var(--bind-danger-dim)", borderColor: "var(--bind-danger-edge)", color: "var(--bind-danger)" }
+                ? { background: "var(--swish-ok-dim)", borderColor: "var(--swish-ok-edge)", color: "var(--swish-ok)" }
+                : { background: "var(--swish-danger-dim)", borderColor: "var(--swish-danger-edge)", color: "var(--swish-danger)" }
             }
           >
             {agent.status === "frozen" ? "Unfreeze agent" : "Freeze agent"}
@@ -100,7 +100,7 @@ export function AgentPanel({
       {agent.status === "frozen" && (
         <div
           className="rounded-xl border px-4 py-3 text-sm"
-          style={{ borderColor: "var(--bind-danger-edge)", background: "var(--bind-danger-dim)", color: "var(--bind-danger)" }}
+          style={{ borderColor: "var(--swish-danger-edge)", background: "var(--swish-danger-dim)", color: "var(--swish-danger)" }}
         >
           Frozen. Nothing leaves any of this agent&apos;s envelopes until you unfreeze it — not a pending
           declaration, not an approved one.
@@ -110,8 +110,8 @@ export function AgentPanel({
       {/* envelopes */}
       <section>
         <div className="mb-2 flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold text-[var(--bind-fg)]">Envelopes</h2>
-          <span className="text-[11px] text-[var(--bind-fg-faint)]">
+          <h2 className="text-sm font-semibold text-[var(--swish-fg)]">Envelopes</h2>
+          <span className="text-[11px] text-[var(--swish-fg-faint)]">
             Each one is its own vault — a breach of one can&apos;t reach the others
           </span>
         </div>
@@ -127,12 +127,12 @@ export function AgentPanel({
       {/* task composer */}
       <section className="card p-5">
         <div className="mb-1 flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold text-[var(--bind-fg)]">Give {agent.name} a task</h2>
-          <span className="text-[11px] text-[var(--bind-fg-faint)]">
-            spending from <strong className="text-[var(--bind-fg-dim)]">{sub?.label}</strong>
+          <h2 className="text-sm font-semibold text-[var(--swish-fg)]">Give {agent.name} a task</h2>
+          <span className="text-[11px] text-[var(--swish-fg-faint)]">
+            spending from <strong className="text-[var(--swish-fg-dim)]">{sub?.label}</strong>
           </span>
         </div>
-        <p className="mb-4 text-[12px] text-[var(--bind-fg-faint)]">
+        <p className="mb-4 text-[12px] text-[var(--swish-fg-faint)]">
           Ordinary instructions. What differs between them is what the agent runs into while carrying them
           out — stated up front, because hiding it would be the wrong kind of demo.
         </p>
@@ -143,14 +143,14 @@ export function AgentPanel({
               key={t.id}
               disabled={running !== null || agent.status === "frozen"}
               onClick={() => runTask(t.id)}
-              className="group rounded-xl border border-[var(--bind-line)] p-3.5 text-left transition hover:border-[var(--bind-line-strong)] hover:bg-[var(--bind-surface)] disabled:opacity-40"
+              className="group rounded-xl border border-[var(--swish-line)] p-3.5 text-left transition hover:border-[var(--swish-line-strong)] hover:bg-[var(--swish-surface)] disabled:opacity-40"
             >
-              <div className="text-sm font-medium text-[var(--bind-fg)]">{t.label}</div>
-              <div className="mt-1 text-[12px] leading-snug text-[var(--bind-fg-dim)]">{t.detail}</div>
-              <div className="mt-2 text-[11px] italic text-[var(--bind-fg-faint)]">{t.environment}</div>
+              <div className="text-sm font-medium text-[var(--swish-fg)]">{t.label}</div>
+              <div className="mt-1 text-[12px] leading-snug text-[var(--swish-fg-dim)]">{t.detail}</div>
+              <div className="mt-2 text-[11px] italic text-[var(--swish-fg-faint)]">{t.environment}</div>
               {running === t.id && (
-                <div className="mt-2 flex items-center gap-2 text-[11px] text-[var(--bind-fg-dim)]">
-                  <span className="pulse dot" style={{ background: "var(--bind-accent-2)" }} />
+                <div className="mt-2 flex items-center gap-2 text-[11px] text-[var(--swish-fg-dim)]">
+                  <span className="pulse dot" style={{ background: "var(--swish-accent-2)" }} />
                   running the agent…
                 </div>
               )}
@@ -159,7 +159,7 @@ export function AgentPanel({
         </div>
 
         {error && (
-          <div className="mt-3 text-sm" style={{ color: "var(--bind-danger)" }}>
+          <div className="mt-3 text-sm" style={{ color: "var(--swish-danger)" }}>
             {error}
           </div>
         )}
@@ -167,7 +167,7 @@ export function AgentPanel({
 
       {/* activity */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-[var(--bind-fg)]">Activity</h2>
+        <h2 className="mb-2 text-sm font-semibold text-[var(--swish-fg)]">Activity</h2>
         {agentActivity.length === 0 ? (
           <EmptyState
             title="Nothing yet"
@@ -179,33 +179,33 @@ export function AgentPanel({
               <div key={item.id} className="card overflow-hidden">
                 <button
                   onClick={() => setExpanded(expanded === item.id ? null : item.id)}
-                  className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-[var(--bind-surface)]"
+                  className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-[var(--swish-surface)]"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="truncate text-sm font-medium text-[var(--bind-fg)]">{item.task}</span>
+                      <span className="truncate text-sm font-medium text-[var(--swish-fg)]">{item.task}</span>
                       <OutcomePill outcome={item.outcome} />
                     </div>
-                    <div className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-[var(--bind-fg-faint)]">
+                    <div className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-[var(--swish-fg-faint)]">
                       <span className="font-num">{fmtSui(item.amountMist)} SUI →</span>
                       <ExplorerLink value={item.recipient} kind="address" />
                       <span>· {timeAgo(item.ts)}</span>
                     </div>
                   </div>
-                  <span className="text-[11px] text-[var(--bind-fg-faint)]">{expanded === item.id ? "Hide" : "Details"}</span>
+                  <span className="text-[11px] text-[var(--swish-fg-faint)]">{expanded === item.id ? "Hide" : "Details"}</span>
                 </button>
 
                 {expanded === item.id && (
-                  <div className="space-y-3 border-t border-[var(--bind-line)] p-4">
+                  <div className="space-y-3 border-t border-[var(--swish-line)] p-4">
                     <DiffView item={item} />
-                    <p className="text-sm italic leading-relaxed text-[var(--bind-fg-dim)]">“{item.narration}”</p>
-                    <div className="flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[var(--bind-fg-faint)]">
+                    <p className="text-sm italic leading-relaxed text-[var(--swish-fg-dim)]">“{item.narration}”</p>
+                    <div className="flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[var(--swish-fg-faint)]">
                       <span>agent: {item.agentMode === "live" ? "live model" : "scripted"}</span>
                       <span>diff: {item.dryRunSource === "chain" ? "live simulateTransaction" : "simulated"}</span>
                       <span>screen: {item.intercepta.source === "live" ? "Intercepta live" : "fixture"}</span>
                       {item.txDigest && (
                         <span className="flex items-center gap-1">
-                          tx: <ExplorerLink value={item.txDigest} kind="tx" className="font-mono text-[11px] underline decoration-[var(--bind-line-strong)] underline-offset-2 transition hover:text-[var(--bind-accent-2)]" />
+                          tx: <ExplorerLink value={item.txDigest} kind="tx" className="font-mono text-[11px] underline decoration-[var(--swish-line-strong)] underline-offset-2 transition hover:text-[var(--swish-accent-2)]" />
                         </span>
                       )}
                     </div>
@@ -232,31 +232,31 @@ function EnvelopeCard({
   return (
     <button
       onClick={onSelect}
-      className="card relative overflow-hidden p-4 text-left transition hover:bg-[var(--bind-surface-2)]"
+      className="card relative overflow-hidden p-4 text-left transition hover:bg-[var(--swish-surface-2)]"
       style={{ borderColor: selected ? sub.accent : undefined }}
     >
       <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: sub.accent }} />
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-sm font-medium text-[var(--bind-fg)]">{sub.label}</div>
-          <div className="mt-0.5 max-w-[26ch] text-[11px] leading-snug text-[var(--bind-fg-faint)]">
+          <div className="text-sm font-medium text-[var(--swish-fg)]">{sub.label}</div>
+          <div className="mt-0.5 max-w-[26ch] text-[11px] leading-snug text-[var(--swish-fg-faint)]">
             {sub.purpose}
           </div>
         </div>
         {sub.onChain && (
-          <span className="status" style={{ color: "var(--bind-ok)" }}>
+          <span className="status" style={{ color: "var(--swish-ok)" }}>
             on-chain
           </span>
         )}
       </div>
 
-      <div className="font-num mt-3 text-2xl text-[var(--bind-mist)]">{fmtSui(sub.balanceMist)} SUI</div>
+      <div className="font-num mt-3 text-2xl text-[var(--swish-mist)]">{fmtSui(sub.balanceMist)} SUI</div>
 
       <div className="mt-3">
         <WindowMeter spent={sub.windowSpentMist} cap={sub.perTxCapMist} accent={sub.accent} />
       </div>
 
-      <div className="mt-3 flex justify-between text-[11px] text-[var(--bind-fg-faint)]">
+      <div className="mt-3 flex justify-between text-[11px] text-[var(--swish-fg-faint)]">
         <span className="font-num">cap {fmtSui(sub.perTxCapMist, 1)} SUI / payment</span>
         <span>
           {sub.allowlist.length} address{sub.allowlist.length === 1 ? "" : "es"} allowed

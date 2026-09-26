@@ -190,16 +190,16 @@ minting and execution from simulated to real automatically — no code change ne
 |---|---|---|
 | `GROQ_API_KEY` / `ANTHROPIC_API_KEY` | Agent model, cheapest first: Groq's free tier, then Anthropic | A deterministic scripted stand-in calls the identical tool sequence with no key at all |
 | `SUI_GRPC_URL` | Talks gRPC, not JSON-RPC — the public testnet fullnode has fully retired JSON-RPC | Defaults to the public testnet gRPC endpoint |
-| `BIND_DEMO_SENDER` | An address with real testnet SUI, used for genuine `simulateTransaction` diffs even before publish | Falls back to the repo's own dev address |
-| `BIND_PACKAGE_ID`, `BIND_REGISTRY_ID`, `BIND_VAULT_ID`, `BIND_AGENT_CAP_ID`, `BIND_EXECUTOR_KEY` | Set together (via `deploy.sh`) to move minting/execution to real on-chain calls | Simulated proof, clearly labelled |
-| `BIND_ATTEST_PRIVKEY` | The backend's ed25519 attestation key | An ephemeral key is generated per process and logged once — fine for a demo, not for anything real |
-| `BIND_AGENT_KEY_SECRET` | Seals each agent's ed25519 secret at rest (AES-256-GCM) | Agents still get a real address and can receive; nothing can sign for them |
+| `SWISH_DEMO_SENDER` | An address with real testnet SUI, used for genuine `simulateTransaction` diffs even before publish | Falls back to the repo's own dev address |
+| `SWISH_PACKAGE_ID`, `SWISH_REGISTRY_ID`, `SWISH_VAULT_ID`, `SWISH_AGENT_CAP_ID`, `SWISH_EXECUTOR_KEY` | Set together (via `deploy.sh`) to move minting/execution to real on-chain calls | Simulated proof, clearly labelled |
+| `SWISH_ATTEST_PRIVKEY` | The backend's ed25519 attestation key | An ephemeral key is generated per process and logged once — fine for a demo, not for anything real |
+| `SWISH_AGENT_KEY_SECRET` | Seals each agent's ed25519 secret at rest (AES-256-GCM) | Agents still get a real address and can receive; nothing can sign for them |
 | `INTERCEPTA_API_KEY` | Live recipient screening | Falls back to `fixtures/flagged-address.ts`, a small disclosed fixture list |
 | `WORLD_APP_ID`, `WORLD_ACTION`, `WORLD_RP_ID`, `WORLD_RP_PRIVATE_KEY` | Real World ID verification (IDKit path) | UI shows a clearly labelled "Simulate verification" control instead of a button that claims to verify and doesn't |
 | `WORLD_CLIENT_ID`, `WORLD_CLIENT_SECRET` | World ID for Agents — the override path, OIDC, not the IDKit widget | Sandbox redirect points at our own callback route instead of `id.worldcoin.org`; the UI shows an in-page approve/deny control instead of a real World redirect |
 
 Never reuse the attestation or executor key across networks or environments, and never put
-`BIND_EXECUTOR_KEY` or `WORLD_RP_PRIVATE_KEY` in a client bundle — both are backend-only by
+`SWISH_EXECUTOR_KEY` or `WORLD_RP_PRIVATE_KEY` in a client bundle — both are backend-only by
 design, and `lib/mint.ts` / the World callback route are the only places that read them.
 
 ### Scripts

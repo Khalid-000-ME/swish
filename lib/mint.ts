@@ -7,8 +7,8 @@ import type { SuiClientTypes } from "@mysten/sui/client";
 
 /**
  * Real on-chain calls into the published `bind` package — used once
- * BIND_PACKAGE_ID / BIND_REGISTRY_ID / BIND_VAULT_ID / BIND_AGENT_CAP_ID /
- * BIND_EXECUTOR_KEY are all set (see scripts/deploy.sh, which publishes the
+ * SWISH_PACKAGE_ID / SWISH_REGISTRY_ID / SWISH_VAULT_ID / SWISH_AGENT_CAP_ID /
+ * SWISH_EXECUTOR_KEY are all set (see scripts/deploy.sh, which publishes the
  * package, shares a funded Vault, and writes these into .env.local).
  * Until then, lib/pipeline.ts uses a clearly-labelled simulated proof
  * instead — the Move contracts and their tests are real regardless; this
@@ -22,23 +22,23 @@ import type { SuiClientTypes } from "@mysten/sui/client";
 
 export function isMintConfigured(): boolean {
   return Boolean(
-    process.env.BIND_PACKAGE_ID &&
-      process.env.BIND_REGISTRY_ID &&
-      process.env.BIND_VAULT_ID &&
-      process.env.BIND_AGENT_CAP_ID &&
-      process.env.BIND_EXECUTOR_KEY
+    process.env.SWISH_PACKAGE_ID &&
+      process.env.SWISH_REGISTRY_ID &&
+      process.env.SWISH_VAULT_ID &&
+      process.env.SWISH_AGENT_CAP_ID &&
+      process.env.SWISH_EXECUTOR_KEY
   );
 }
 
 function executor(): { keypair: Ed25519Keypair; address: string } {
-  const raw = process.env.BIND_EXECUTOR_KEY!;
+  const raw = process.env.SWISH_EXECUTOR_KEY!;
   const keypair = raw.startsWith("suiprivkey")
     ? Ed25519Keypair.fromSecretKey(raw)
     : Ed25519Keypair.fromSecretKey(new Uint8Array(Buffer.from(raw.replace(/^0x/, ""), "hex")));
   return { keypair, address: keypair.getPublicKey().toSuiAddress() };
 }
 
-const pkg = () => process.env.BIND_PACKAGE_ID!;
+const pkg = () => process.env.SWISH_PACKAGE_ID!;
 
 type EffectsInclude = { effects: true; objectTypes: true };
 
@@ -97,7 +97,7 @@ export async function mintDeclarationOnChain(decl: Declaration): Promise<{ decla
   const declObj = tx.moveCall({
     target: `${pkg()}::declaration::mint`,
     arguments: [
-      tx.object(process.env.BIND_AGENT_CAP_ID!),
+      tx.object(process.env.SWISH_AGENT_CAP_ID!),
       tx.pure.id(decl.vaultId),
       tx.pure.address(decl.recipient),
       tx.pure.vector("u8", Array.from(Buffer.from(decl.coinType))),
@@ -127,7 +127,7 @@ export async function mintMatchProofOnChain(input: {
   const proof = tx.moveCall({
     target: `${pkg()}::proofs::mint_match_proof`,
     arguments: [
-      tx.object(process.env.BIND_REGISTRY_ID!),
+      tx.object(process.env.SWISH_REGISTRY_ID!),
       tx.pure.id(input.declarationId),
       tx.pure.vector("u8", Array.from(Buffer.from(input.effectsDigest.replace(/^0x/, ""), "hex"))),
       tx.pure.vector("u8", Array.from(Buffer.from(input.attestation.signature.replace(/^0x/, ""), "hex"))),
@@ -152,7 +152,7 @@ export async function executeDeclaredOnChain(input: {
     target: `${pkg()}::allowance_vault::execute_declared`,
     typeArguments: ["0x2::sui::SUI"],
     arguments: [
-      tx.object(process.env.BIND_VAULT_ID!),
+      tx.object(process.env.SWISH_VAULT_ID!),
       tx.object(input.declarationObjectId),
       tx.object(input.matchProofId),
       tx.object.clock(),
@@ -177,7 +177,7 @@ export async function mintOverrideApprovalOnChain(input: {
   const approval = tx.moveCall({
     target: `${pkg()}::proofs::mint_override_approval`,
     arguments: [
-      tx.object(process.env.BIND_REGISTRY_ID!),
+      tx.object(process.env.SWISH_REGISTRY_ID!),
       tx.pure.id(input.declarationId),
       tx.pure.vector("u8", Array.from(Buffer.from(input.effectsDigest.replace(/^0x/, ""), "hex"))),
       tx.pure.vector("u8", Array.from(Buffer.from(input.nullifierHashHex, "hex"))),
@@ -203,7 +203,7 @@ export async function executeWithOverrideOnChain(input: {
     target: `${pkg()}::allowance_vault::execute_with_override`,
     typeArguments: ["0x2::sui::SUI"],
     arguments: [
-      tx.object(process.env.BIND_VAULT_ID!),
+      tx.object(process.env.SWISH_VAULT_ID!),
       tx.object(input.declarationObjectId),
       tx.object(input.overrideApprovalId),
       tx.object.clock(),

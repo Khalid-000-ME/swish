@@ -68,7 +68,7 @@ export default function PopupPage() {
   if (failed) {
     return (
       <Shell>
-        <p className="px-1 text-[13px] leading-relaxed text-[var(--bind-fg-dim)]">
+        <p className="px-1 text-[13px] leading-relaxed text-[var(--swish-fg-dim)]">
           Couldn&apos;t read the wallet. Is the server still running?
         </p>
       </Shell>
@@ -78,7 +78,7 @@ export default function PopupPage() {
   if (!snap) {
     return (
       <Shell>
-        <p className="px-1 text-[13px] text-[var(--bind-fg-faint)]">Opening…</p>
+        <p className="px-1 text-[13px] text-[var(--swish-fg-faint)]">Opening…</p>
       </Shell>
     );
   }
@@ -86,7 +86,7 @@ export default function PopupPage() {
   if (!snap.onboarding?.complete) {
     return (
       <Shell>
-        <p className="mb-4 px-1 text-[13px] leading-relaxed text-[var(--bind-fg-dim)]">
+        <p className="mb-4 px-1 text-[13px] leading-relaxed text-[var(--swish-fg-dim)]">
           This wallet hasn&apos;t been set up yet. Hire your first agent and it&apos;ll show up here.
         </p>
         <Open href="/onboarding" label="Set up wallet" primary />
@@ -100,11 +100,11 @@ export default function PopupPage() {
     <Shell>
       {/* balance */}
       <div className="px-1 text-center">
-        <div className="font-num text-[42px] leading-none text-[var(--bind-mist)]">
+        <div className="font-num text-[42px] leading-none text-[var(--swish-mist)]">
           {fmtSui(snap.holdings.total, 3)}
-          <span className="ml-1.5 text-lg text-[var(--bind-fg-dim)]">SUI</span>
+          <span className="ml-1.5 text-lg text-[var(--swish-fg-dim)]">SUI</span>
         </div>
-        <div className="mt-1.5 text-[11px] text-[var(--bind-fg-dim)]">
+        <div className="mt-1.5 text-[11px] text-[var(--swish-fg-dim)]">
           <span className="font-num">{fmtSui(snap.holdings.vault, 3)}</span> in envelopes ·{" "}
           <span className="font-num">{fmtSui(snap.holdings.agents, 3)}</span> held by agents
         </div>
@@ -112,7 +112,7 @@ export default function PopupPage() {
           <button
             onClick={() => navigator.clipboard?.writeText(snap.operator.address!)}
             title="Copy"
-            className="mt-2 font-mono text-[11px] text-[var(--bind-fg-faint)] transition hover:text-[var(--bind-accent-2)]"
+            className="mt-2 font-mono text-[11px] text-[var(--swish-fg-faint)] transition hover:text-[var(--swish-accent-2)]"
           >
             {shortAddr(snap.operator.address)}
           </button>
@@ -124,10 +124,10 @@ export default function PopupPage() {
           href="/wallet/caught"
           target="_blank"
           rel="noreferrer"
-          className="mt-4 flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-[12px] transition hover:bg-[var(--bind-surface-2)]"
-          style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)", color: "var(--bind-warn)" }}
+          className="mt-4 flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-[12px] transition hover:bg-[var(--swish-surface-2)]"
+          style={{ borderColor: "var(--swish-warn-edge)", background: "var(--swish-warn-dim)", color: "var(--swish-warn)" }}
         >
-          <span className="pulse dot" style={{ background: "var(--bind-warn)" }} />
+          <span className="pulse dot" style={{ background: "var(--swish-warn)" }} />
           {needsYou} thing{needsYou === 1 ? "" : "s"} need you
         </a>
       )}
@@ -140,29 +140,29 @@ export default function PopupPage() {
             href={`/wallet/agent/${a.id}`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-[var(--bind-surface-2)]"
+            className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition hover:bg-[var(--swish-surface-2)]"
           >
             <span
               className="flex h-9 w-9 flex-none items-center justify-center rounded-full text-[13px] font-semibold"
-              style={{ background: a.accent, color: "var(--bind-black)" }}
+              style={{ background: a.accent, color: "var(--swish-black)" }}
             >
               {a.name.slice(0, 1).toUpperCase()}
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <span className="truncate text-[13px] font-medium text-[var(--bind-fg)]">{a.name}</span>
+                <span className="truncate text-[13px] font-medium text-[var(--swish-fg)]">{a.name}</span>
                 {a.status !== "active" && (
-                  <span className="text-[9px] uppercase" style={{ color: "var(--bind-danger)" }}>
+                  <span className="text-[9px] uppercase" style={{ color: "var(--swish-danger)" }}>
                     {a.status}
                   </span>
                 )}
               </div>
               <div className="mt-0.5 flex items-center gap-2">
-                <span className="truncate text-[11px] text-[var(--bind-fg-faint)]">{a.role}</span>
+                <span className="truncate text-[11px] text-[var(--swish-fg-faint)]">{a.role}</span>
                 <TrustBars trust={a.trust} />
               </div>
             </div>
-            <span className="flex-none text-[13px] text-[var(--bind-fg)]">
+            <span className="flex-none text-[13px] text-[var(--swish-fg)]">
               {fmtSui(
                 a.subAccounts.reduce((n, s) => n + BigInt(s.balanceMist), BigInt(a.addressBalanceMist)),
                 3
@@ -175,14 +175,14 @@ export default function PopupPage() {
       {/* connected sites */}
       {connections.length > 0 && (
         <div className="mt-4">
-          <div className="mb-1.5 px-1 text-[10px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+          <div className="mb-1.5 px-1 text-[10px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
             Connected
           </div>
-          <div className="card divide-y divide-[var(--bind-line)]">
+          <div className="card divide-y divide-[var(--swish-line)]">
             {connections.slice(0, 4).map((c) => (
               <div key={c.id} className="flex items-center justify-between gap-2 px-3 py-2">
-                <span className="truncate text-[12px] text-[var(--bind-fg-dim)]">{c.origin}</span>
-                <span className="flex-none text-[10px] text-[var(--bind-fg-faint)]">
+                <span className="truncate text-[12px] text-[var(--swish-fg-dim)]">{c.origin}</span>
+                <span className="flex-none text-[10px] text-[var(--swish-fg-faint)]">
                   {c.maxActions - c.actionsUsed} left
                 </span>
               </div>
@@ -195,8 +195,8 @@ export default function PopupPage() {
         <Open href="/wallet" label="Open full wallet" primary />
         <button
           onClick={load}
-          className="w-full rounded-full border py-2 text-[12px] text-[var(--bind-fg-dim)] transition hover:bg-[var(--bind-surface-2)]"
-          style={{ borderColor: "var(--bind-line-strong)" }}
+          className="w-full rounded-full border py-2 text-[12px] text-[var(--swish-fg-dim)] transition hover:bg-[var(--swish-surface-2)]"
+          style={{ borderColor: "var(--swish-line-strong)" }}
         >
           Refresh
         </button>
@@ -207,13 +207,13 @@ export default function PopupPage() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="relative min-h-[520px] w-full overflow-hidden bg-[var(--bind-black)] px-4 pb-4 pt-5">
+    <main className="relative min-h-[520px] w-full overflow-hidden bg-[var(--swish-black)] px-4 pb-4 pt-5">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 opacity-60">
         <MeshGradient columns={4} />
       </div>
       <div className="relative z-10">
         <div className="mb-4 px-1">
-          <SwishLogo size={11} />
+          <SwishLogo size={14} />
         </div>
         {children}
       </div>
@@ -230,8 +230,8 @@ function Open({ href, label, primary }: { href: string; label: string; primary?:
       className="block w-full rounded-full py-2.5 text-center text-[12px] font-semibold transition"
       style={
         primary
-          ? { background: "var(--bind-mist)", color: "var(--bind-black)" }
-          : { border: "1px solid var(--bind-line-strong)", color: "var(--bind-fg)" }
+          ? { background: "var(--swish-mist)", color: "var(--swish-black)" }
+          : { border: "1px solid var(--swish-line-strong)", color: "var(--swish-fg)" }
       }
     >
       {label}

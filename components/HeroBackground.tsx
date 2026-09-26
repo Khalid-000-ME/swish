@@ -17,9 +17,9 @@ import Grainient from "./Grainient";
  * wants them (light → mid → dark), so the palette is unchanged from the
  * CSS version it replaces:
  *
- *   --bind-mist   #eef3ff   the pale top-of-frame light
- *   --bind-accent #2454e8   the royal blue that carries the middle
- *   --bind-black  #05070c   the near-black everything sits on
+ *   --swish-mist   #eef3ff   the pale top-of-frame light
+ *   --swish-accent #2454e8   the royal blue that carries the middle
+ *   --swish-black  #05070c   the near-black everything sits on
  *
  * The dotted column dividers from the original reference stay on top as
  * plain SVG — they're a layout motif, not part of the gradient, and they
@@ -30,7 +30,7 @@ export function HeroBackground({ columns = 6 }: { columns?: number }) {
   const lines = Array.from({ length: columns - 1 }, (_, i) => gap * (i + 1));
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[var(--bind-black)]">
+    <div className="absolute inset-0 overflow-hidden bg-[var(--swish-black)]">
       <Grainient
         // Darker stops than the palette's literal values. The shader
         // blends toward its lightest colour across most of the frame, so
@@ -97,7 +97,7 @@ export function HeroBackground({ columns = 6 }: { columns?: number }) {
             y1={0}
             x2={x}
             y2={100}
-            stroke="var(--bind-mist)"
+            stroke="var(--swish-mist)"
             strokeWidth={0.12}
             strokeDasharray="0.5 1.6"
             vectorEffect="non-scaling-stroke"

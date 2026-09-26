@@ -26,7 +26,7 @@ export function suiClient(): SuiGrpcClient {
   return _client;
 }
 
-export const BIND_PACKAGE_ID = process.env.BIND_PACKAGE_ID || null;
+export const SWISH_PACKAGE_ID = process.env.SWISH_PACKAGE_ID || null;
 
 function normalizeOwner(owner: unknown): string {
   if (typeof owner === "string") return owner; // "Immutable"
@@ -141,7 +141,7 @@ export async function dryRun(tx: Transaction, sender: string): Promise<DryRunRes
 }
 
 export function isLiveChainConfigured(): boolean {
-  return Boolean(BIND_PACKAGE_ID);
+  return Boolean(SWISH_PACKAGE_ID);
 }
 
 /**

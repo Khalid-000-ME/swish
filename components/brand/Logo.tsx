@@ -39,6 +39,11 @@ export function SwishMark({
       width={width}
       height={size}
       priority={priority}
+      // The source is 1024px wide; without this Next picks a candidate off
+      // its default srcset and a 20px-tall mark ends up resampled from
+      // something barely larger than it, which softens the diagonals.
+      quality={100}
+      sizes={`${width * 3}px`}
       className={`flex-none ${className}`}
       style={{ width, height: size }}
     />
@@ -60,7 +65,7 @@ export function SwishLogo({
       <SwishMark size={size} />
       {showName && (
         <span
-          className="font-semibold tracking-tight text-[var(--bind-fg)]"
+          className="font-semibold tracking-tight text-[var(--swish-fg)]"
           style={{ fontSize: Math.round(size * 1.25) }}
         >
           Swish

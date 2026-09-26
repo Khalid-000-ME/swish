@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(
               {
                 error:
-                  "BIND_AGENT_KEY_SECRET is unset, so a new key couldn't be stored safely. Set it (32 bytes of hex) and try again, or continue with an address you already have.",
+                  "SWISH_AGENT_KEY_SECRET is unset, so a new key couldn't be stored safely. Set it (32 bytes of hex) and try again, or continue with an address you already have.",
               },
               { status: 409 }
             );

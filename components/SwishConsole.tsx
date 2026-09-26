@@ -45,8 +45,8 @@ export function SwishConsole() {
     <div className="mx-auto max-w-5xl px-6 pb-24 pt-10">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Swish console</h1>
-          <p className="mt-1 text-sm text-[var(--bind-fg-dim)]">
+          <h1 className="h-wallet text-3xl text-[var(--swish-mist)]">Swish console</h1>
+          <p className="mt-1 text-sm text-[var(--swish-fg-dim)]">
             Pick a scenario — villains first. Every run is a fresh agent invocation against a
             10 SUI demo vault, cap 2 SUI/tx.
           </p>
@@ -57,8 +57,8 @@ export function SwishConsole() {
 
       <div className="mt-8 space-y-5">
         {loading && (
-          <div className="card fade-up flex items-center gap-3 p-5 text-sm text-[var(--bind-fg-dim)]">
-            <span className="pulse dot" style={{ background: "var(--bind-accent-2)" }} />
+          <div className="card fade-up flex items-center gap-3 p-5 text-sm text-[var(--swish-fg-dim)]">
+            <span className="pulse dot" style={{ background: "var(--swish-accent-2)" }} />
             Agent is running its fixed tool sequence…
           </div>
         )}
@@ -72,10 +72,10 @@ export function SwishConsole() {
 
             {overrideOutcome && (
               <div className="card p-5 text-sm">
-                <div className="font-semibold text-[var(--bind-fg)]">
+                <div className="font-semibold text-[var(--swish-fg)]">
                   {overrideOutcome.status === "override_executed" ? "Override approved" : "Override denied"}
                 </div>
-                <div className="mt-1 text-[var(--bind-fg-dim)]">
+                <div className="mt-1 text-[var(--swish-fg-dim)]">
                   {overrideOutcome.status === "override_executed"
                     ? "No object minted for a rejected or expired path — this one consumed both a MatchProof-equivalent OverrideApproval and the Declaration."
                     : "No OverrideApproval was ever minted. The declaration will simply expire; nothing moves."}
@@ -84,7 +84,7 @@ export function SwishConsole() {
             )}
 
             {(result.proofObjectId || overrideOutcome?.approvalObjectId) && (
-              <div className="card flex flex-wrap gap-x-6 gap-y-1 p-5 text-xs text-[var(--bind-fg-faint)]">
+              <div className="card flex flex-wrap gap-x-6 gap-y-1 p-5 text-xs text-[var(--swish-fg-faint)]">
                 {result.proofObjectId && <span>proof: {result.proofObjectId.slice(0, 18)}…</span>}
                 {result.txDigest && <span>tx: {result.txDigest.slice(0, 18)}…</span>}
                 {overrideOutcome?.approvalObjectId && <span>approval: {overrideOutcome.approvalObjectId.slice(0, 18)}…</span>}

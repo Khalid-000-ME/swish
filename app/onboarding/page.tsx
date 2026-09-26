@@ -8,10 +8,10 @@ export default function OnboardingPage() {
   if (!snap) return <WalletLoading />;
 
   return (
-    <main className="relative min-h-dvh bg-[var(--bind-black)]">
+    <main className="relative min-h-dvh bg-[var(--swish-black)]">
       <div
         className="pointer-events-none fixed inset-x-0 top-0 h-72 opacity-40"
-        style={{ background: "radial-gradient(70% 100% at 50% 0%, var(--bind-navy-2), transparent)" }}
+        style={{ background: "radial-gradient(70% 100% at 50% 0%, var(--swish-navy-2), transparent)" }}
       />
       <div className="relative z-10">
         {/* No wallet providers here on purpose: Swish mints its own keys

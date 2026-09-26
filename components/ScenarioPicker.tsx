@@ -22,14 +22,14 @@ export function ScenarioPicker({
           className="card group flex flex-col items-start gap-2 p-4 text-left transition disabled:opacity-50"
           style={{
             borderColor: active === s.id ? s.tagColor : undefined,
-            background: active === s.id ? "var(--bind-surface-2)" : undefined,
+            background: active === s.id ? "var(--swish-surface-2)" : undefined,
           }}
         >
           <span className="chip text-[10px]" style={{ color: s.tagColor, borderColor: s.tagColor }}>
             {s.tag}
           </span>
-          <span className="text-sm font-semibold text-[var(--bind-fg)]">{s.label}</span>
-          <span className="text-xs leading-snug text-[var(--bind-fg-faint)]">{s.blurb}</span>
+          <span className="text-sm font-semibold text-[var(--swish-fg)]">{s.label}</span>
+          <span className="text-xs leading-snug text-[var(--swish-fg-faint)]">{s.blurb}</span>
         </button>
       ))}
     </div>

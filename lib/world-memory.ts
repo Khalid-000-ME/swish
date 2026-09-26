@@ -26,7 +26,7 @@ export interface KnownHuman {
   mode: "live" | "sandbox";
 }
 
-const STORE = resolve(process.env.BIND_WORLD_MEMORY_PATH ?? ".bind-world.json");
+const STORE = resolve(process.env.SWISH_WORLD_MEMORY_PATH ?? ".bind-world.json");
 
 export function rememberVerification(entry: KnownHuman): void {
   // A sandbox result must never overwrite a real one — that would let an

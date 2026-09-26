@@ -41,14 +41,14 @@ export function SignInStep({
   if (created) {
     return (
       <div>
-        <h2 className="text-lg font-semibold text-[var(--bind-fg)]">Your keys</h2>
-        <p className="mt-1.5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
+        <h2 className="text-lg font-semibold text-[var(--swish-fg)]">Your keys</h2>
+        <p className="mt-1.5 text-sm leading-relaxed text-[var(--swish-fg-dim)]">
           This address owns every vault below it. Agents get their own addresses, but they never own
           anything — you do.
         </p>
 
-        <div className="mt-5 rounded-xl border border-[var(--bind-line)] surface-inset p-4">
-          <div className="text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+        <div className="mt-5 rounded-xl border border-[var(--swish-line)] surface-inset p-4">
+          <div className="text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
             Public address
           </div>
           <div className="mt-1.5">
@@ -58,21 +58,21 @@ export function SignInStep({
 
         <div
           className="mt-3 rounded-xl border p-4"
-          style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)" }}
+          style={{ borderColor: "var(--swish-warn-edge)", background: "var(--swish-warn-dim)" }}
         >
           <div className="flex items-center justify-between gap-3">
-            <div className="text-[11px] uppercase tracking-wider" style={{ color: "var(--bind-warn)" }}>
+            <div className="text-[11px] uppercase tracking-wider" style={{ color: "var(--swish-warn)" }}>
               Secret key · shown once
             </div>
             <button
               onClick={() => setRevealed((r) => !r)}
-              className="text-[11px] text-[var(--bind-fg-dim)] underline underline-offset-2 transition hover:text-[var(--bind-fg)]"
+              className="text-[11px] text-[var(--swish-fg-dim)] underline underline-offset-2 transition hover:text-[var(--swish-fg)]"
             >
               {revealed ? "Hide" : "Reveal"}
             </button>
           </div>
 
-          <div className="mt-2 break-all rounded-lg surface-sunken px-3 py-2.5 font-mono text-[11px] leading-relaxed text-[var(--bind-fg)]">
+          <div className="mt-2 break-all rounded-lg surface-sunken px-3 py-2.5 font-mono text-[11px] leading-relaxed text-[var(--swish-fg)]">
             {revealed ? created.secretKey : "•".repeat(created.secretKey.length)}
           </div>
 
@@ -81,12 +81,12 @@ export function SignInStep({
               navigator.clipboard?.writeText(created.secretKey);
               setCopied(true);
             }}
-            className="mt-2 text-[11px] text-[var(--bind-fg-dim)] underline underline-offset-2 transition hover:text-[var(--bind-fg)]"
+            className="mt-2 text-[11px] text-[var(--swish-fg-dim)] underline underline-offset-2 transition hover:text-[var(--swish-fg)]"
           >
             {copied ? "Copied" : "Copy secret key"}
           </button>
 
-          <p className="mt-2.5 text-[11px] leading-relaxed text-[var(--bind-fg-dim)]">
+          <p className="mt-2.5 text-[11px] leading-relaxed text-[var(--swish-fg-dim)]">
             Write this down somewhere only you can reach. The wallet keeps its own encrypted copy so
             it can sign, but this screen is the only place the plaintext exists — reload and it&apos;s
             gone. Anyone who has it can move your money.
@@ -98,9 +98,9 @@ export function SignInStep({
             type="checkbox"
             checked={savedIt}
             onChange={(e) => setSavedIt(e.target.checked)}
-            className="mt-0.5 h-3.5 w-3.5 flex-none accent-[var(--bind-accent-2)]"
+            className="mt-0.5 h-3.5 w-3.5 flex-none accent-[var(--swish-accent-2)]"
           />
-          <span className="text-[12px] leading-snug text-[var(--bind-fg-dim)]">
+          <span className="text-[12px] leading-snug text-[var(--swish-fg-dim)]">
             I&apos;ve saved my secret key somewhere safe.
           </span>
         </label>
@@ -108,8 +108,8 @@ export function SignInStep({
         <button
           disabled={busy || !savedIt}
           onClick={() => onPasted(created.address)}
-          className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-          style={{ background: "var(--bind-mist)" }}
+          className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+          style={{ background: "var(--swish-mist)" }}
         >
           Continue
         </button>
@@ -119,8 +119,8 @@ export function SignInStep({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-[var(--bind-fg)]">Create your wallet</h2>
-      <p className="mt-1.5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
+      <h2 className="text-lg font-semibold text-[var(--swish-fg)]">Create your wallet</h2>
+      <p className="mt-1.5 text-sm leading-relaxed text-[var(--swish-fg-dim)]">
         Swish is the wallet, so it makes your keys here — you don&apos;t need another one. The address
         it creates owns every vault below it. Agents get their own addresses, but they never own
         anything.
@@ -129,8 +129,8 @@ export function SignInStep({
       <button
         disabled={busy}
         onClick={generate}
-        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-        style={{ background: "var(--bind-mist)" }}
+        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+        style={{ background: "var(--swish-mist)" }}
       >
         {busy ? "Creating…" : "Create my keys"}
       </button>
@@ -138,7 +138,7 @@ export function SignInStep({
       {!manual ? (
         <button
           onClick={() => setManual(true)}
-          className="mt-3 w-full text-[12px] text-[var(--bind-fg-faint)] underline underline-offset-2 transition hover:text-[var(--bind-fg-dim)]"
+          className="mt-3 w-full text-[12px] text-[var(--swish-fg-faint)] underline underline-offset-2 transition hover:text-[var(--swish-fg-dim)]"
         >
           I already have an address to watch
         </button>
@@ -149,17 +149,17 @@ export function SignInStep({
             onChange={(e) => setTyped(e.target.value)}
             placeholder="0x…"
             spellCheck={false}
-            className="w-full rounded-xl border border-[var(--bind-line-strong)] surface-inset px-4 py-3 font-mono text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-xl border border-[var(--swish-line-strong)] surface-inset px-4 py-3 font-mono text-sm text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
           />
           <button
             disabled={busy || !typed.trim()}
             onClick={() => onPasted(typed.trim())}
             className="mt-3 w-full rounded-full border py-3 text-sm font-semibold transition disabled:opacity-40"
-            style={{ borderColor: "var(--bind-line-strong)", color: "var(--bind-fg)" }}
+            style={{ borderColor: "var(--swish-line-strong)", color: "var(--swish-fg)" }}
           >
             Continue, watch-only
           </button>
-          <p className="mt-2 text-[11px] leading-snug text-[var(--bind-fg-faint)]">
+          <p className="mt-2 text-[11px] leading-snug text-[var(--swish-fg-faint)]">
             An address you paste can receive and be watched, but nothing here holds its key, so
             nothing here can spend from it.
           </p>

@@ -17,8 +17,8 @@ export function ApprovalsPanel({ snap, onChanged }: { snap: WalletSnapshot; onCh
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Needs you</h1>
-        <p className="mt-1 max-w-2xl text-sm text-[var(--bind-fg-dim)]">
+        <h1 className="h-wallet text-3xl text-[var(--swish-mist)]">Needs you</h1>
+        <p className="mt-1 max-w-2xl text-sm text-[var(--swish-fg-dim)]">
           Clean diffs to counterparties nobody has approved yet. Declining mints nothing at all — the
           declaration simply expires, which is what makes a refusal structural instead of a flag someone
           can flip back.
@@ -70,64 +70,64 @@ function ApprovalCard({
   return (
     <article
       className="card overflow-hidden"
-      style={{ borderColor: "color-mix(in srgb, var(--bind-warn) 45%, transparent)" }}
+      style={{ borderColor: "color-mix(in srgb, var(--swish-warn) 45%, transparent)" }}
     >
       <div className="flex flex-wrap items-start justify-between gap-3 p-4 pb-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="pulse dot" style={{ background: "var(--bind-warn)" }} />
-            <span className="text-sm font-semibold text-[var(--bind-fg)]">
+            <span className="pulse dot" style={{ background: "var(--swish-warn)" }} />
+            <span className="text-sm font-semibold text-[var(--swish-fg)]">
               {agent?.name ?? item.agentId} · {item.task}
             </span>
           </div>
-          <div className="mt-1 flex items-center gap-1.5 text-[12px] text-[var(--bind-fg-faint)]">
+          <div className="mt-1 flex items-center gap-1.5 text-[12px] text-[var(--swish-fg-faint)]">
             <span className="font-num">{fmtSui(item.amountMist)} SUI →</span>
             <ExplorerLink value={item.recipient} kind="address" />
             <span>· {timeAgo(item.ts)}</span>
           </div>
         </div>
-        <span className="pill" style={{ color: "var(--bind-warn)", background: "var(--bind-warn-dim)" }}>
+        <span className="pill" style={{ color: "var(--swish-warn)", background: "var(--swish-warn-dim)" }}>
           new counterparty
         </span>
       </div>
 
-      <p className="px-4 pb-3 text-sm italic text-[var(--bind-fg-dim)]">“{item.narration}”</p>
+      <p className="px-4 pb-3 text-sm italic text-[var(--swish-fg-dim)]">“{item.narration}”</p>
 
       <div className="px-4 pb-4">
         <DiffView item={item} />
       </div>
 
-      <div className="space-y-2.5 border-t border-[var(--bind-line)] p-4">
+      <div className="space-y-2.5 border-t border-[var(--swish-line)] p-4">
         <div className="flex flex-wrap items-center gap-2">
           <button
             disabled={busy}
             onClick={() => decide("approve")}
             className="rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-40"
-            style={{ background: "var(--bind-ok)", color: "var(--bind-black)" }}
+            style={{ background: "var(--swish-ok)", color: "var(--swish-black)" }}
           >
             Verify &amp; pay once
           </button>
           <button
             disabled={busy}
             onClick={() => decide("approve", true)}
-            className="rounded-full border px-4 py-2 text-sm font-medium transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
-            style={{ borderColor: "var(--bind-ok-edge)", color: "var(--bind-ok)" }}
+            className="rounded-full border px-4 py-2 text-sm font-medium transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
+            style={{ borderColor: "var(--swish-ok-edge)", color: "var(--swish-ok)" }}
           >
             Pay &amp; always allow
           </button>
           <button
             disabled={busy}
             onClick={() => decide("deny")}
-            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
-            style={{ borderColor: "var(--bind-line-strong)" }}
+            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--swish-fg)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
+            style={{ borderColor: "var(--swish-line-strong)" }}
           >
             Decline
           </button>
         </div>
-        <p className="text-[11px] leading-snug text-[var(--bind-fg-faint)]">
-          <strong className="text-[var(--bind-fg-dim)]">Pay once</strong> settles this payment and
+        <p className="text-[11px] leading-snug text-[var(--swish-fg-faint)]">
+          <strong className="text-[var(--swish-fg-dim)]">Pay once</strong> settles this payment and
           nothing more — {shortAddr(item.recipient)} will interrupt you again next time.{" "}
-          <strong className="text-[var(--bind-fg-dim)]">Always allow</strong> adds it to this
+          <strong className="text-[var(--swish-fg-dim)]">Always allow</strong> adds it to this
           envelope&apos;s allow-list, so your agent stops asking. That&apos;s standing authority,
           and it&apos;s how an agent earns its way to working unattended.
         </p>

@@ -89,15 +89,15 @@ export function AgentBrief({ agent, onChanged }: { agent: Agent; onChanged: () =
 
   return (
     <section className="card overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--bind-line)] px-4 py-3">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--swish-line)] px-4 py-3">
         <div className="min-w-0">
-          <div className="text-sm font-medium text-[var(--bind-fg)]">Brief</div>
-          <div className="text-[11px] text-[var(--bind-fg-faint)]">
+          <div className="text-sm font-medium text-[var(--swish-fg)]">Brief</div>
+          <div className="text-[11px] text-[var(--swish-fg-faint)]">
             Read by the model before every run
           </div>
         </div>
 
-        <div className="ml-auto flex items-center gap-1 rounded-full border border-[var(--bind-line)] p-0.5">
+        <div className="ml-auto flex items-center gap-1 rounded-full border border-[var(--swish-line)] p-0.5">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -105,8 +105,8 @@ export function AgentBrief({ agent, onChanged }: { agent: Agent; onChanged: () =
               className="rounded-full px-3 py-1 text-[12px] transition"
               style={
                 tab === t.id
-                  ? { background: "var(--bind-surface-2)", color: "var(--bind-fg)" }
-                  : { color: "var(--bind-fg-faint)" }
+                  ? { background: "var(--swish-surface-2)", color: "var(--swish-fg)" }
+                  : { color: "var(--swish-fg-faint)" }
               }
             >
               {t.label}
@@ -117,8 +117,8 @@ export function AgentBrief({ agent, onChanged }: { agent: Agent; onChanged: () =
         <button
           disabled={!dirty || saving}
           onClick={save}
-          className="rounded-full px-4 py-1.5 text-[12px] font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-          style={{ background: "var(--bind-mist)" }}
+          className="rounded-full px-4 py-1.5 text-[12px] font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+          style={{ background: "var(--swish-mist)" }}
         >
           {saving ? "Saving…" : dirty ? "Save" : "Saved"}
         </button>
@@ -133,7 +133,7 @@ export function AgentBrief({ agent, onChanged }: { agent: Agent; onChanged: () =
           spellCheck={false}
           rows={18}
           placeholder="# What this agent is for…"
-          className="block w-full resize-y surface-inset px-4 py-4 font-mono text-[12px] leading-relaxed text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)]"
+          className="block w-full resize-y surface-inset px-4 py-4 font-mono text-[12px] leading-relaxed text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)]"
         />
       ) : (
         <div
@@ -142,23 +142,23 @@ export function AgentBrief({ agent, onChanged }: { agent: Agent; onChanged: () =
         />
       )}
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-[var(--bind-line)] px-4 py-2.5">
-        <span className="text-[11px] text-[var(--bind-fg-faint)]">
+      <div className="flex flex-wrap items-center gap-3 border-t border-[var(--swish-line)] px-4 py-2.5">
+        <span className="text-[11px] text-[var(--swish-fg-faint)]">
           {draft.length.toLocaleString()} characters
           {dirty && " · unsaved"}
         </span>
 
         {error ? (
-          <span className="text-[11px]" style={{ color: "var(--bind-danger)" }}>
+          <span className="text-[11px]" style={{ color: "var(--swish-danger)" }}>
             {error}
           </span>
         ) : savedAt && !dirty ? (
-          <span className="text-[11px]" style={{ color: "var(--bind-ok)" }}>
+          <span className="text-[11px]" style={{ color: "var(--swish-ok)" }}>
             Saved — the next run reads this.
           </span>
         ) : null}
 
-        <span className="ml-auto text-[11px] text-[var(--bind-fg-faint)]">
+        <span className="ml-auto text-[11px] text-[var(--swish-fg-faint)]">
           Shapes what it intends. Caps decide what it can do.
         </span>
       </div>

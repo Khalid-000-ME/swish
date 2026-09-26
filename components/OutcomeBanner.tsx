@@ -4,32 +4,32 @@ const OUTCOME_META: Record<
 > = {
   auto_executed: {
     label: "Auto-executed",
-    color: "var(--bind-ok)",
-    bg: "var(--bind-ok-dim)",
+    color: "var(--swish-ok)",
+    bg: "var(--swish-ok-dim)",
     line: "Clean diff, allow-listed recipient — both objects consumed, funds moved.",
   },
   blocked: {
     label: "Blocked — no proof minted",
-    color: "var(--bind-danger)",
-    bg: "var(--bind-danger-dim)",
+    color: "var(--swish-danger)",
+    bg: "var(--swish-danger-dim)",
     line: "The dry-run diff found effects the declaration never named. Nothing was signed.",
   },
   hard_blocked: {
     label: "Blocked by Intercepta",
-    color: "var(--bind-danger)",
-    bg: "var(--bind-danger-dim)",
+    color: "var(--swish-danger)",
+    bg: "var(--swish-danger-dim)",
     line: "The recipient screened as flagged before any signature was considered.",
   },
   awaiting_human: {
     label: "Awaiting a verified human",
-    color: "var(--bind-warn)",
-    bg: "var(--bind-warn-dim)",
+    color: "var(--swish-warn)",
+    bg: "var(--swish-warn-dim)",
     line: "Recipient isn't on the allow-list — the only door left is a fresh World ID verification.",
   },
   override_executed: {
     label: "Executed via override",
-    color: "var(--bind-ok)",
-    bg: "var(--bind-ok-dim)",
+    color: "var(--swish-ok)",
+    bg: "var(--swish-ok-dim)",
     line: "A verified human approved this exact declaration; both objects were consumed.",
   },
 };
@@ -37,8 +37,8 @@ const OUTCOME_META: Record<
 export function OutcomeBanner({ outcome }: { outcome: string }) {
   const meta = OUTCOME_META[outcome] ?? {
     label: outcome,
-    color: "var(--bind-fg-dim)",
-    bg: "var(--bind-surface)",
+    color: "var(--swish-fg-dim)",
+    bg: "var(--swish-surface)",
     line: "",
   };
   return (
@@ -51,7 +51,7 @@ export function OutcomeBanner({ outcome }: { outcome: string }) {
         <div className="text-sm font-semibold" style={{ color: meta.color }}>
           {meta.label}
         </div>
-        <div className="mt-0.5 text-sm text-[var(--bind-fg-dim)]">{meta.line}</div>
+        <div className="mt-0.5 text-sm text-[var(--swish-fg-dim)]">{meta.line}</div>
       </div>
     </div>
   );

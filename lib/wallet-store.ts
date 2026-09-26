@@ -154,7 +154,7 @@ export interface WalletState {
   bannedAddresses: Array<{ address: string; bannedAt: number; reason: string }>;
 }
 
-const LIVE_VAULT = process.env.BIND_VAULT_ID;
+const LIVE_VAULT = process.env.SWISH_VAULT_ID;
 
 function seed(): WalletState {
   return {
@@ -326,7 +326,7 @@ export function completeOnboarding(): Onboarding {
     credentials: {
       operatorAddress: s.operator.address ?? "",
       vaultObjectId: first?.subAccounts[0]?.vaultObjectId,
-      packageId: process.env.BIND_PACKAGE_ID,
+      packageId: process.env.SWISH_PACKAGE_ID,
       agentAddress: first?.address,
       issuedAt: Date.now(),
     },

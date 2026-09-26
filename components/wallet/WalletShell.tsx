@@ -96,7 +96,7 @@ export function useWallet() {
 
 export function WalletLoading() {
   return (
-    <div className="flex min-h-dvh items-center justify-center text-sm text-[var(--bind-fg-faint)]">
+    <div className="flex min-h-dvh items-center justify-center text-sm text-[var(--swish-fg-faint)]">
       Opening wallet…
     </div>
   );

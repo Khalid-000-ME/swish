@@ -104,8 +104,8 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Agent to agent</h1>
-        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--bind-fg-dim)]">
+        <h1 className="h-wallet text-3xl text-[var(--swish-mist)]">Agent to agent</h1>
+        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--swish-fg-dim)]">
           Other agents reach this wallet over MCP, and get refused by the same rules you set. Below,
           you can do the same thing from here — in a sentence.
         </p>
@@ -113,17 +113,17 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
 
       {/* ───────────────────── the endpoint ───────────────────── */}
       <section className="card overflow-hidden">
-        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--bind-line)] px-4 py-3">
-          <span className="dot" style={{ background: mcp ? "var(--bind-ok)" : "var(--bind-warn)" }} />
-          <span className="text-sm font-medium text-[var(--bind-fg)]">MCP server</span>
-          <span className="ml-auto text-[11px] text-[var(--bind-fg-faint)]">
+        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--swish-line)] px-4 py-3">
+          <span className="dot" style={{ background: mcp ? "var(--swish-ok)" : "var(--swish-warn)" }} />
+          <span className="text-sm font-medium text-[var(--swish-fg)]">MCP server</span>
+          <span className="ml-auto text-[11px] text-[var(--swish-fg-faint)]">
             {mcp ? `protocol ${mcp.protocolVersion}` : "checking…"}
           </span>
         </div>
 
         <div className="px-4 py-4">
           <div className="flex flex-wrap items-center gap-2">
-            <code className="min-w-0 flex-1 truncate rounded-lg surface-sunken px-3 py-2 font-mono text-[12px] text-[var(--bind-fg)]">
+            <code className="min-w-0 flex-1 truncate rounded-lg surface-sunken px-3 py-2 font-mono text-[12px] text-[var(--swish-fg)]">
               {mcp?.endpoint ?? "—"}
             </code>
             <button
@@ -131,7 +131,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
                 if (config) navigator.clipboard?.writeText(config);
                 setCopied(true);
               }}
-              className="flex-none rounded-full border border-[var(--bind-line-strong)] px-3.5 py-2 text-[11.5px] text-[var(--bind-fg-dim)] transition hover:text-[var(--bind-fg)]"
+              className="flex-none rounded-full border border-[var(--swish-line-strong)] px-3.5 py-2 text-[11.5px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)]"
             >
               {copied ? "Copied config" : "Copy client config"}
             </button>
@@ -141,14 +141,14 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
             {["list_agents", "get_guardrails", "list_tasks", "propose_payment", "list_activity"].map((t) => (
               <span
                 key={t}
-                className="rounded-lg border border-[var(--bind-line)] surface-inset px-2.5 py-1.5 text-center font-mono text-[10.5px] text-[var(--bind-fg-dim)]"
+                className="rounded-lg border border-[var(--swish-line)] surface-inset px-2.5 py-1.5 text-center font-mono text-[10.5px] text-[var(--swish-fg-dim)]"
               >
                 {t}
               </span>
             ))}
           </div>
 
-          <p className="mt-3 text-[11.5px] leading-relaxed text-[var(--bind-fg-faint)]">
+          <p className="mt-3 text-[11.5px] leading-relaxed text-[var(--swish-fg-faint)]">
             Every call needs a bearer token from a connection you approved, scoped to one agent and
             one envelope, with an action budget and an expiry. An unauthenticated call is refused —
             that&apos;s the whole point of it being a wallet rather than an API.
@@ -161,10 +161,10 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
         <EmptyState title="No agents yet" line="Hire one and you can put it to work from here." />
       ) : (
         <section className="card overflow-hidden">
-          <div className="flex flex-wrap items-center gap-3 border-b border-[var(--bind-line)] px-4 py-3">
+          <div className="flex flex-wrap items-center gap-3 border-b border-[var(--swish-line)] px-4 py-3">
             <div>
-              <div className="text-sm font-medium text-[var(--bind-fg)]">Ask for something</div>
-              <div className="text-[11px] text-[var(--bind-fg-faint)]">
+              <div className="text-sm font-medium text-[var(--swish-fg)]">Ask for something</div>
+              <div className="text-[11px] text-[var(--swish-fg-faint)]">
                 Runs through the endpoint above, with a real token
               </div>
             </div>
@@ -172,7 +172,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
               <select
                 value={agent?.id}
                 onChange={(e) => setAgentId(e.target.value)}
-                className="ml-auto rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-1.5 text-[12px] text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                className="ml-auto rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-1.5 text-[12px] text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
               >
                 {snap.agents.map((a) => (
                   <option key={a.id} value={a.id}>
@@ -192,25 +192,25 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
               }}
               rows={3}
               placeholder={`Ask ${agent?.name ?? "your agent"} to do something…`}
-              className="w-full resize-y rounded-xl border border-[var(--bind-line-strong)] surface-inset px-3.5 py-3 text-[13px] leading-relaxed text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+              className="w-full resize-y rounded-xl border border-[var(--swish-line-strong)] surface-inset px-3.5 py-3 text-[13px] leading-relaxed text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
             />
 
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <button
                 disabled={run.kind === "working" || !prompt.trim()}
                 onClick={() => send(prompt)}
-                className="rounded-full px-4 py-2 text-[12.5px] font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-                style={{ background: "var(--bind-mist)" }}
+                className="rounded-full px-4 py-2 text-[12.5px] font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+                style={{ background: "var(--swish-mist)" }}
               >
                 {run.kind === "working" ? "Working…" : "Run"}
               </button>
-              <span className="text-[11px] text-[var(--bind-fg-faint)]">⌘↵</span>
+              <span className="text-[11px] text-[var(--swish-fg-faint)]">⌘↵</span>
               {mcp?.modelConfigured?.length ? (
-                <span className="ml-auto font-mono text-[10.5px] text-[var(--bind-fg-faint)]">
+                <span className="ml-auto font-mono text-[10.5px] text-[var(--swish-fg-faint)]">
                   {mcp.modelConfigured[0]}
                 </span>
               ) : (
-                <span className="ml-auto text-[11px]" style={{ color: "var(--bind-warn)" }}>
+                <span className="ml-auto text-[11px]" style={{ color: "var(--swish-warn)" }}>
                   No model configured — set GROQ_API_KEY
                 </span>
               )}
@@ -225,7 +225,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
                       setPrompt(s);
                       send(s);
                     }}
-                    className="rounded-full border border-[var(--bind-line)] px-3 py-1.5 text-left text-[11.5px] text-[var(--bind-fg-dim)] transition hover:border-[var(--bind-accent-2)] hover:text-[var(--bind-fg)]"
+                    className="rounded-full border border-[var(--swish-line)] px-3 py-1.5 text-left text-[11.5px] text-[var(--swish-fg-dim)] transition hover:border-[var(--swish-accent-2)] hover:text-[var(--swish-fg)]"
                   >
                     {s}
                   </button>
@@ -251,35 +251,35 @@ function Transcript({ run, onReset }: { run: Run; onReset: () => void }) {
       {steps.map((s, i) => (
         <details
           key={i}
-          className="rounded-xl border border-[var(--bind-line)] surface-inset px-3.5 py-2.5"
+          className="rounded-xl border border-[var(--swish-line)] surface-inset px-3.5 py-2.5"
         >
           <summary className="flex cursor-pointer items-center gap-2 text-[12px]">
             <span
               className="dot"
-              style={{ background: s.ok ? "var(--bind-ok)" : "var(--bind-danger)" }}
+              style={{ background: s.ok ? "var(--swish-ok)" : "var(--swish-danger)" }}
             />
-            <span className="font-mono text-[var(--bind-fg)]">{s.tool}</span>
-            <span className="ml-auto text-[10.5px] text-[var(--bind-fg-faint)]">
+            <span className="font-mono text-[var(--swish-fg)]">{s.tool}</span>
+            <span className="ml-auto text-[10.5px] text-[var(--swish-fg-faint)]">
               {s.ok ? "answered" : "refused"}
             </span>
           </summary>
-          <pre className="mt-2 max-h-52 overflow-auto whitespace-pre-wrap break-all rounded-lg surface-sunken px-3 py-2 font-mono text-[10.5px] leading-relaxed text-[var(--bind-fg-dim)]">
+          <pre className="mt-2 max-h-52 overflow-auto whitespace-pre-wrap break-all rounded-lg surface-sunken px-3 py-2 font-mono text-[10.5px] leading-relaxed text-[var(--swish-fg-dim)]">
             {JSON.stringify(s.output, null, 2)}
           </pre>
         </details>
       ))}
 
       {run.kind === "done" && (
-        <div className="rounded-xl border border-[var(--bind-line-strong)] surface-inset px-4 py-3">
-          <p className="text-[13px] leading-relaxed text-[var(--bind-fg)]">{run.narration}</p>
+        <div className="rounded-xl border border-[var(--swish-line-strong)] surface-inset px-4 py-3">
+          <p className="text-[13px] leading-relaxed text-[var(--swish-fg)]">{run.narration}</p>
           <div className="mt-2 flex items-center gap-3">
             <button
               onClick={onReset}
-              className="text-[11px] text-[var(--bind-fg-faint)] underline underline-offset-2 transition hover:text-[var(--bind-fg)]"
+              className="text-[11px] text-[var(--swish-fg-faint)] underline underline-offset-2 transition hover:text-[var(--swish-fg)]"
             >
               Ask something else
             </button>
-            <span className="ml-auto font-mono text-[10.5px] text-[var(--bind-fg-faint)]">
+            <span className="ml-auto font-mono text-[10.5px] text-[var(--swish-fg-faint)]">
               {run.model}
             </span>
           </div>
@@ -289,14 +289,14 @@ function Transcript({ run, onReset }: { run: Run; onReset: () => void }) {
       {run.kind === "failed" && (
         <div
           className="rounded-xl border px-4 py-3"
-          style={{ borderColor: "var(--bind-danger-edge)", background: "var(--bind-danger-dim)" }}
+          style={{ borderColor: "var(--swish-danger-edge)", background: "var(--swish-danger-dim)" }}
         >
-          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--bind-danger)" }}>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--swish-danger)" }}>
             {run.message}
           </p>
           <button
             onClick={onReset}
-            className="mt-2 text-[11px] text-[var(--bind-fg-faint)] underline underline-offset-2 transition hover:text-[var(--bind-fg)]"
+            className="mt-2 text-[11px] text-[var(--swish-fg-faint)] underline underline-offset-2 transition hover:text-[var(--swish-fg)]"
           >
             Try again
           </button>

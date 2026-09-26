@@ -45,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bricolage.variable} ${instrumentSerif.variable} ${spaceMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[var(--bind-black)] text-[var(--bind-fg)] font-sans">
+      <body className="min-h-full flex flex-col bg-[var(--swish-black)] text-[var(--swish-fg)] font-sans">
         {children}
       </body>
     </html>

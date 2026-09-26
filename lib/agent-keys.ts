@@ -12,20 +12,20 @@ import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
  * receive funds and be looked up on an explorer.
  *
  * Secrets are encrypted at rest with AES-256-GCM under
- * BIND_AGENT_KEY_SECRET and only ever decrypted server-side. They are
+ * SWISH_AGENT_KEY_SECRET and only ever decrypted server-side. They are
  * never returned to the browser, never persisted to localStorage, and
  * never included in the wallet snapshot the client holds.
  *
  * Worth being clear about the threat model: this protects the key from
  * anything reading stored state, not from someone who already has both
  * the stored state and the env var. A production deployment would put
- * BIND_AGENT_KEY_SECRET in a KMS rather than a .env file.
+ * SWISH_AGENT_KEY_SECRET in a KMS rather than a .env file.
  */
 
 const ALGO = "aes-256-gcm";
 
 function masterKey(): Buffer | null {
-  const hex = process.env.BIND_AGENT_KEY_SECRET;
+  const hex = process.env.SWISH_AGENT_KEY_SECRET;
   if (!hex) return null;
   const key = Buffer.from(hex.replace(/^0x/, ""), "hex");
   return key.length === 32 ? key : null;
@@ -76,9 +76,9 @@ export function openSecret(sealed: string): string | null {
  *
  * What lands on disk is the same AES-256-GCM blob that was already
  * described as encrypted at rest: worthless without
- * BIND_AGENT_KEY_SECRET, which is deliberately not in this file.
+ * SWISH_AGENT_KEY_SECRET, which is deliberately not in this file.
  */
-const KEYSTORE = resolve(process.env.BIND_KEYSTORE_PATH ?? ".bind-keys.json");
+const KEYSTORE = resolve(process.env.SWISH_KEYSTORE_PATH ?? ".bind-keys.json");
 
 function readKeystore(): Record<string, string> {
   try {

@@ -27,8 +27,8 @@ export function AllowlistPanel({ snap, onChanged }: { snap: WalletSnapshot; onCh
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Allow-list</h1>
-        <p className="mt-1 max-w-2xl text-sm text-[var(--bind-fg-dim)]">
+        <h1 className="h-wallet text-3xl text-[var(--swish-mist)]">Allow-list</h1>
+        <p className="mt-1 max-w-2xl text-sm text-[var(--swish-fg-dim)]">
           Who each envelope may pay without asking. Scoped per envelope on purpose — clearing a
           counterparty for market data does not clear it for vendor payouts.
         </p>
@@ -45,32 +45,32 @@ export function AllowlistPanel({ snap, onChanged }: { snap: WalletSnapshot; onCh
         {snap.agents.map((agent) =>
           agent.subAccounts.map((sub) => (
             <section key={`${agent.id}-${sub.id}`} className="card overflow-hidden">
-              <div className="flex items-center gap-2 border-b border-[var(--bind-line)] px-4 py-3">
+              <div className="flex items-center gap-2 border-b border-[var(--swish-line)] px-4 py-3">
                 <span className="dot" style={{ background: sub.accent }} />
-                <span className="text-sm font-medium text-[var(--bind-fg)]">
+                <span className="text-sm font-medium text-[var(--swish-fg)]">
                   {agent.name} · {sub.label}
                 </span>
-                <span className="ml-auto text-[11px] text-[var(--bind-fg-faint)]">
+                <span className="ml-auto text-[11px] text-[var(--swish-fg-faint)]">
                   cap <span className="font-num">{fmtSui(sub.perTxCapMist, 1)} SUI</span> / payment
                 </span>
               </div>
 
-              <div className="divide-y divide-[var(--bind-line)]">
+              <div className="divide-y divide-[var(--swish-line)]">
                 {sub.allowlist.map((e) => (
                   <div key={e.address} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
                     <div className="min-w-0">
-                      <div className="text-sm font-medium text-[var(--bind-fg)]">{e.label}</div>
+                      <div className="text-sm font-medium text-[var(--swish-fg)]">{e.label}</div>
                       <div className="mt-0.5">
-                        <ExplorerLink value={e.address} kind="address" className="font-mono text-[11px] text-[var(--bind-fg-faint)] underline decoration-[var(--bind-line-strong)] underline-offset-2 transition hover:text-[var(--bind-accent-2)]" />
+                        <ExplorerLink value={e.address} kind="address" className="font-mono text-[11px] text-[var(--swish-fg-faint)] underline decoration-[var(--swish-line-strong)] underline-offset-2 transition hover:text-[var(--swish-accent-2)]" />
                       </div>
-                      <div className="mt-1 text-[11px] text-[var(--bind-fg-faint)]">
+                      <div className="mt-1 text-[11px] text-[var(--swish-fg-faint)]">
                         {VIA_LABEL[e.addedVia] ?? e.addedVia}
                         {e.approvedBy && " · verified human"}
                       </div>
                     </div>
                     <div className="flex flex-none items-center gap-3">
-                      <div className="text-right text-[11px] text-[var(--bind-fg-faint)]">
-                        <div className="font-num text-sm text-[var(--bind-fg-dim)]">{fmtSui(e.totalPaidMist)} SUI paid</div>
+                      <div className="text-right text-[11px] text-[var(--swish-fg-faint)]">
+                        <div className="font-num text-sm text-[var(--swish-fg-dim)]">{fmtSui(e.totalPaidMist)} SUI paid</div>
                         <div>{e.lastPaidAt ? `last ${timeAgo(e.lastPaidAt)}` : "never paid"}</div>
                       </div>
                       <RemoveButton
@@ -84,7 +84,7 @@ export function AllowlistPanel({ snap, onChanged }: { snap: WalletSnapshot; onCh
                 ))}
 
                 {sub.allowlist.length === 0 && (
-                  <p className="px-4 py-3 text-[12px] text-[var(--bind-fg-faint)]">
+                  <p className="px-4 py-3 text-[12px] text-[var(--swish-fg-faint)]">
                     Nothing cleared. Every payment out of this envelope stops for you first.
                   </p>
                 )}
@@ -151,33 +151,33 @@ function ClearForm({
   }
 
   return (
-    <div className="border-t border-[var(--bind-line)] surface-inset px-4 py-3">
+    <div className="border-t border-[var(--swish-line)] surface-inset px-4 py-3">
       <div className="flex flex-wrap items-center gap-2">
         <input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="0x… counterparty address"
           spellCheck={false}
-          className="min-w-0 flex-[2] rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 font-mono text-[12px] text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+          className="min-w-0 flex-[2] rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2 font-mono text-[12px] text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
         />
         <input
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder="Who they are"
-          className="min-w-0 flex-1 rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-[12px] text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+          className="min-w-0 flex-1 rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2 text-[12px] text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
         />
         <button
           disabled={busy || address.trim().length === 0}
           onClick={submit}
-          className="rounded-full px-4 py-2 text-[12px] font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-          style={{ background: "var(--bind-mist)" }}
+          className="rounded-full px-4 py-2 text-[12px] font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+          style={{ background: "var(--swish-mist)" }}
         >
           {busy ? "Clearing…" : "Clear"}
         </button>
       </div>
-      <p className="mt-2 text-[11px] leading-relaxed text-[var(--bind-fg-faint)]">
+      <p className="mt-2 text-[11px] leading-relaxed text-[var(--swish-fg-faint)]">
         {note ? (
-          <span style={{ color: note.ok ? "var(--bind-ok)" : "var(--bind-danger)" }}>{note.text}</span>
+          <span style={{ color: note.ok ? "var(--swish-ok)" : "var(--swish-danger)" }}>{note.text}</span>
         ) : onChain ? (
           "Goes to the vault first — the contract checks its own list, not this one, so they have to agree."
         ) : (
@@ -227,11 +227,11 @@ function RemoveButton({
         disabled={busy}
         onClick={remove}
         title="Withdraw standing permission"
-        className="rounded-full border border-[var(--bind-line-strong)] px-3 py-1.5 text-[11px] text-[var(--bind-fg-dim)] transition hover:border-[var(--bind-danger)] hover:text-[var(--bind-danger)] disabled:opacity-40"
+        className="rounded-full border border-[var(--swish-line-strong)] px-3 py-1.5 text-[11px] text-[var(--swish-fg-dim)] transition hover:border-[var(--swish-danger)] hover:text-[var(--swish-danger)] disabled:opacity-40"
       >
         {busy ? "Withdrawing…" : "Withdraw"}
       </button>
-      {failed && <div className="mt-1 max-w-40 text-[10px]" style={{ color: "var(--bind-danger)" }}>{failed}</div>}
+      {failed && <div className="mt-1 max-w-40 text-[10px]" style={{ color: "var(--swish-danger)" }}>{failed}</div>}
     </div>
   );
 }

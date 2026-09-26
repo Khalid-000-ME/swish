@@ -145,7 +145,7 @@ sui client call \
   --gas-budget 50000000
 
 echo "==> Exporting the CLI address's own key for lib/mint.ts's executor()"
-# BIND_EXECUTOR_KEY is a DIFFERENT key from BIND_ATTEST_PRIVKEY above: this
+# SWISH_EXECUTOR_KEY is a DIFFERENT key from SWISH_ATTEST_PRIVKEY above: this
 # one signs and submits real transactions (pays gas), the other only signs
 # the off-chain attestation message that ed25519_verify checks on-chain.
 EXECUTOR_KEY=$(sui keytool export --key-identity "$AGENT_ADDR" --json | node -e '
@@ -153,20 +153,20 @@ EXECUTOR_KEY=$(sui keytool export --key-identity "$AGENT_ADDR" --json | node -e 
   console.log(d.exportedPrivateKey ?? d.privateKey ?? d.key);
 ')
 
-# Replace in place rather than append. Appending left two BIND_PACKAGE_ID
+# Replace in place rather than append. Appending left two SWISH_PACKAGE_ID
 # lines in the file and relied on the reader taking the last one, which is
 # a parser detail to be betting a demo on.
 node -e '
 const fs = require("fs");
 const path = ".env.local";
 const next = {
-  BIND_PACKAGE_ID: process.argv[1],
-  BIND_REGISTRY_ID: process.argv[2],
-  BIND_VAULT_ID: process.argv[3],
-  BIND_AGENT_CAP_ID: process.argv[4],
-  BIND_EXECUTOR_KEY: process.argv[5],
-  BIND_ATTEST_PRIVKEY: process.argv[6],
-  BIND_DEMO_SENDER: process.argv[7],
+  SWISH_PACKAGE_ID: process.argv[1],
+  SWISH_REGISTRY_ID: process.argv[2],
+  SWISH_VAULT_ID: process.argv[3],
+  SWISH_AGENT_CAP_ID: process.argv[4],
+  SWISH_EXECUTOR_KEY: process.argv[5],
+  SWISH_ATTEST_PRIVKEY: process.argv[6],
+  SWISH_DEMO_SENDER: process.argv[7],
 };
 let lines = fs.existsSync(path) ? fs.readFileSync(path, "utf8").split("\n") : [];
 for (const [k, v] of Object.entries(next)) {

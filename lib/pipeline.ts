@@ -13,7 +13,7 @@ import type { ActivityItem } from "./wallet-store";
 import { BindSession } from "@/agent/session";
 
 const DEMO_SENDER =
-  process.env.BIND_DEMO_SENDER || "0x4b13e003946a7b677de38415d5395a9703c11f26ab0ed44675491dfcc1fd4869";
+  process.env.SWISH_DEMO_SENDER || "0x4b13e003946a7b677de38415d5395a9703c11f26ab0ed44675491dfcc1fd4869";
 
 function syntheticDryRun(vaultId: string, decl: Declaration, ptb: BuiltPtb): DryRunResult {
   const balanceChanges = [{ owner: vaultId, coinType: decl.coinType, amount: -decl.maxAmount }];

@@ -19,7 +19,7 @@ export class BindSession {
       // published + created (see scripts/deploy.sh / .env.local) — a
       // Declaration minted with a mismatched vault_id aborts on-chain
       // with E_WRONG_VAULT, which is exactly how this got caught.
-      id: process.env.BIND_VAULT_ID || DEMO_ADDRESSES.vault,
+      id: process.env.SWISH_VAULT_ID || DEMO_ADDRESSES.vault,
       owner: DEMO_ADDRESSES.owner,
       agent: DEMO_ADDRESSES.agent,
       balance: 10_000_000_000n, // 10 SUI

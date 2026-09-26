@@ -49,9 +49,9 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
   return (
     <div className="mx-auto w-full max-w-xl px-5 py-10">
       <div className="mb-8 text-center">
-        <SwishMark size={18} className="mx-auto mb-5" />
-        <h1 className="h-wallet text-4xl text-[var(--bind-mist)]">Set up your wallet</h1>
-        <p className="mt-2 text-sm text-[var(--bind-fg-dim)]">
+        <SwishMark size={30} className="mx-auto mb-5" />
+        <h1 className="h-wallet text-4xl text-[var(--swish-mist)]">Set up your wallet</h1>
+        <p className="mt-2 text-sm text-[var(--swish-fg-dim)]">
           Four steps. Nothing can hold money until all four are done.
         </p>
       </div>
@@ -66,18 +66,18 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
               <div
                 className="h-[3px] rounded-full transition-all"
                 style={{
-                  background: done ? "var(--bind-ok)" : active ? "var(--bind-accent-2)" : "var(--bind-line-strong)",
+                  background: done ? "var(--swish-ok)" : active ? "var(--swish-accent-2)" : "var(--swish-line-strong)",
                 }}
               />
               <div className="mt-2">
                 <div
                   className="text-[12px] font-medium"
-                  style={{ color: active ? "var(--bind-fg)" : done ? "var(--bind-ok)" : "var(--bind-fg-faint)" }}
+                  style={{ color: active ? "var(--swish-fg)" : done ? "var(--swish-ok)" : "var(--swish-fg-faint)" }}
                 >
                   {done ? "✓ " : ""}
                   {s.label}
                 </div>
-                <div className="text-[10px] text-[var(--bind-fg-faint)]">{s.caption}</div>
+                <div className="text-[10px] text-[var(--swish-fg-faint)]">{s.caption}</div>
               </div>
             </div>
           );
@@ -110,7 +110,7 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
         {step === "agent" && <HireStep busy={busy} onSubmit={(payload) => post({ step: "agent", ...payload })} />}
 
         {error && (
-          <p className="mt-4 text-sm" style={{ color: "var(--bind-danger)" }}>
+          <p className="mt-4 text-sm" style={{ color: "var(--swish-danger)" }}>
             {error}
           </p>
         )}
@@ -142,8 +142,8 @@ function VerifyStep({
   if (knownHuman) {
     return (
       <div>
-        <h2 className="text-lg font-semibold text-[var(--bind-fg)]">You&apos;re already verified</h2>
-        <p className="mt-1.5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
+        <h2 className="text-lg font-semibold text-[var(--swish-fg)]">You&apos;re already verified</h2>
+        <p className="mt-1.5 text-sm leading-relaxed text-[var(--swish-fg-dim)]">
           World recognised you on {new Date(knownHuman.verifiedAt).toLocaleDateString()}. A World ID
           verifies once per action by design, so there&apos;s nothing to do again here — that refusal
           to repeat is the guarantee working.
@@ -151,21 +151,21 @@ function VerifyStep({
 
         <div
           className="mt-5 rounded-xl border p-4"
-          style={{ borderColor: "var(--bind-ok-edge)", background: "var(--bind-ok-dim)" }}
+          style={{ borderColor: "var(--swish-ok-edge)", background: "var(--swish-ok-dim)" }}
         >
           <div className="flex items-center gap-2">
-            <span className="dot" style={{ background: "var(--bind-ok)" }} />
-            <span className="text-sm font-medium" style={{ color: "var(--bind-ok)" }}>
+            <span className="dot" style={{ background: "var(--swish-ok)" }} />
+            <span className="text-sm font-medium" style={{ color: "var(--swish-ok)" }}>
               {knownHuman.mode === "live" ? "Verified with World ID" : "Verified in sandbox"}
             </span>
           </div>
-          <div className="mt-2 text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+          <div className="mt-2 text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
             Nullifier
           </div>
-          <div className="mt-1 break-all font-mono text-[11px] text-[var(--bind-fg-dim)]">
+          <div className="mt-1 break-all font-mono text-[11px] text-[var(--swish-fg-dim)]">
             {knownHuman.nullifierHash}
           </div>
-          <p className="mt-2 text-[11px] leading-snug text-[var(--bind-fg-faint)]">
+          <p className="mt-2 text-[11px] leading-snug text-[var(--swish-fg-faint)]">
             A per-action pseudonym, not an identity. It says &ldquo;the same human as last time&rdquo;
             and nothing else.
           </p>
@@ -174,8 +174,8 @@ function VerifyStep({
         <button
           disabled={busy}
           onClick={onUseRemembered}
-          className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-          style={{ background: "var(--bind-mist)" }}
+          className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+          style={{ background: "var(--swish-mist)" }}
         >
           Continue
         </button>
@@ -185,8 +185,8 @@ function VerifyStep({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-[var(--bind-fg)]">Prove you&apos;re one human</h2>
-      <p className="mt-1.5 mb-5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
+      <h2 className="text-lg font-semibold text-[var(--swish-fg)]">Prove you&apos;re one human</h2>
+      <p className="mt-1.5 mb-5 text-sm leading-relaxed text-[var(--swish-fg-dim)]">
         Every agent you hire is bound to this verification. It&apos;s what makes &ldquo;ask the
         human&rdquo; mean a specific person rather than whoever holds a key.
       </p>
@@ -204,20 +204,20 @@ function VerifyStep({
 function VaultStep({ busy, chainLive, onNext }: { busy: boolean; chainLive: boolean; onNext: () => void }) {
   return (
     <div>
-      <h2 className="text-lg font-semibold text-[var(--bind-fg)]">Your vault</h2>
-      <p className="mt-1.5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
+      <h2 className="text-lg font-semibold text-[var(--swish-fg)]">Your vault</h2>
+      <p className="mt-1.5 text-sm leading-relaxed text-[var(--swish-fg-dim)]">
         Money lives in a vault you own, not in the agent. The agent gets a spending envelope carved
         out of it — capped, allow-listed, and revocable — and can never reach past that.
       </p>
 
-      <div className="mt-5 rounded-xl border border-[var(--bind-line)] surface-inset p-4">
+      <div className="mt-5 rounded-xl border border-[var(--swish-line)] surface-inset p-4">
         <div className="flex items-center gap-2">
-          <span className="dot" style={{ background: chainLive ? "var(--bind-ok)" : "var(--bind-warn)" }} />
-          <span className="text-sm font-medium text-[var(--bind-fg)]">
+          <span className="dot" style={{ background: chainLive ? "var(--swish-ok)" : "var(--swish-warn)" }} />
+          <span className="text-sm font-medium text-[var(--swish-fg)]">
             {chainLive ? "Vault contract is live on Sui testnet" : "Running without a published vault"}
           </span>
         </div>
-        <p className="mt-1.5 text-[12px] leading-snug text-[var(--bind-fg-faint)]">
+        <p className="mt-1.5 text-[12px] leading-snug text-[var(--swish-fg-faint)]">
           {chainLive
             ? "Your first agent's envelope will be the real on-chain vault object — payments from it settle for real."
             : "Envelopes will be tracked locally and labelled as simulated until a vault is published."}
@@ -227,8 +227,8 @@ function VaultStep({ busy, chainLive, onNext }: { busy: boolean; chainLive: bool
       <button
         disabled={busy}
         onClick={onNext}
-        className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-        style={{ background: "var(--bind-mist)" }}
+        className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+        style={{ background: "var(--swish-mist)" }}
       >
         Continue
       </button>
@@ -251,8 +251,8 @@ function HireStep({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-[var(--bind-fg)]">Hire your first agent</h2>
-      <p className="mt-1.5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
+      <h2 className="text-lg font-semibold text-[var(--swish-fg)]">Hire your first agent</h2>
+      <p className="mt-1.5 text-sm leading-relaxed text-[var(--swish-fg-dim)]">
         Give it a name, a job, and a small budget. It starts with an empty allow-list — it can&apos;t
         pay anyone until you approve them once.
       </p>
@@ -263,7 +263,7 @@ function HireStep({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Atlas"
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
           />
         </Field>
         <Field label="What it does">
@@ -271,14 +271,14 @@ function HireStep({
             value={role}
             onChange={(e) => setRole(e.target.value)}
             placeholder="Market data & research"
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
           />
         </Field>
         <Field label="Envelope">
           <input
             value={envelopeLabel}
             onChange={(e) => setEnvelopeLabel(e.target.value)}
-            className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+            className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
           />
         </Field>
 
@@ -290,7 +290,7 @@ function HireStep({
               min="0"
               value={startingSui}
               onChange={(e) => setStartingSui(Number(e.target.value))}
-              className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+              className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
             />
           </Field>
           <Field label="Cap per payment (SUI)">
@@ -300,7 +300,7 @@ function HireStep({
               min="0"
               value={perTxCapSui}
               onChange={(e) => setPerTxCapSui(Number(e.target.value))}
-              className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+              className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
             />
           </Field>
         </div>
@@ -309,8 +309,8 @@ function HireStep({
       <button
         disabled={busy || !name.trim()}
         onClick={() => onSubmit({ name, role, envelopeLabel, startingSui, perTxCapSui })}
-        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-        style={{ background: "var(--bind-mist)" }}
+        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+        style={{ background: "var(--swish-mist)" }}
       >
         Hire {name.trim() || "agent"}
       </button>
@@ -321,7 +321,7 @@ function HireStep({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">{label}</span>
+      <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">{label}</span>
       {children}
     </label>
   );
@@ -341,30 +341,30 @@ function Credentials({ snap, onDone }: { snap: WalletSnapshot; onDone: () => voi
   return (
     <div className="mx-auto w-full max-w-xl px-5 py-10">
       <div className="mb-7 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "var(--bind-ok-dim)" }}>
-          <span className="text-xl" style={{ color: "var(--bind-ok)" }}>
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "var(--swish-ok-dim)" }}>
+          <span className="text-xl" style={{ color: "var(--swish-ok)" }}>
             ✓
           </span>
         </div>
-        <h1 className="h-wallet text-4xl text-[var(--bind-mist)]">You&apos;re set up</h1>
-        <p className="mt-2 text-sm text-[var(--bind-fg-dim)]">
+        <h1 className="h-wallet text-4xl text-[var(--swish-mist)]">You&apos;re set up</h1>
+        <p className="mt-2 text-sm text-[var(--swish-fg-dim)]">
           Keep these somewhere. They identify your wallet on-chain — they aren&apos;t secrets, and
           signing keys never leave the server.
         </p>
       </div>
 
-      <div className="card divide-y divide-[var(--bind-line)]">
+      <div className="card divide-y divide-[var(--swish-line)]">
         {rows
           .filter(([, v]) => Boolean(v))
           .map(([label, value, kind]) => (
             <div key={label} className="flex items-center justify-between gap-4 p-4">
-              <span className="text-[12px] text-[var(--bind-fg-faint)]">{label}</span>
+              <span className="text-[12px] text-[var(--swish-fg-faint)]">{label}</span>
               <div className="flex items-center gap-3">
                 <ExplorerLink value={value!} kind={kind} />
                 <button
                   onClick={() => navigator.clipboard?.writeText(value!)}
                   title="Copy"
-                  className="text-[11px] text-[var(--bind-fg-faint)] transition hover:text-[var(--bind-fg)]"
+                  className="text-[11px] text-[var(--swish-fg-faint)] transition hover:text-[var(--swish-fg)]"
                 >
                   Copy
                 </button>
@@ -375,8 +375,8 @@ function Credentials({ snap, onDone }: { snap: WalletSnapshot; onDone: () => voi
 
       <button
         onClick={onDone}
-        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)]"
-        style={{ background: "var(--bind-mist)" }}
+        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)]"
+        style={{ background: "var(--swish-mist)" }}
       >
         Open my wallet
       </button>

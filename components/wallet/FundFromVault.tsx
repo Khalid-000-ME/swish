@@ -67,15 +67,15 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
 
   return (
     <section className="card overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--bind-line)] px-4 py-3">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--swish-line)] px-4 py-3">
         <div>
-          <div className="text-sm font-medium text-[var(--bind-fg)]">Top up from the vault</div>
-          <div className="text-[11px] text-[var(--bind-fg-faint)]">
+          <div className="text-sm font-medium text-[var(--swish-fg)]">Top up from the vault</div>
+          <div className="text-[11px] text-[var(--swish-fg-faint)]">
             Your money, out of your own envelope — not an agent payment
           </div>
         </div>
-        <span className="ml-auto text-[11px] text-[var(--bind-fg-faint)]">
-          <span className="font-num text-[var(--bind-fg-dim)]">{fmtSui(sub.balanceMist, 3)} SUI</span>{" "}
+        <span className="ml-auto text-[11px] text-[var(--swish-fg-faint)]">
+          <span className="font-num text-[var(--swish-fg-dim)]">{fmtSui(sub.balanceMist, 3)} SUI</span>{" "}
           available
         </span>
       </div>
@@ -84,12 +84,12 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
         {stage.kind === "done" ? (
           <div
             className="rounded-xl border px-4 py-3"
-            style={{ borderColor: "var(--bind-ok-edge)", background: "var(--bind-ok-dim)" }}
+            style={{ borderColor: "var(--swish-ok-edge)", background: "var(--swish-ok-dim)" }}
           >
-            <div className="text-sm font-medium" style={{ color: "var(--bind-ok)" }}>
+            <div className="text-sm font-medium" style={{ color: "var(--swish-ok)" }}>
               Sent {stage.amountSui} SUI to {agent.name}
             </div>
-            <p className="mt-1 text-[12px] text-[var(--bind-fg-dim)]">
+            <p className="mt-1 text-[12px] text-[var(--swish-fg-dim)]">
               Out of {stage.fromEnvelope}. Check it yourself:
             </p>
             <div className="mt-1.5">
@@ -97,7 +97,7 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
             </div>
             <button
               onClick={() => setStage({ kind: "idle" })}
-              className="mt-3 text-[11px] text-[var(--bind-fg-faint)] underline underline-offset-2 transition hover:text-[var(--bind-fg)]"
+              className="mt-3 text-[11px] text-[var(--swish-fg-faint)] underline underline-offset-2 transition hover:text-[var(--swish-fg)]"
             >
               Send another
             </button>
@@ -105,14 +105,14 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
         ) : stage.kind === "confirming" ? (
           <div
             className="rounded-xl border px-4 py-3"
-            style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)" }}
+            style={{ borderColor: "var(--swish-warn-edge)", background: "var(--swish-warn-dim)" }}
           >
-            <div className="text-sm font-medium" style={{ color: "var(--bind-warn)" }}>
+            <div className="text-sm font-medium" style={{ color: "var(--swish-warn)" }}>
               Approve this withdrawal
             </div>
-            <p className="mt-1.5 text-[12.5px] leading-relaxed text-[var(--bind-fg-dim)]">
-              <strong className="text-[var(--bind-fg)]">{stage.amountSui} SUI</strong> leaves{" "}
-              <strong className="text-[var(--bind-fg)]">{sub.label}</strong> and lands at{" "}
+            <p className="mt-1.5 text-[12.5px] leading-relaxed text-[var(--swish-fg-dim)]">
+              <strong className="text-[var(--swish-fg)]">{stage.amountSui} SUI</strong> leaves{" "}
+              <strong className="text-[var(--swish-fg)]">{sub.label}</strong> and lands at{" "}
               {agent.name}&apos;s own address, where {agent.name} can spend it on gas without asking
               you again.
             </p>
@@ -120,20 +120,20 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
               <ExplorerLink
                 value={agent.address}
                 kind="address"
-                className="font-mono text-[11px] text-[var(--bind-fg-faint)] underline decoration-[var(--bind-line-strong)] underline-offset-2"
+                className="font-mono text-[11px] text-[var(--swish-fg-faint)] underline decoration-[var(--swish-line-strong)] underline-offset-2"
               />
             </div>
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => send(stage.amountSui)}
-                className="rounded-full px-4 py-2 text-[12px] font-semibold text-[var(--bind-black)]"
-                style={{ background: "var(--bind-mist)" }}
+                className="rounded-full px-4 py-2 text-[12px] font-semibold text-[var(--swish-black)]"
+                style={{ background: "var(--swish-mist)" }}
               >
                 Approve and send
               </button>
               <button
                 onClick={() => setStage({ kind: "idle" })}
-                className="rounded-full border border-[var(--bind-line-strong)] px-4 py-2 text-[12px] text-[var(--bind-fg-dim)] transition hover:text-[var(--bind-fg)]"
+                className="rounded-full border border-[var(--swish-line-strong)] px-4 py-2 text-[12px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)]"
               >
                 Cancel
               </button>
@@ -144,13 +144,13 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
             <div className="flex flex-wrap items-end gap-2.5">
               {onChain.length > 1 && (
                 <label className="flex-1">
-                  <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+                  <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
                     From
                   </span>
                   <select
                     value={sub.id}
                     onChange={(e) => setSubId(e.target.value)}
-                    className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                    className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
                   >
                     {onChain.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -162,7 +162,7 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
               )}
 
               <label className="flex-1">
-                <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+                <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
                   Amount
                 </span>
                 <div className="flex items-center gap-2">
@@ -172,29 +172,29 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
                     min="0"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                    className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2.5 text-sm text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
                   />
-                  <span className="text-[12px] text-[var(--bind-fg-faint)]">SUI</span>
+                  <span className="text-[12px] text-[var(--swish-fg-faint)]">SUI</span>
                 </div>
               </label>
 
               <button
                 disabled={!valid || stage.kind === "sending"}
                 onClick={() => setStage({ kind: "confirming", amountSui: parsed })}
-                className="rounded-full px-5 py-2.5 text-[12.5px] font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-                style={{ background: "var(--bind-mist)" }}
+                className="rounded-full px-5 py-2.5 text-[12.5px] font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+                style={{ background: "var(--swish-mist)" }}
               >
                 {stage.kind === "sending" ? "Sending…" : "Review"}
               </button>
             </div>
 
             {stage.kind === "failed" && (
-              <p className="mt-2.5 text-[11.5px] leading-relaxed" style={{ color: "var(--bind-danger)" }}>
+              <p className="mt-2.5 text-[11.5px] leading-relaxed" style={{ color: "var(--swish-danger)" }}>
                 {stage.message}
               </p>
             )}
             {stage.kind !== "failed" && (
-              <p className="mt-2.5 text-[11px] leading-relaxed text-[var(--bind-fg-faint)]">
+              <p className="mt-2.5 text-[11px] leading-relaxed text-[var(--swish-fg-faint)]">
                 Owner-only on chain. This doesn&apos;t touch the per-payment cap, the window or the
                 allow-list — those bound {agent.name}, not you.
               </p>

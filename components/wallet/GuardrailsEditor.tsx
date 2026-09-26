@@ -70,10 +70,10 @@ export function GuardrailsEditor({
   return (
     <section className="card p-5">
       <div className="mb-1 flex items-baseline justify-between">
-        <h2 className="text-sm font-semibold text-[var(--bind-fg)]">Guardrails</h2>
-        <span className="text-[11px] text-[var(--bind-fg-faint)]">{sub.label}</span>
+        <h2 className="text-sm font-semibold text-[var(--swish-fg)]">Guardrails</h2>
+        <span className="text-[11px] text-[var(--swish-fg-faint)]">{sub.label}</span>
       </div>
-      <p className="mb-4 text-[12px] leading-snug text-[var(--bind-fg-faint)]">
+      <p className="mb-4 text-[12px] leading-snug text-[var(--swish-fg-faint)]">
         What this envelope is allowed to do. Anything breaking these is refused before the agent
         signs — not flagged afterwards.
       </p>
@@ -114,9 +114,9 @@ export function GuardrailsEditor({
             step={5}
             value={maxRiskScore}
             onChange={(e) => setMaxRiskScore(Number(e.target.value))}
-            className="w-full accent-[var(--bind-accent-2)]"
+            className="w-full accent-[var(--swish-accent-2)]"
           />
-          <span className="w-10 text-right text-sm tabular-nums text-[var(--bind-fg)]">{maxRiskScore}</span>
+          <span className="w-10 text-right text-sm tabular-nums text-[var(--swish-fg)]">{maxRiskScore}</span>
         </Field>
       </div>
 
@@ -126,18 +126,18 @@ export function GuardrailsEditor({
         <button
           disabled={busy}
           onClick={save}
-          className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-          style={{ background: "var(--bind-mist)" }}
+          className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+          style={{ background: "var(--swish-mist)" }}
         >
           {busy ? "Saving…" : "Save guardrails"}
         </button>
         {saved && !error && (
-          <span className="text-[12px]" style={{ color: "var(--bind-ok)" }}>
+          <span className="text-[12px]" style={{ color: "var(--swish-ok)" }}>
             Saved
           </span>
         )}
         {error && (
-          <span className="text-[12px]" style={{ color: "var(--bind-danger)" }}>
+          <span className="text-[12px]" style={{ color: "var(--swish-danger)" }}>
             {error}
           </span>
         )}
@@ -191,14 +191,14 @@ function CustomLimits({
   }
 
   return (
-    <div className="mt-6 border-t border-[var(--bind-line)] pt-5">
+    <div className="mt-6 border-t border-[var(--swish-line)] pt-5">
       <div className="flex items-baseline justify-between">
-        <h3 className="text-[13px] font-semibold text-[var(--bind-fg)]">Your own limits</h3>
-        <span className="text-[11px] text-[var(--bind-fg-faint)]">
+        <h3 className="text-[13px] font-semibold text-[var(--swish-fg)]">Your own limits</h3>
+        <span className="text-[11px] text-[var(--swish-fg-faint)]">
           {limits.length === 0 ? "none set" : `${limits.length} set`}
         </span>
       </div>
-      <p className="mt-1 text-[11.5px] leading-snug text-[var(--bind-fg-faint)]">
+      <p className="mt-1 text-[11.5px] leading-snug text-[var(--swish-fg-faint)]">
         Name a rule in your words. It&apos;s checked by the same engine as everything above, and what
         you write here is what a refusal says.
       </p>
@@ -210,26 +210,26 @@ function CustomLimits({
             return (
               <div
                 key={l.id}
-                className="flex flex-wrap items-start gap-3 rounded-xl border border-[var(--bind-line)] surface-inset px-3.5 py-2.5"
+                className="flex flex-wrap items-start gap-3 rounded-xl border border-[var(--swish-line)] surface-inset px-3.5 py-2.5"
               >
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13px] font-medium text-[var(--bind-fg)]">{l.title}</div>
-                  <div className="mt-0.5 text-[11px] text-[var(--bind-fg-faint)]">
+                  <div className="text-[13px] font-medium text-[var(--swish-fg)]">{l.title}</div>
+                  <div className="mt-0.5 text-[11px] text-[var(--swish-fg-faint)]">
                     {m?.label ?? l.metric} · {l.metric === "risk" ? "at or above" : "over"}{" "}
-                    <span className="text-[var(--bind-fg-dim)]">
+                    <span className="text-[var(--swish-fg-dim)]">
                       {l.limit}
                       {m?.unit === "/100" ? m.unit : ` ${m?.unit ?? ""}`}
                     </span>
                   </div>
                   {l.description && (
-                    <div className="mt-1 text-[11.5px] leading-snug text-[var(--bind-fg-dim)]">
+                    <div className="mt-1 text-[11.5px] leading-snug text-[var(--swish-fg-dim)]">
                       {l.description}
                     </div>
                   )}
                 </div>
                 <button
                   onClick={() => onChange(limits.filter((x) => x.id !== l.id))}
-                  className="flex-none text-[11px] text-[var(--bind-fg-faint)] underline underline-offset-2 transition hover:text-[var(--bind-danger)]"
+                  className="flex-none text-[11px] text-[var(--swish-fg-faint)] underline underline-offset-2 transition hover:text-[var(--swish-danger)]"
                 >
                   Remove
                 </button>
@@ -240,40 +240,40 @@ function CustomLimits({
       )}
 
       {adding ? (
-        <div className="mt-3 rounded-xl border border-[var(--bind-line-strong)] surface-inset p-3.5">
+        <div className="mt-3 rounded-xl border border-[var(--swish-line-strong)] surface-inset p-3.5">
           <label className="block">
-            <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+            <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
               Title
             </span>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="No big spends before I'm awake"
-              className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+              className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
             />
           </label>
 
           <label className="mt-2.5 block">
-            <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+            <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
               Description
             </span>
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Why this exists — shown when it stops a payment."
-              className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+              className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
             />
           </label>
 
           <div className="mt-2.5 flex flex-wrap items-end gap-2.5">
             <label className="min-w-44 flex-1">
-              <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+              <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
                 Measure
               </span>
               <select
                 value={metric}
                 onChange={(e) => setMetric(e.target.value as CustomMetric)}
-                className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
               >
                 {CUSTOM_METRICS.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -284,7 +284,7 @@ function CustomLimits({
             </label>
 
             <label className="w-32">
-              <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+              <span className="mb-1.5 block text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
                 {metric === "risk" ? "At or above" : "No more than"}
               </span>
               <div className="flex items-center gap-1.5">
@@ -294,27 +294,27 @@ function CustomLimits({
                   min="0"
                   value={limit}
                   onChange={(e) => setLimit(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none focus:border-[var(--bind-accent-2)]"
+                  className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--swish-fg)] outline-none focus:border-[var(--swish-accent-2)]"
                 />
-                <span className="text-[11px] text-[var(--bind-fg-faint)]">{spec.unit}</span>
+                <span className="text-[11px] text-[var(--swish-fg-faint)]">{spec.unit}</span>
               </div>
             </label>
           </div>
 
-          <p className="mt-2 text-[11px] text-[var(--bind-fg-faint)]">{spec.hint}</p>
+          <p className="mt-2 text-[11px] text-[var(--swish-fg-faint)]">{spec.hint}</p>
 
           <div className="mt-3 flex gap-2">
             <button
               disabled={!valid}
               onClick={add}
-              className="rounded-full px-4 py-1.5 text-[12px] font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-              style={{ background: "var(--bind-mist)" }}
+              className="rounded-full px-4 py-1.5 text-[12px] font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+              style={{ background: "var(--swish-mist)" }}
             >
               Add limit
             </button>
             <button
               onClick={() => setAdding(false)}
-              className="rounded-full border border-[var(--bind-line-strong)] px-4 py-1.5 text-[12px] text-[var(--bind-fg-dim)] transition hover:text-[var(--bind-fg)]"
+              className="rounded-full border border-[var(--swish-line-strong)] px-4 py-1.5 text-[12px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)]"
             >
               Cancel
             </button>
@@ -323,7 +323,7 @@ function CustomLimits({
       ) : (
         <button
           onClick={() => setAdding(true)}
-          className="mt-3 w-full rounded-xl border border-dashed border-[var(--bind-line-strong)] py-2.5 text-[12.5px] text-[var(--bind-fg-dim)] transition hover:border-[var(--bind-accent-2)] hover:text-[var(--bind-fg)]"
+          className="mt-3 w-full rounded-xl border border-dashed border-[var(--swish-line-strong)] py-2.5 text-[12.5px] text-[var(--swish-fg-dim)] transition hover:border-[var(--swish-accent-2)] hover:text-[var(--swish-fg)]"
         >
           + Add more
         </button>
@@ -346,15 +346,15 @@ function Field({
   return (
     <div>
       <div className="mb-1.5 flex items-center gap-2">
-        <span className="text-[13px] text-[var(--bind-fg)]">{label}</span>
+        <span className="text-[13px] text-[var(--swish-fg)]">{label}</span>
         {onChain && (
-          <span className="status" style={{ color: "var(--bind-ok)" }}>
+          <span className="status" style={{ color: "var(--swish-ok)" }}>
             on-chain
           </span>
         )}
       </div>
       <div className="flex items-center gap-3">{children}</div>
-      <div className="mt-1 text-[11px] text-[var(--bind-fg-faint)]">{hint}</div>
+      <div className="mt-1 text-[11px] text-[var(--swish-fg-faint)]">{hint}</div>
     </div>
   );
 }
@@ -363,15 +363,15 @@ function Row({ label, hint, value, onChain }: { label: string; hint: string; val
   return (
     <div>
       <div className="mb-1 flex items-center gap-2">
-        <span className="text-[13px] text-[var(--bind-fg)]">{label}</span>
+        <span className="text-[13px] text-[var(--swish-fg)]">{label}</span>
         {onChain && (
-          <span className="status" style={{ color: "var(--bind-ok)" }}>
+          <span className="status" style={{ color: "var(--swish-ok)" }}>
             on-chain
           </span>
         )}
-        <span className="ml-auto text-sm text-[var(--bind-fg-dim)]">{value}</span>
+        <span className="ml-auto text-sm text-[var(--swish-fg-dim)]">{value}</span>
       </div>
-      <div className="text-[11px] text-[var(--bind-fg-faint)]">{hint}</div>
+      <div className="text-[11px] text-[var(--swish-fg-faint)]">{hint}</div>
     </div>
   );
 }
@@ -394,9 +394,9 @@ function NumberInput({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))}
-        className="w-full rounded-lg border border-[var(--bind-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--bind-fg)] outline-none placeholder:text-[var(--bind-fg-faint)] focus:border-[var(--bind-accent-2)]"
+        className="w-full rounded-lg border border-[var(--swish-line-strong)] surface-inset px-3 py-2 text-sm text-[var(--swish-fg)] outline-none placeholder:text-[var(--swish-fg-faint)] focus:border-[var(--swish-accent-2)]"
       />
-      <span className="text-[12px] text-[var(--bind-fg-faint)]">SUI</span>
+      <span className="text-[12px] text-[var(--swish-fg-faint)]">SUI</span>
     </div>
   );
 }

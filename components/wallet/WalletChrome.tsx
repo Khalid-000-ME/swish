@@ -24,10 +24,10 @@ export function WalletChrome({
   children: ReactNode;
 }) {
   return (
-    <main className="relative min-h-dvh bg-[var(--bind-black)]">
+    <main className="relative min-h-dvh bg-[var(--swish-black)]">
       <div
         className="pointer-events-none fixed inset-x-0 top-0 h-72 opacity-40"
-        style={{ background: "radial-gradient(70% 100% at 50% 0%, var(--bind-navy-2), transparent)" }}
+        style={{ background: "radial-gradient(70% 100% at 50% 0%, var(--swish-navy-2), transparent)" }}
       />
 
       <div className="relative z-10">
@@ -35,27 +35,27 @@ export function WalletChrome({
           {back ? (
             <Link
               href={back.href}
-              className="flex items-center gap-1.5 text-sm text-[var(--bind-fg-dim)] transition hover:text-[var(--bind-fg)]"
+              className="flex items-center gap-1.5 text-sm text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)]"
             >
               <span>←</span>
               {back.label}
             </Link>
           ) : (
             <Link href="/" className="transition hover:opacity-80">
-              <SwishLogo size={13} />
+              <SwishLogo size={17} />
             </Link>
           )}
 
-          {title && <span className="text-sm font-medium text-[var(--bind-fg)]">{title}</span>}
+          {title && <span className="text-sm font-medium text-[var(--swish-fg)]">{title}</span>}
 
           <div className="flex items-center gap-2">
             {snap.operator.address && (
-              <span className="chip text-[11px] text-[var(--bind-fg-dim)]">
-                <span className="dot" style={{ background: "var(--bind-ok)" }} />
+              <span className="chip text-[11px] text-[var(--swish-fg-dim)]">
+                <span className="dot" style={{ background: "var(--swish-ok)" }} />
                 <ExplorerLink
                   value={snap.operator.address}
                   kind="address"
-                  className="font-mono text-[11px] text-[var(--bind-fg-dim)] transition hover:text-[var(--bind-accent-2)]"
+                  className="font-mono text-[11px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-accent-2)]"
                 />
               </span>
             )}
@@ -109,7 +109,7 @@ function StartOver() {
     return (
       <button
         onClick={() => setArmed(true)}
-        className="text-[11px] text-[var(--bind-fg-faint)] underline decoration-[var(--bind-line)] underline-offset-2 transition hover:text-[var(--bind-fg-dim)]"
+        className="text-[11px] text-[var(--swish-fg-faint)] underline decoration-[var(--swish-line)] underline-offset-2 transition hover:text-[var(--swish-fg-dim)]"
       >
         Start over
       </button>
@@ -118,7 +118,7 @@ function StartOver() {
 
   return (
     <div className="inline-flex flex-col items-center gap-1.5">
-      <p className="max-w-sm text-[11px] leading-relaxed text-[var(--bind-fg-dim)]">
+      <p className="max-w-sm text-[11px] leading-relaxed text-[var(--swish-fg-dim)]">
         This drops your agents and runs onboarding again. Nothing on chain changes — the vault, its
         allow-list and any SUI you already sent stay where they are.
       </p>
@@ -127,13 +127,13 @@ function StartOver() {
           disabled={busy}
           onClick={reset}
           className="rounded-full border px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-40"
-          style={{ borderColor: "var(--bind-danger-edge)", color: "var(--bind-danger)" }}
+          style={{ borderColor: "var(--swish-danger-edge)", color: "var(--swish-danger)" }}
         >
           {busy ? "Clearing…" : "Yes, start over"}
         </button>
         <button
           onClick={() => setArmed(false)}
-          className="rounded-full border border-[var(--bind-line-strong)] px-3 py-1.5 text-[11px] text-[var(--bind-fg-dim)] transition hover:text-[var(--bind-fg)]"
+          className="rounded-full border border-[var(--swish-line-strong)] px-3 py-1.5 text-[11px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)]"
         >
           Keep it
         </button>

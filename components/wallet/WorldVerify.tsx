@@ -75,7 +75,7 @@ export function WorldVerify({
   }
 
   if (!config) {
-    return <div className="text-sm text-[var(--bind-fg-faint)]">Checking World configuration…</div>;
+    return <div className="text-sm text-[var(--swish-fg-faint)]">Checking World configuration…</div>;
   }
 
   // ------------------------------ live ------------------------------
@@ -85,20 +85,20 @@ export function WorldVerify({
         <button
           disabled={busy || preparing}
           onClick={beginVerification}
-          className="w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-          style={{ background: "var(--bind-ok)" }}
+          className="w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+          style={{ background: "var(--swish-ok)" }}
         >
           {preparing ? "Preparing…" : label}
         </button>
 
         {config.environment === "staging" && (
-          <p className="mt-2 text-[11px] leading-snug text-[var(--bind-fg-faint)]">
+          <p className="mt-2 text-[11px] leading-snug text-[var(--swish-fg-faint)]">
             Staging mode — this QR is for the{" "}
             <a
               href="https://simulator.worldcoin.org"
               target="_blank"
               rel="noreferrer"
-              className="underline underline-offset-2 hover:text-[var(--bind-fg-dim)]"
+              className="underline underline-offset-2 hover:text-[var(--swish-fg-dim)]"
             >
               World simulator
             </a>
@@ -146,7 +146,7 @@ export function WorldVerify({
         )}
 
         {error && (
-          <p className="mt-2 text-[12px]" style={{ color: "var(--bind-danger)" }}>
+          <p className="mt-2 text-[12px]" style={{ color: "var(--swish-danger)" }}>
             {error}
           </p>
         )}
@@ -159,9 +159,9 @@ export function WorldVerify({
     <div>
       <div
         className="mb-3 rounded-lg border px-3 py-2.5 text-[12px] leading-snug"
-        style={{ borderColor: "var(--bind-warn-edge)", background: "var(--bind-warn-dim)", color: "var(--bind-fg-dim)" }}
+        style={{ borderColor: "var(--swish-warn-edge)", background: "var(--swish-warn-dim)", color: "var(--swish-fg-dim)" }}
       >
-        <strong style={{ color: "var(--bind-warn)" }}>No World app configured.</strong> This button
+        <strong style={{ color: "var(--swish-warn)" }}>No World app configured.</strong> This button
         does not verify anybody — it simulates the outcome so the rest of the flow is walkable. Set{" "}
         {(config.missing ?? []).join(", ")} to turn on real World ID.
       </div>
@@ -170,7 +170,7 @@ export function WorldVerify({
         disabled={busy}
         onClick={() => onVerified(null)}
         className="w-full rounded-full border py-3 text-sm font-semibold transition disabled:opacity-40"
-        style={{ borderColor: "var(--bind-warn-edge)", color: "var(--bind-warn)" }}
+        style={{ borderColor: "var(--swish-warn-edge)", color: "var(--swish-warn)" }}
       >
         Simulate verification
       </button>
@@ -179,7 +179,7 @@ export function WorldVerify({
         <button
           disabled={busy}
           onClick={onCancelled}
-          className="mt-2 w-full rounded-full py-2.5 text-sm text-[var(--bind-fg-faint)] transition hover:bg-[var(--bind-surface-2)] disabled:opacity-40"
+          className="mt-2 w-full rounded-full py-2.5 text-sm text-[var(--swish-fg-faint)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
         >
           Cancel
         </button>

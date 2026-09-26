@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "This agent has no usable signing key — BIND_AGENT_KEY_SECRET is unset or changed, so its sealed secret can't be opened.",
+          "This agent has no usable signing key — SWISH_AGENT_KEY_SECRET is unset or changed, so its sealed secret can't be opened.",
       },
       { status: 409 }
     );
