@@ -1,3 +1,5 @@
+<img src="public/banner.png" alt="Swish" width="100%" />
+
 # Swish
 
 An allowance wallet for AI agents. You fund it, you hand it to an agent, and the agent can

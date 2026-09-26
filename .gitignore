@@ -59,3 +59,7 @@ CONVO_CONTEXT.md
 BIND_PRD.md
 PITCH_DECK.md
 ui.png
+
+# The banner's unrounded original. Kept locally so scripts/make-banner.py
+# can be re-run; the committed public/banner.png is what the README shows.
+public/banner-source.png

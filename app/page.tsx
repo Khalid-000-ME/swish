@@ -11,9 +11,9 @@ import { HeroBackground } from "@/components/HeroBackground";
  * with the hero instead of fighting it.
  */
 const SPONSORS = [
-  { name: "Sui", role: "Enforcement", src: "/sponsors/sui.png" },
-  { name: "World", role: "Human override", src: "/sponsors/world.png" },
-  { name: "Intercepta", role: "Screening", src: "/sponsors/intercepta.png" },
+  { name: "Sui", src: "/sponsors/sui.png" },
+  { name: "World", src: "/sponsors/world.png" },
+  { name: "Intercepta", src: "/sponsors/intercepta.png" },
 ];
 
 export default function Home() {
@@ -42,17 +42,15 @@ export default function Home() {
         </header>
 
         <section className="flex flex-1 flex-col items-center justify-center py-16 text-center">
-          <h1 className="fade-up font-display hero-title max-w-3xl text-balance text-6xl leading-[1.02] sm:text-[80px]">
-            An agent can only spend
-            <br />
-            what it said it would.
+          <h1 className="fade-up font-display hero-title max-w-4xl text-balance text-5xl leading-[1.06] sm:text-[68px]">
+            The only wallet you will ever need for the agentic economy.
           </h1>
 
           <p
             className="fade-up mt-8 max-w-xl text-balance text-[19px] leading-relaxed text-[var(--swish-sky)]"
             style={{ animationDelay: "80ms" }}
           >
-            The only wallet you will ever need for the agentic economy.
+            An agent can only spend what it said it would.
           </p>
 
           <div
@@ -81,18 +79,11 @@ export default function Home() {
                 <Image
                   src={s.src}
                   alt=""
-                  width={22}
-                  height={22}
-                  className="opacity-55 transition group-hover:opacity-90"
+                  width={20}
+                  height={20}
+                  className="opacity-50 transition group-hover:opacity-85"
                 />
-                <span className="text-left leading-tight">
-                  <span className="block text-[13px] font-medium text-[var(--swish-fg-dim)]">
-                    {s.name}
-                  </span>
-                  <span className="block text-[10.5px] uppercase tracking-[0.14em] text-[var(--swish-fg-faint)]">
-                    {s.role}
-                  </span>
-                </span>
+                <span className="text-[13px] font-medium text-[var(--swish-fg-dim)]">{s.name}</span>
               </span>
             ))}
           </div>
