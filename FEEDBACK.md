@@ -39,13 +39,37 @@
 
 ## Sui
 
-- `devInspectTransactionBlock` not requiring a funded gas object (unlike `dryRunTransactionBlock`,
-  which needs a real gas coin reference even though gas isn't charged) is exactly the right design
-  for what we needed — it's the reason the diff mechanism could be built and reasoned about even
-  while testnet faucet access was rate-limited for the whole build window.
-- Minor docs gap we hit: the JSON-RPC client (`@mysten/sui/jsonRpc`) is marked deprecated in favor
-  of `SuiGrpcClient`/`SuiGraphQLClient`, but `dryRunTransactionBlock`'s convenient pre-computed
-  `balanceChanges`/`objectChanges` arrays don't appear to have an equivalent on the gRPC client
-  yet (or if they do, we couldn't find it documented) — meaning the "recommended" path currently
-  requires reconstructing what JSON-RPC gives you for free. Worth either back-porting that
-  convenience or documenting the gRPC equivalent explicitly.
+- **This one cost real time and deserves top billing**: the public testnet fullnode
+  (`fullnode.testnet.sui.io:443`) has fully retired JSON-RPC — every method, including
+  `sui_getChainIdentifier`, now 404s with "Method not found... migrate to gRPC or GraphQL." We'd
+  built our entire chain adapter against `@mysten/sui/jsonRpc`'s `SuiJsonRpcClient` (its own
+  package docs only say "deprecated," not "will actually stop responding"), and only discovered
+  this once we finally had funded testnet gas to test against — `sui client gas` kept working the
+  whole time because the CLI already talks gRPC, which masked the problem. Migrating to
+  `SuiGrpcClient` (`simulateTransaction` in place of `devInspectTransactionBlock`/
+  `dryRunTransactionBlock`) was a same-day fix once identified, but the deprecation notice reading
+  as routine sunset language rather than "already fully off" cost us real build time. Strongly
+  recommend the docs (and the JSON-RPC error message's own migration link) say plainly that public
+  fullnode JSON-RPC access is *gone*, not *deprecated*.
+- Relatedly: `SuiGrpcClient`'s constructor needs an explicit `baseUrl` — passing only `{network:
+  'testnet'}` fails with an opaque `Cannot read properties of undefined (reading 'endsWith')`
+  rather than a clear "baseUrl is required" error. A friendlier failure mode (or a
+  `getGrpcFullnodeUrl(network)` helper mirroring the JSON-RPC client's `getJsonRpcFullnodeUrl`)
+  would have saved a debugging pass.
+- `simulateTransaction`'s unified `include: {balanceChanges, effects, objectTypes}` response shape
+  is a genuinely good design — once we found the right transport, it gave us exactly the
+  pre-computed diff surface we needed, arguably cleaner than JSON-RPC's equivalent since it's one
+  consistent shape across gRPC/GraphQL/JSON-RPC transports (`SuiClientTypes`) rather than three
+  different response formats.
+- One real gotcha in our own usage worth flagging in case others hit it: running several
+  `signAndExecuteTransaction` calls back-to-back against the same address (all paying gas from the
+  same coin) intermittently failed with "object ... is unavailable for consumption, current
+  version: ..." — a real object-version race between our own sequential calls. Explicitly waiting
+  for each transaction (`waitForTransaction({result})`) and re-fetching the gas coin fresh before
+  building the next transaction (rather than relying on the SDK's automatic gas resolution/caching
+  across calls) fixed it. A note in the docs about this pattern for scripts/backends issuing
+  multiple sequential transactions from one address would help.
+- `devInspectTransactionBlock`/`simulateTransaction` not requiring a funded gas object to at least
+  *attempt* a call (only `signAndExecuteTransaction` truly needs balance) is the right design for
+  what we needed — it's the reason the diff mechanism could be built and reasoned about even while
+  testnet faucet access was rate-limited for most of the build window.
