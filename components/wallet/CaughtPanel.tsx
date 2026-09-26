@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ActivityItem, WalletSnapshot } from "./types";
-import { fmtSui, shortAddr, timeAgo } from "./types";
+import { fmtSui, mentionsAllowlist, shortAddr, timeAgo } from "./types";
 import { EmptyState } from "./bits";
 import { DiffView } from "./DiffView";
 import { ExplorerLink } from "./ExplorerLink";
@@ -72,6 +72,11 @@ function CaughtCard({
   onChanged: () => Promise<void>;
 }) {
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [promoted, setPromoted] = useState<{ digest?: string; alsoCleared?: number } | null>(null);
+
+  // Whether clearing the counterparty addresses any of this item's reasons.
+  const allowlistWouldHelp = mentionsAllowlist(item);
   const [promoting, setPromoting] = useState(false);
   const [label, setLabel] = useState("");
 
@@ -85,19 +90,91 @@ function CaughtCard({
         } the agent never declared.`,
       };
 
+  /**
+   * The response used to be discarded. A promotion that failed — World
+   * declining, or the on-chain allow-list write being refused — closed the
+   * form, said nothing, and left the item sitting in the queue, which
+   * reads as the button doing nothing at all. Worse, there was no way to
+   * tell an item that stayed because it failed from one that stayed
+   * because the screen hadn't refreshed.
+   */
   async function review(action: "dismiss" | "ban" | "promote", worldDecision?: "approve" | "deny") {
     setBusy(true);
+    setError(null);
     try {
-      await fetch("/api/wallet/review", {
+      const res = await fetch("/api/wallet/review", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ activityId: item.id, action, label, worldDecision }),
       });
+      const body = await res.json();
+
+      if (!res.ok) throw new Error(body.error ?? body.reason ?? "That didn't go through.");
+      // The route answers 200 with promoted:false when World declines or
+      // the vault refuses, so a status check alone isn't enough.
+      if (action === "promote" && body.promoted !== true) {
+        throw new Error(body.reason ?? "The address was not added.");
+      }
+
+      if (action === "promote") {
+        setPromoted({ digest: body.onChainDigest, alsoCleared: body.alsoCleared });
+      }
+      setPromoting(false);
       await onChanged();
+    } catch (err) {
+      // The form stays open, so the reason sits next to the button that
+      // produced it and can be tried again.
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setBusy(false);
-      setPromoting(false);
     }
+  }
+
+  /*
+    A promoted item leaves the queue on the next refresh, so without this
+    the whole card simply vanishes and the operator is left wondering
+    whether the address was actually cleared. This says it was, and where
+    to check — a wallet whose most consequential action is invisible is
+    asking to be trusted about the one thing that can be verified.
+  */
+  if (promoted) {
+    return (
+      <article
+        className="card overflow-hidden"
+        style={{ borderColor: "var(--swish-ok-edge)", background: "var(--swish-ok-dim)" }}
+      >
+        <div className="p-4">
+          <div className="flex items-center gap-2">
+            <span className="dot" style={{ background: "var(--swish-ok)" }} />
+            <span className="text-sm font-semibold" style={{ color: "var(--swish-ok)" }}>
+              {label.trim() || shortAddr(item.recipient)} is now on the allow-list
+            </span>
+          </div>
+          <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--swish-fg-dim)]">
+            Future payments to it go through without asking you again. It appears under Allow-list,
+            and this item has left the queue.
+            {promoted.alsoCleared ? (
+              <>
+                {" "}
+                <span className="font-num">{promoted.alsoCleared}</span> other item
+                {promoted.alsoCleared === 1 ? "" : "s"} waiting on the same address cleared too.
+              </>
+            ) : null}
+          </p>
+          {promoted.digest ? (
+            <div className="mt-2">
+              <span className="text-[11px] text-[var(--swish-fg-faint)]">Written to the vault: </span>
+              <ExplorerLink value={promoted.digest} kind="tx" />
+            </div>
+          ) : (
+            <p className="mt-2 text-[11px] text-[var(--swish-fg-faint)]">
+              Recorded in this wallet. The envelope isn&apos;t a published vault, so there&apos;s no
+              transaction to show.
+            </p>
+          )}
+        </div>
+      </article>
+    );
   }
 
   return (
@@ -148,13 +225,18 @@ function CaughtCard({
           >
             Ban this address
           </button>
-          <button
-            disabled={busy}
-            onClick={() => setPromoting(true)}
-            className="btn btn-secondary"
-          >
-            Allow this address…
-          </button>
+          {/* Only where it would have made a difference. Offering it on an
+              over-cap refusal invited the operator to clear an address,
+              watch nothing change, and conclude the button was broken. */}
+          {allowlistWouldHelp ? (
+            <button disabled={busy} onClick={() => setPromoting(true)} className="btn btn-secondary">
+              Allow this address…
+            </button>
+          ) : (
+            <span className="self-center text-[11.5px] leading-snug text-[var(--swish-fg-faint)]">
+              Allow-listing wouldn&apos;t have helped — this was refused for another reason.
+            </span>
+          )}
           <button
             disabled={busy}
             onClick={() => review("dismiss")}
@@ -191,22 +273,19 @@ function CaughtCard({
           />
 
           <div className="flex flex-wrap gap-2">
-            <button
-              disabled={busy}
-              onClick={() => review("promote", "approve")}
-              className="rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-40"
-              style={{ background: "var(--swish-ok)", color: "var(--swish-black)" }}
-            >
-              Verify with World ID &amp; allow
+            <button disabled={busy} onClick={() => review("promote", "approve")} className="btn btn-ok">
+              {busy ? "Adding…" : "Verify with World ID & allow"}
             </button>
-            <button
-              disabled={busy}
-              onClick={() => setPromoting(false)}
-              className="btn btn-secondary"
-            >
+            <button disabled={busy} onClick={() => setPromoting(false)} className="btn btn-secondary">
               Cancel
             </button>
           </div>
+
+          {error && (
+            <p className="text-[12px] leading-relaxed" style={{ color: "var(--swish-danger)" }}>
+              {error}
+            </p>
+          )}
         </div>
       )}
     </article>

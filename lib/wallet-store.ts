@@ -497,3 +497,30 @@ export async function refreshAgentBalances(): Promise<void> {
     })
   );
 }
+
+/**
+ * Whether allow-listing this item's recipient would have let it through.
+ *
+ * A caught item can be blocked for several reasons at once, and only one
+ * of them is fixed by clearing the counterparty. An item refused purely
+ * for being over the cap will be refused again no matter how many times
+ * its address is allowed — which is what "allow this address" looked like
+ * doing nothing, because it genuinely was.
+ */
+export function blockedOnlyByAllowlist(item: ActivityItem): boolean {
+  const reasons = [
+    ...(item.diff?.violations ?? []).map((v) => v.plain),
+    ...(item.guardrailBreaches ?? []).map((b) => b.plain),
+  ];
+  if (reasons.length === 0) return false;
+  return reasons.every((r) => /allow-list/i.test(r));
+}
+
+/** Does clearing the counterparty address address any of its reasons? */
+export function mentionsAllowlist(item: ActivityItem): boolean {
+  const reasons = [
+    ...(item.diff?.violations ?? []).map((v) => v.plain),
+    ...(item.guardrailBreaches ?? []).map((b) => b.plain),
+  ];
+  return reasons.some((r) => /allow-list/i.test(r));
+}

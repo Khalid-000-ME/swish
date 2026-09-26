@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { walletState, findSubAccount } from "@/lib/wallet-store";
+import { walletState, findSubAccount, blockedOnlyByAllowlist } from "@/lib/wallet-store";
 import { validateAgentCallback } from "@/lib/world";
 import { addToAllowlistOnChain, isMintConfigured } from "@/lib/mint";
 import { toJsonSafe } from "@/lib/json";
@@ -101,7 +101,28 @@ export async function POST(req: NextRequest) {
     item.reviewAction = "address_promoted";
     item.reviewedAt = Date.now();
 
-    return NextResponse.json(toJsonSafe({ item, promoted: true, subAccount: sub, onChainDigest }));
+    // Every other pending item held up *only* by this counterparty not
+    // being cleared is now answered too — the reason stopped being true
+    // the moment the address went on the list. Leaving them in the queue
+    // would ask the operator to approve the same decision repeatedly.
+    // Items with another reason stay, because that reason still holds.
+    let alsoCleared = 0;
+    for (const other of state.activity) {
+      if (other.id === item.id || other.reviewed) continue;
+      if (other.subAccountId !== item.subAccountId) continue;
+      if (other.recipient !== item.recipient) continue;
+      if (other.outcome !== "blocked") continue;
+      if (!blockedOnlyByAllowlist(other)) continue;
+
+      other.reviewed = true;
+      other.reviewAction = "address_promoted";
+      other.reviewedAt = Date.now();
+      alsoCleared += 1;
+    }
+
+    return NextResponse.json(
+      toJsonSafe({ item, promoted: true, subAccount: sub, onChainDigest, alsoCleared })
+    );
   } catch (err) {
     console.error("[swish] /api/wallet/review failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });

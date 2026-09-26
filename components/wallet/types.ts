@@ -223,3 +223,17 @@ export function timeAgo(ts: number): string {
   if (h < 24) return `${h}h ago`;
   return `${Math.round(h / 24)}d ago`;
 }
+
+/**
+ * Does clearing this item's counterparty address any of the reasons it
+ * was blocked? Mirrors lib/wallet-store so the UI can stop offering a
+ * remedy that wouldn't have helped — an item refused purely for being
+ * over the cap is refused again however often its address is allowed.
+ */
+export function mentionsAllowlist(item: ActivityItem): boolean {
+  const reasons = [
+    ...(item.diff?.violations ?? []).map((v) => v.plain),
+    ...(item.guardrailBreaches ?? []).map((b) => b.plain),
+  ];
+  return reasons.some((r) => /allow-list/i.test(r));
+}
