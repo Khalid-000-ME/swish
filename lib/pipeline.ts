@@ -1,6 +1,6 @@
 import { runBindAgent, type AgentRunResult } from "@/agent";
 import { diffEffects } from "./diff";
-import { screenRecipient } from "./intercepta";
+import { screenCounterparty } from "./intercepta";
 import { buildPtb, dryRun } from "./sui";
 import { attestMatch, digestBytes } from "./attest";
 import { mintDeclarationOnChain, mintMatchProofOnChain, executeDeclaredOnChain, isMintConfigured } from "./mint";
@@ -89,7 +89,7 @@ export async function runScenario(scenario: ScenarioId, opts: ScenarioOptions = 
 
   const { result: dryRunResult, source: dryRunSource } = await computeDryRun(run.session, decl, ptb);
   const diff = diffEffects(decl, dryRunResult, run.session.vault);
-  const intercepta = await screenRecipient(decl.recipient);
+  const intercepta = await screenCounterparty(run.session.counterpartyEvm(), decl.recipient);
 
   const base = {
     id: decl.id,

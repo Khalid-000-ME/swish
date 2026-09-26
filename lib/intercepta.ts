@@ -1,4 +1,5 @@
 import type { Intercepta } from "./types";
+import { SCAN_FROM_EVM } from "@/fixtures/addresses";
 
 /**
  * Intercepta (formerly Web3Antivirus) transaction scanning.
@@ -158,17 +159,30 @@ export async function scanEvmTransaction(input: EvmTransactionInput): Promise<In
 }
 
 /**
- * The Sui side. Intercepta has no Sui coverage, so rather than invent a
- * verdict this reports honestly that no screen was possible — the diff
- * engine, the envelope's allow-list and the human gate are what stand
- * between a Sui payment and the vault, and the UI says so.
+ * Screens the counterparty an agent is about to pay, before it signs.
+ *
+ * The payment itself settles on Sui, but Intercepta scans EVM/Solana
+ * mainnets only — so what gets screened is the counterparty's *mainnet*
+ * payout address, which is exactly the pattern its own track describes.
+ * A vendor whose mainnet address is a known drainer doesn't become safe
+ * because this particular leg happens to settle somewhere else.
  */
-export async function screenRecipient(address: string): Promise<Intercepta> {
+export async function screenCounterparty(evmAddress: string, suiAddress: string): Promise<Intercepta> {
+  const scan = await scanEvmTransaction({
+    chainId: SCANNABLE_CHAIN_IDS.ethereum,
+    from: SCAN_FROM_EVM,
+    to: evmAddress,
+  });
+
   return {
-    address,
-    flagged: false,
-    riskScore: 0,
-    reason: "Sui isn't a chain Intercepta scans — this payment is gated by the diff, the allow-list and your approval instead.",
-    source: "unsupported",
+    address: suiAddress,
+    flagged: scan.flagged,
+    riskScore: scan.riskScore,
+    reason:
+      scan.reason ??
+      (scan.source === "unconfigured"
+        ? "INTERCEPTA_API_KEY is not set — no screen was performed."
+        : undefined),
+    source: scan.source === "live" ? "live" : scan.source === "unconfigured" ? "unconfigured" : scan.source === "error" ? "error" : "unsupported",
   };
 }

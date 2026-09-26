@@ -12,3 +12,30 @@ export const DEMO_ADDRESSES = {
   novelMerchant: "0xd59aa838c0885637685d50728dff7c2b2e19e58aba541d03216a67b2f827d1c1",
   attackerEscalation: "0xeb7fb600943ce1079e45c220e27ea15b23fedc02669946bd9d9d6f8d1f1e0889",
 } as const;
+
+/**
+ * EVM payout addresses for the counterparties an agent pays.
+ *
+ * Intercepta scans EVM/Solana mainnets only — no testnets — so the
+ * counterparty's *mainnet* payout address is what gets screened before
+ * the agent signs, which is exactly the pattern its own track describes
+ * ("mainnet address screening" while settlement happens elsewhere).
+ *
+ * The flagged one is not invented: 0x4766…86E2 is the Bybit/Lazarus
+ * exploiter address, and Intercepta returns riskScore 90 / High /
+ * MALICIOUS_ADDRESS for it live. It is the same $1.5B incident this
+ * whole project is built against, which makes the blocked path real
+ * rather than staged.
+ */
+export const COUNTERPARTY_EVM = {
+  /** Ordinary vendor — Intercepta returns Low / no detectors. */
+  heliosData: "0x7F367cC41522cE07553e823bf3be79A889DEbe1B",
+  /** Bybit / Lazarus exploiter — genuinely flagged by Intercepta. */
+  knownMalicious: "0x47666Fab8bd0Ac7003bce3f5C3585383F09486E2",
+  /** A second genuinely-flagged address, kept for variety. */
+  knownMaliciousAlt: "0x098B716B8Aaf21512996dC57EB0615e2383E2f96",
+} as const;
+
+/** A funded mainnet address used only as the `from` in scan requests —
+ *  the scan needs a plausible sender, and nothing is ever signed. */
+export const SCAN_FROM_EVM = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045";

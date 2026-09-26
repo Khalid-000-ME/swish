@@ -1,5 +1,5 @@
 import type { CoinType, ScenarioId, VaultState } from "@/lib/types";
-import { DEMO_ADDRESSES } from "@/fixtures/addresses";
+import { DEMO_ADDRESSES, COUNTERPARTY_EVM } from "@/fixtures/addresses";
 
 /**
  * In-memory demo state for one run of the agent. A real deployment reads
@@ -47,6 +47,17 @@ export class BindSession {
         return DEMO_ADDRESSES.novelMerchant;
       default:
         return DEMO_ADDRESSES.allowlistedMerchant;
+    }
+  }
+
+  /** The counterparty's mainnet EVM payout address — what Intercepta
+   *  actually screens before this agent signs anything. */
+  counterpartyEvm(): string {
+    switch (this.scenario) {
+      case "villain_flagged_recipient":
+        return COUNTERPARTY_EVM.knownMalicious;
+      default:
+        return COUNTERPARTY_EVM.heliosData;
     }
   }
 
