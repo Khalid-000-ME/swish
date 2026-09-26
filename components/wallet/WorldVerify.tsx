@@ -169,8 +169,7 @@ export function WorldVerify({
       <button
         disabled={busy}
         onClick={() => onVerified(null)}
-        className="w-full rounded-full border py-3 text-sm font-semibold transition disabled:opacity-40"
-        style={{ borderColor: "var(--swish-warn-edge)", color: "var(--swish-warn)" }}
+        className="btn btn-secondary btn-block btn-lg" style={{ color: "var(--swish-warn)" }}
       >
         Simulate verification
       </button>
@@ -179,7 +178,7 @@ export function WorldVerify({
         <button
           disabled={busy}
           onClick={onCancelled}
-          className="mt-2 w-full rounded-full py-2.5 text-sm text-[var(--swish-fg-faint)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
+          className="btn btn-ghost btn-block mt-2"
         >
           Cancel
         </button>

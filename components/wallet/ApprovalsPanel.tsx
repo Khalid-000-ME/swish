@@ -110,16 +110,14 @@ function ApprovalCard({
           <button
             disabled={busy}
             onClick={() => decide("approve", true)}
-            className="rounded-full border px-4 py-2 text-sm font-medium transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
-            style={{ borderColor: "var(--swish-ok-edge)", color: "var(--swish-ok)" }}
+            className="btn btn-ok"
           >
             Pay &amp; always allow
           </button>
           <button
             disabled={busy}
             onClick={() => decide("deny")}
-            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--swish-fg)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
-            style={{ borderColor: "var(--swish-line-strong)" }}
+            className="btn btn-secondary"
           >
             Decline
           </button>

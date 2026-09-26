@@ -74,8 +74,7 @@ export function GatePanel({
             <button
               disabled={pending}
               onClick={() => decide("deny")}
-              className="rounded-full border px-4 py-2 text-sm font-semibold text-[var(--swish-fg)] disabled:opacity-50"
-              style={{ borderColor: "var(--swish-line-strong)" }}
+              className="btn btn-secondary"
             >
               Cancel verification
             </button>

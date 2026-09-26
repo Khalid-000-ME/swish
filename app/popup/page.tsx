@@ -195,8 +195,7 @@ export default function PopupPage() {
         <Open href="/wallet" label="Open full wallet" primary />
         <button
           onClick={load}
-          className="w-full rounded-full border py-2 text-[12px] text-[var(--swish-fg-dim)] transition hover:bg-[var(--swish-surface-2)]"
-          style={{ borderColor: "var(--swish-line-strong)" }}
+          className="btn btn-secondary btn-sm btn-block"
         >
           Refresh
         </button>

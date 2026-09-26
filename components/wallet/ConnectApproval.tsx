@@ -212,8 +212,7 @@ export function ConnectApproval({
         <button
           disabled={busy}
           onClick={() => decide("reject")}
-          className="flex-1 rounded-full border py-3 text-sm font-medium text-[var(--swish-fg)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
-          style={{ borderColor: "var(--swish-line-strong)" }}
+          className="btn btn-secondary btn-lg flex-1"
         >
           Reject
         </button>

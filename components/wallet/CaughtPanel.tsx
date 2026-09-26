@@ -151,8 +151,7 @@ function CaughtCard({
           <button
             disabled={busy}
             onClick={() => setPromoting(true)}
-            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--swish-fg)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
-            style={{ borderColor: "var(--swish-line-strong)" }}
+            className="btn btn-secondary"
           >
             Allow this address…
           </button>
@@ -203,8 +202,7 @@ function CaughtCard({
             <button
               disabled={busy}
               onClick={() => setPromoting(false)}
-              className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--swish-fg)] transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
-              style={{ borderColor: "var(--swish-line-strong)" }}
+              className="btn btn-secondary"
             >
               Cancel
             </button>

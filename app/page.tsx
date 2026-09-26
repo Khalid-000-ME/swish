@@ -59,13 +59,13 @@ export default function Home() {
           >
             <Link
               href="/wallet"
-              className="rounded-full bg-[var(--swish-mist)] px-7 py-3.5 text-sm font-semibold text-[var(--swish-black)] shadow-[0_8px_30px_-8px_rgba(238,243,255,0.5)] transition hover:-translate-y-px hover:shadow-[0_12px_38px_-8px_rgba(238,243,255,0.65)]"
+              className="btn btn-primary btn-lg shadow-[0_8px_30px_-8px_rgba(238,243,255,0.45)]"
             >
               Open the wallet
             </Link>
             <a
               href="https://github.com/Khalid-000-ME/swish"
-              className="glass-chip glass-chip-hover px-7 py-3.5 text-sm font-semibold text-[var(--swish-mist)]"
+              className="btn btn-secondary btn-lg"
             >
               View source
             </a>

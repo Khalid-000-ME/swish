@@ -364,3 +364,122 @@ body {
    difference rather than a guess at how much black is showing through. */
 .surface-sunken { background: #070a13; }
 .surface-inset  { background: #0a0e18; }
+
+/* Buttons.
+   Solid fills, no outlines. A bordered transparent button is a hole in the
+   page with a ring around it — it inherits whatever is behind it, so the
+   same button looked different on a card, on the mesh glow, and on an
+   alert. These sit on top of the page instead of showing it through. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  padding: 0.6rem 1.15rem;
+  transition: background 150ms ease, color 150ms ease, opacity 150ms ease;
+  white-space: nowrap;
+}
+.btn:disabled { cursor: default; opacity: 0.4; }
+
+/* The one action a screen is actually for. */
+.btn-primary { background: var(--swish-mist); color: var(--swish-black); }
+.btn-primary:not(:disabled):hover { background: #ffffff; }
+
+/* Everything else: present, not competing. */
+.btn-secondary { background: var(--swish-surface-2); color: var(--swish-fg); }
+.btn-secondary:not(:disabled):hover { background: #1c2438; }
+
+/* Quiet enough to sit next to body text without becoming the subject. */
+.btn-ghost { background: transparent; color: var(--swish-fg-dim); }
+.btn-ghost:not(:disabled):hover { background: var(--swish-surface-2); color: var(--swish-fg); }
+
+.btn-danger { background: var(--swish-danger-dim); color: var(--swish-danger); }
+.btn-danger:not(:disabled):hover { background: #33161d; }
+
+.btn-ok { background: var(--swish-ok-dim); color: var(--swish-ok); }
+.btn-ok:not(:disabled):hover { background: #103021; }
+
+.btn-sm { font-size: 0.75rem; padding: 0.42rem 0.85rem; }
+.btn-lg { font-size: 0.875rem; padding: 0.82rem 1.6rem; }
+.btn-block { display: flex; width: 100%; }
+
+/* Range sliders.
+   The default control is the browser's, which on macOS is a thin grey
+   groove and a shaded 3D knob — it belongs to a different decade and a
+   different palette. This is a flat track, a filled portion showing the
+   value, and a solid knob that grows slightly under the pointer.
+
+   The fill is painted with a gradient whose stop is driven by --fill,
+   set inline from the value, because a range input has no pseudo-element
+   for "the part to the left of the thumb". */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 20px;
+  width: 100%;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    var(--swish-accent-2) 0%,
+    var(--swish-accent-2) var(--fill, 50%),
+    #1e2638 var(--fill, 50%),
+    #1e2638 100%
+  );
+  border-radius: 999px;
+  height: 5px;
+}
+input[type="range"]::-moz-range-track {
+  background: #1e2638;
+  border-radius: 999px;
+  height: 5px;
+}
+input[type="range"]::-moz-range-progress {
+  background: var(--swish-accent-2);
+  border-radius: 999px;
+  height: 5px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--swish-mist);
+  border: 0;
+  border-radius: 999px;
+  height: 16px;
+  width: 16px;
+  margin-top: -5.5px;
+  box-shadow: 0 1px 4px rgba(5, 7, 12, 0.6);
+  transition: transform 130ms ease, box-shadow 130ms ease;
+}
+input[type="range"]::-moz-range-thumb {
+  background: var(--swish-mist);
+  border: 0;
+  border-radius: 999px;
+  height: 16px;
+  width: 16px;
+  box-shadow: 0 1px 4px rgba(5, 7, 12, 0.6);
+  transition: transform 130ms ease, box-shadow 130ms ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb,
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 5px rgba(79, 123, 240, 0.22);
+}
+input[type="range"]:hover::-moz-range-thumb,
+input[type="range"]:focus-visible::-moz-range-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 5px rgba(79, 123, 240, 0.22);
+}
+input[type="range"]:focus { outline: none; }

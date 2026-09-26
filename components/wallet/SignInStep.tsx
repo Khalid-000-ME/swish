@@ -108,8 +108,7 @@ export function SignInStep({
         <button
           disabled={busy || !savedIt}
           onClick={() => onPasted(created.address)}
-          className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
-          style={{ background: "var(--swish-mist)" }}
+          className="btn btn-primary btn-block btn-lg mt-4"
         >
           Continue
         </button>
@@ -129,8 +128,7 @@ export function SignInStep({
       <button
         disabled={busy}
         onClick={generate}
-        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
-        style={{ background: "var(--swish-mist)" }}
+        className="btn btn-primary btn-block btn-lg mt-5"
       >
         {busy ? "Creating…" : "Create my keys"}
       </button>
@@ -154,8 +152,7 @@ export function SignInStep({
           <button
             disabled={busy || !typed.trim()}
             onClick={() => onPasted(typed.trim())}
-            className="mt-3 w-full rounded-full border py-3 text-sm font-semibold transition disabled:opacity-40"
-            style={{ borderColor: "var(--swish-line-strong)", color: "var(--swish-fg)" }}
+            className="btn btn-secondary btn-block btn-lg mt-3"
           >
             Continue, watch-only
           </button>

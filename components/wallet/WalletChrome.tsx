@@ -126,14 +126,13 @@ function StartOver() {
         <button
           disabled={busy}
           onClick={reset}
-          className="rounded-full border px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-40"
-          style={{ borderColor: "var(--swish-danger-edge)", color: "var(--swish-danger)" }}
+          className="btn btn-danger btn-sm"
         >
           {busy ? "Clearing…" : "Yes, start over"}
         </button>
         <button
           onClick={() => setArmed(false)}
-          className="rounded-full border border-[var(--swish-line-strong)] px-3 py-1.5 text-[11px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)]"
+          className="btn btn-secondary btn-sm"
         >
           Keep it
         </button>

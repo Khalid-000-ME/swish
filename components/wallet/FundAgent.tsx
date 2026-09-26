@@ -116,7 +116,7 @@ export function FundAgent({ agent, onChanged }: { agent: Agent; onChanged: () =>
           <button
             disabled={busy !== null}
             onClick={() => fund("faucet")}
-            className="rounded-full border border-[var(--swish-line-strong)] px-4 py-1.5 text-[11px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)] disabled:opacity-40"
+            className="btn btn-secondary btn-sm"
           >
             {busy === "faucet" ? "Asking…" : "Ask the faucet"}
           </button>

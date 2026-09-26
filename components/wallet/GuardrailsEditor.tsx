@@ -114,9 +114,13 @@ export function GuardrailsEditor({
             step={5}
             value={maxRiskScore}
             onChange={(e) => setMaxRiskScore(Number(e.target.value))}
-            className="w-full accent-[var(--swish-accent-2)]"
+            // A range input has no pseudo-element for "the part left of the
+            // thumb", so the filled portion is a gradient whose stop is
+            // driven by this. See input[type=range] in globals.css.
+            style={{ ["--fill" as string]: `${((maxRiskScore - 10) / 90) * 100}%` }}
+            className="w-full"
           />
-          <span className="w-10 text-right text-sm tabular-nums text-[var(--swish-fg)]">{maxRiskScore}</span>
+          <span className="font-num w-10 text-right text-sm text-[var(--swish-fg)]">{maxRiskScore}</span>
         </Field>
       </div>
 
@@ -314,7 +318,7 @@ function CustomLimits({
             </button>
             <button
               onClick={() => setAdding(false)}
-              className="rounded-full border border-[var(--swish-line-strong)] px-4 py-1.5 text-[12px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)]"
+              className="btn btn-secondary btn-sm"
             >
               Cancel
             </button>

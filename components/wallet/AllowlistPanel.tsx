@@ -227,7 +227,7 @@ function RemoveButton({
         disabled={busy}
         onClick={remove}
         title="Withdraw standing permission"
-        className="rounded-full border border-[var(--swish-line-strong)] px-3 py-1.5 text-[11px] text-[var(--swish-fg-dim)] transition hover:border-[var(--swish-danger)] hover:text-[var(--swish-danger)] disabled:opacity-40"
+        className="btn btn-secondary btn-sm"
       >
         {busy ? "Withdrawing…" : "Withdraw"}
       </button>

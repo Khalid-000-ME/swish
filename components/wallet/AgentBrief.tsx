@@ -97,7 +97,7 @@ export function AgentBrief({ agent, onChanged }: { agent: Agent; onChanged: () =
           </div>
         </div>
 
-        <div className="ml-auto flex items-center gap-1 rounded-full border border-[var(--swish-line)] p-0.5">
+        <div className="ml-auto flex items-center gap-1 rounded-full bg-[var(--swish-surface-2)] p-0.5">
           {TABS.map((t) => (
             <button
               key={t.id}

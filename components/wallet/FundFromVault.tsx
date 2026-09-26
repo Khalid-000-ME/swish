@@ -133,7 +133,7 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
               </button>
               <button
                 onClick={() => setStage({ kind: "idle" })}
-                className="rounded-full border border-[var(--swish-line-strong)] px-4 py-2 text-[12px] text-[var(--swish-fg-dim)] transition hover:text-[var(--swish-fg)]"
+                className="btn btn-secondary btn-sm"
               >
                 Cancel
               </button>

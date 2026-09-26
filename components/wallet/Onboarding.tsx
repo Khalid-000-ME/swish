@@ -174,8 +174,7 @@ function VerifyStep({
         <button
           disabled={busy}
           onClick={onUseRemembered}
-          className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
-          style={{ background: "var(--swish-mist)" }}
+          className="btn btn-primary btn-block btn-lg mt-4"
         >
           Continue
         </button>
@@ -309,8 +308,7 @@ function HireStep({
       <button
         disabled={busy || !name.trim()}
         onClick={() => onSubmit({ name, role, envelopeLabel, startingSui, perTxCapSui })}
-        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
-        style={{ background: "var(--swish-mist)" }}
+        className="btn btn-primary btn-block btn-lg mt-5"
       >
         Hire {name.trim() || "agent"}
       </button>
@@ -375,8 +373,7 @@ function Credentials({ snap, onDone }: { snap: WalletSnapshot; onDone: () => voi
 
       <button
         onClick={onDone}
-        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--swish-black)]"
-        style={{ background: "var(--swish-mist)" }}
+        className="btn btn-primary btn-block btn-lg mt-5"
       >
         Open my wallet
       </button>

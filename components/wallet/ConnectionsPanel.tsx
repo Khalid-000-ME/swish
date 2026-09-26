@@ -146,8 +146,7 @@ export function ConnectionsPanel({ snap }: { snap: WalletSnapshot }) {
                       <button
                         disabled={busy === c.id}
                         onClick={() => revoke(c.id)}
-                        className="flex-none rounded-full border px-3 py-1.5 text-[12px] font-medium transition hover:bg-[var(--swish-surface-2)] disabled:opacity-40"
-                        style={{ borderColor: "var(--swish-danger-edge)", color: "var(--swish-danger)" }}
+                        className="btn btn-danger btn-sm flex-none"
                       >
                         Revoke
                       </button>
