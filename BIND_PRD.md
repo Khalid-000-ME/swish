@@ -1,4 +1,4 @@
-# Bind — Implementation PRD
+# Swish — Implementation PRD
 
 **The allowance wallet for AI agents.**
 *An agent can only spend what it said it would spend it on.*
@@ -18,26 +18,26 @@ Everything in this document exists to make that sentence true and demonstrable i
 
 ## 1. What this is, and what it deliberately is not
 
-| Bind **is** | Bind is **not** |
+| Swish **is** | Swish is **not** |
 |---|---|
 | One self-contained app: a vault + an agent + a screen | An SDK, framework, middleware or "platform" |
 | A wallet a person funds and hands to an agent | A general-purpose policy engine for anyone's agent |
 | Narrow: spend-side only (outflows), one chain, one asset type at MVP | Cross-chain, multi-asset, or a marketplace |
 | An end-user product with a face | Infrastructure a sponsor could have built themselves |
 
-**Why narrow matters here:** the sponsors already build primitives. Sui built the object model and dry-run. World built personhood and agent identity. Intercepta built screening. None of them built *the thing a normal person would actually hand money to.* That's the gap Bind fills, and it's the gap that reads as creative rather than derivative.
+**Why narrow matters here:** the sponsors already build primitives. Sui built the object model and dry-run. World built personhood and agent identity. Intercepta built screening. None of them built *the thing a normal person would actually hand money to.* That's the gap Swish fills, and it's the gap that reads as creative rather than derivative.
 
-**One-ended:** Bind has exactly one integration surface — the human who funds it. Nothing needs to adopt Bind for Bind to work. No merchant onboarding, no counterparty cooperation, no protocol buy-in. This is what makes it demoable and shippable in hours, and it is the opposite of every agentic-commerce standard that is stuck waiting on merchant adoption until 2027.
+**One-ended:** Swish has exactly one integration surface — the human who funds it. Nothing needs to adopt Swish for Swish to work. No merchant onboarding, no counterparty cooperation, no protocol buy-in. This is what makes it demoable and shippable in hours, and it is the opposite of every agentic-commerce standard that is stuck waiting on merchant adoption until 2027.
 
 ---
 
 ## 2. The wound (use these numbers verbatim in the pitch)
 
-**The specific incident Bind is built against:**
+**The specific incident Swish is built against:**
 
 - **Grok/Bankr wallet — $330,000 (March 2025), then $175,000 again (May 2026).** Same wallet, twice. An attacker sent an **unsolicited membership NFT** that silently unlocked a higher permission tier, then posted an instruction **encoded in Morse code** as an X reply. The agent decoded it, treated it as a legitimate command, and authorized the transfer.
 - **The detail that justifies this entire architecture:** a guardrail against exactly this path *had been built* after the first attack. It **"did not survive a subsequent rewrite... it was not tracked as a permanent requirement, so it disappeared."**
-  → *A control that lives in application code will eventually be refactored away. Bind's control lives in the object graph, where a rewrite cannot silently remove it.*
+  → *A control that lives in application code will eventually be refactored away. Swish's control lives in the object graph, where a rewrite cannot silently remove it.*
 
 **The same failure at institutional scale:**
 
@@ -62,7 +62,7 @@ Everything in this document exists to make that sentence true and demonstrable i
 Three facts, in order:
 
 1. **The agent declares before it acts.** Not prose — a typed `Declaration` object published on-chain: *this vault, this recipient, this asset, at most this amount, expiring at this time, for this stated reason.*
-2. **The chain is dry-run before anything is signed.** Sui's `dryRunTransactionBlock` returns the **actual** effects — every balance delta, every object transferred, every capability created, every object deleted. Bind diffs actual effects against the declaration.
+2. **The chain is dry-run before anything is signed.** Sui's `dryRunTransactionBlock` returns the **actual** effects — every balance delta, every object transferred, every capability created, every object deleted. Swish diffs actual effects against the declaration.
 3. **Both objects must be consumed together or nothing moves.** Funds leave the vault only via a Move function that takes the `Declaration` **and** a proof object and **destroys both**. Clean diff → backend mints `MatchProof` → auto-executes. Dirty or novel → no `MatchProof` exists, so the path is closed; the only alternative path requires an `OverrideApproval` minted from a **fresh World ID verification of the human**, after **Intercepta** has screened the surprise recipient.
 
 **Why this is not a policy check:** there is no code path in `allowance_vault.move` that moves coins without consuming a proof object. You cannot forget to call the checker, because the checker's output *is the key*. You cannot refactor it away, because removing it removes the ability to spend at all. This is the direct structural answer to the Bankr guardrail that vanished in a rewrite.
@@ -71,7 +71,7 @@ Three facts, in order:
 
 ## 4. Division of labour — what catches what
 
-This section exists because it is the difference between reading as rigorous and reading as hand-waving. **State it out loud in the demo.** Bind is not one check; it is four, and each catches a class the others cannot.
+This section exists because it is the difference between reading as rigorous and reading as hand-waving. **State it out loud in the demo.** Swish is not one check; it is four, and each catches a class the others cannot.
 
 | Attack | Caught by | Mechanism |
 |---|---|---|
@@ -81,7 +81,7 @@ This section exists because it is the difference between reading as rigorous and
 | **Permission escalation via unsolicited object** (the Bankr NFT) | **Vault config authority** | Authority derives *only* from `Vault` config, mutable *only* by the World-verified owner. Received objects confer nothing. Escalation is structurally inert. |
 | Agent spends **more, or more often, than agreed** | **On-chain envelope** | `per_tx_cap`, rolling `window_spent`, `expires_ms`, single-use declaration — all asserted in Move |
 
-**The honest boundary, stated plainly (and in the demo):** Bind does **not** stop an agent that *honestly declares* a bad intention to an *allow-listed* recipient within caps. Nothing can, short of judging intent. What Bind guarantees is that **every outflow is either exactly what the agent declared to an address you pre-approved, or it stopped and asked you with your face.** That is a claim you can fully defend, and it is strictly stronger than what any shipped system offers today. Saying this before a judge asks is worth more than the feature.
+**The honest boundary, stated plainly (and in the demo):** Swish does **not** stop an agent that *honestly declares* a bad intention to an *allow-listed* recipient within caps. Nothing can, short of judging intent. What Swish guarantees is that **every outflow is either exactly what the agent declared to an address you pre-approved, or it stopped and asked you with your face.** That is a claim you can fully defend, and it is strictly stronger than what any shipped system offers today. Saying this before a judge asks is worth more than the feature.
 
 ---
 
@@ -256,7 +256,7 @@ public struct OverrideApproval has key, store {
 }
 
 /// Both minted only against a valid ed25519 signature from the registered
-/// Bind attestation key over the canonical message bytes.
+/// Swish attestation key over the canonical message bytes.
 public fun mint_match_proof(
     reg: &AttestorRegistry, msg: vector<u8>, sig: vector<u8>, ctx: &mut TxContext
 ): MatchProof {
@@ -357,7 +357,7 @@ This is the track's literal journey: *verification request → user completion �
 
 Track requirements, mapped one-to-one:
 
-| Requirement | How Bind satisfies it |
+| Requirement | How Swish satisfies it |
 |---|---|
 | Working agent payment flow on testnet | Agent buys a paid data feed via x402 to fund its own decision, then pays out from the vault |
 | **Live Intercepta call before signing/acceptance** | `screenRecipient()` runs before any signature and before any proof is minted — on **every** path, auto and override alike |
@@ -388,7 +388,7 @@ Track requirements, mapped one-to-one:
 - The agent's final message must state, in one plain sentence, what it is about to do and that it cannot do it alone.
 - Amounts come only from `computeAmount`. If a number appears in a declaration that the deterministic function did not produce, the backend rejects it.
 
-**Indirect prompt injection is expected, not hypothetical.** Data the agent purchases is untrusted input. The agent may be successfully injected — Bind's claim is not "the agent can't be fooled," it is "a fooled agent still can't move money outside the envelope without your face." Say this; it is much stronger than claiming injection-proofness.
+**Indirect prompt injection is expected, not hypothetical.** Data the agent purchases is untrusted input. The agent may be successfully injected — Swish's claim is not "the agent can't be fooled," it is "a fooled agent still can't move money outside the envelope without your face." Say this; it is much stronger than claiming injection-proofness.
 
 ---
 
@@ -418,7 +418,7 @@ A novel-recipient payment triggers the World ID override. Human **cancels** → 
 
 ## 12. Sponsor mapping and prize surface
 
-| Sponsor | Track | Pool | Slots | Why Bind is load-bearing, not decorative |
+| Sponsor | Track | Pool | Slots | Why Swish is load-bearing, not decorative |
 |---|---|---|---|---|
 | **Sui** | DeFi & Payments | $5,000 | 3 (2.5k/1.5k/1k) | `dryRunTransactionBlock` is the detection mechanism and object consumption is the enforcement mechanism. On a chain without consumable objects this design collapses into the refactorable flag that failed at Bankr. Fits "programmable payment systems… move, manage, transform money intelligently" precisely. |
 | **World** | Best Use of IDKit | $5,000 | 2 × $2,500 | One verified human per allowance wallet, before funding; declined path shown |
@@ -442,7 +442,7 @@ Put this in the README as its own section. Voluntary disclosure of limits consis
 | Market data | If any feed is synthetic, label the fixture file `*-fixture.ts` and say so in the README. |
 | TOCTOU | State changes between dry-run and execution are possible; mitigated by ≤120s expiry and a re-dry-run before submit; residual window acknowledged. |
 | Dry-run coverage | The diff sees what Sui's dry-run reports. Effects contingent on state that changes after attestation are out of scope. |
-| Honest-declaration limit | Bind does not judge intent. An honestly-declared, allow-listed, in-cap payment executes. See §4. |
+| Honest-declaration limit | Swish does not judge intent. An honestly-declared, allow-listed, in-cap payment executes. See §4. |
 | Backend compromise | A compromised backend can mint proofs but cannot exceed caps/allow-list/expiry; owner retains `freeze_vault`. |
 | Single asset | MVP is one `Coin<T>` type. Multi-asset is a loop, not a redesign — but it is not built. |
 

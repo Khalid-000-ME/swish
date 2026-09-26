@@ -8,7 +8,7 @@ import { DEMO_ADDRESSES } from "@/fixtures/addresses";
 /**
  * Feed Market — a storefront for the demo.
  *
- * Nothing here knows about Bind. It builds an ordinary Sui transaction
+ * Nothing here knows about Swish. It builds an ordinary Sui transaction
  * and asks the connected wallet to sign and execute it, exactly as any
  * dApp would. What makes the demo work is that three of these purchases
  * are refused, and the refusal arrives as an error from the wallet with
@@ -128,7 +128,7 @@ export function Shop() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
             <h1 className="font-display text-3xl text-white">Let your agent do the shopping</h1>
             <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/50">
-              Connect a wallet and buy a feed. If you connect Bind, you&apos;re connecting an agent
+              Connect a wallet and buy a feed. If you connect Swish, you&apos;re connecting an agent
               rather than an account — and some of these purchases will be refused.
             </p>
           </div>
@@ -203,7 +203,7 @@ export function Shop() {
             </div>
 
             <p className="mt-8 text-center text-[11px] leading-relaxed text-white/30">
-              Every purchase here is a real Sui transaction. Bind simulates each one before signing and
+              Every purchase here is a real Sui transaction. Swish simulates each one before signing and
               compares what it would actually do against what you allowed.
             </p>
           </>

@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(toJsonSafe({ item, promoted: true, subAccount: sub, onChainDigest }));
   } catch (err) {
-    console.error("[bind] /api/wallet/review failed", err);
+    console.error("[swish] /api/wallet/review failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });
   }
 }

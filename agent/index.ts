@@ -116,7 +116,7 @@ export async function runBindAgent(scenario: ScenarioId, brief?: string): Promis
     } catch (err) {
       // A provider outage or a rate limit shouldn't take the wallet down
       // — try the next configured provider before giving up on "live".
-      console.warn(`[bind/agent] ${label} failed, trying next candidate:`, err instanceof Error ? err.message : err);
+      console.warn(`[swish/agent] ${label} failed, trying next candidate:`, err instanceof Error ? err.message : err);
     }
   }
 

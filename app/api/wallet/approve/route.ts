@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
           try {
             await addToAllowlistOnChain({ vaultObjectId: sub.vaultObjectId, address: item.recipient });
           } catch (e) {
-            console.error("[bind] on-chain allowlist add failed", e);
+            console.error("[swish] on-chain allowlist add failed", e);
           }
         }
 
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(toJsonSafe({ item, outcome }));
   } catch (err) {
-    console.error("[bind] /api/wallet/approve failed", err);
+    console.error("[swish] /api/wallet/approve failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });
   }
 }

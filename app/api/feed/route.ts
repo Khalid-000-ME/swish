@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
             scheme: "exact",
             network: "sui-testnet",
             resource: "/api/feed",
-            description: "One unit of Bind's demo market-data feed.",
+            description: "One unit of Swish's demo market-data feed.",
             mimeType: "application/json",
             payTo: process.env.BIND_DEMO_SENDER ?? "0x0",
             maxAmountRequired: PRICE_MIST,

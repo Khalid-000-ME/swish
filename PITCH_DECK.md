@@ -1,4 +1,4 @@
-# Bind — pitch deck
+# Swish — pitch deck
 
 **For:** whoever builds the slides (you), and through them a room of ETHGlobal Tokyo judges who
 will see this for roughly four minutes and have seen nine agent-payment projects already today.
@@ -97,7 +97,7 @@ thing in it.
 **File:** [`docs/architecture.svg`](docs/architecture.svg) — 1680×1000, vector, dark, already set in
 Bricolage Grotesque and Instrument Serif.
 
-![Bind architecture](docs/architecture.svg)
+![Swish architecture](docs/architecture.svg)
 
 It reads left to right as the life of a single payment, in four stages:
 
@@ -147,7 +147,7 @@ work per second.
 
 ### 1 — Title · 0:10
 
-> **Bind**
+> **Swish**
 > The allowance wallet for AI agents.
 >
 > *An agent can only spend what it said it would spend it on.*
@@ -155,7 +155,7 @@ work per second.
 **Layout:** logo mark top-left. Display line centred, Instrument Serif, huge. One line of Bricolage
 underneath in `#a7b0cc`. Sponsor row at the bottom in circle crops, small.
 
-**Say:** "Bind is a wallet you hand to an AI agent. The agent can only spend what it declared it
+**Say:** "Swish is a wallet you hand to an AI agent. The agent can only spend what it declared it
 would spend it on — and that's enforced by a Move contract, not by our code being careful."
 
 ---
@@ -236,7 +236,7 @@ they can read.
 
 > **Three purchases. Three different answers.**
 
-| | Price | Vendor | Bind |
+| | Price | Vendor | Swish |
 |---|---|---|---|
 | Daily market feed | 0.02 SUI | allow-listed | **signs it** |
 | Ten-year archive | 0.40 SUI | allow-listed | **refused — over the cap** |
@@ -245,7 +245,7 @@ they can read.
 **Layout:** live demo if the wifi holds; this table as the fallback slide. Screen-record it
 beforehand regardless.
 
-**Say:** "This is an ordinary storefront. It connects over the Wallet Standard and has no idea Bind
+**Say:** "This is an ordinary storefront. It connects over the Wallet Standard and has no idea Swish
 is special — it builds a normal Sui transaction and asks the wallet to sign. The second one is the
 same trusted vendor, just too much money. The third is a fine amount to the wrong address. The shop
 only learns it wasn't allowed. It never learns why."
@@ -304,12 +304,12 @@ checks, and the proof is still tied to the exact effects we simulated."
 
 ### 10 — The honest boundary · 0:15
 
-> **Bind doesn't judge intent.**
+> **Swish doesn't judge intent.**
 >
 > An agent that honestly declares a bad payment to an address you already allow-listed will execute.
 > Nothing short of judging intent stops that.
 
-**Say:** "I want to be precise about what this doesn't do. What Bind guarantees is that every
+**Say:** "I want to be precise about what this doesn't do. What Swish guarantees is that every
 outflow is either exactly what was declared to someone you pre-approved, or it stopped and asked a
 verified human."
 
@@ -320,7 +320,7 @@ any feature slide.
 
 ### 11 — Close · 0:10
 
-> **Bind**
+> **Swish**
 > An agent can be completely fooled and still be structurally incapable of paying anyone it didn't
 > declare.
 
@@ -345,7 +345,7 @@ Add these between 8 and 9:
 ## Questions judges will ask
 
 **"Why not just use a multisig / session key / spending limit?"**
-A spending limit bounds *how much*. It says nothing about *to whom* or *for what*. Bind's unit isn't
+A spending limit bounds *how much*. It says nothing about *to whom* or *for what*. Swish's unit isn't
 an amount, it's a declaration — and the contract compares it against the simulated effects before
 the signature exists.
 

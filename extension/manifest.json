@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Bind \u2014 agent wallet",
+  "name": "Swish \u2014 agent wallet",
   "version": "1.0.0",
   "description": "Connect AI agents to sites the way you'd connect a wallet \u2014 bounded, screened, and refusable.",
   "permissions": [
@@ -18,7 +18,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Bind",
+    "default_title": "Swish",
     "default_icon": {
       "16": "icons/bind-512.png",
       "32": "icons/bind-512.png",

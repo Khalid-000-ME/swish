@@ -59,7 +59,7 @@ $("save").addEventListener("click", async () => {
     note.innerHTML = `<span class="ok">Found it.</span>`;
     showFrame(`${next}/popup`);
   } catch {
-    note.innerHTML = `<span class="bad">No Bind wallet answered at ${next}. Not saved.</span>`;
+    note.innerHTML = `<span class="bad">No Swish wallet answered at ${next}. Not saved.</span>`;
   } finally {
     button.disabled = false;
   }

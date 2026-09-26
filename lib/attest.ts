@@ -25,7 +25,7 @@ async function getKeypair() {
 
   if (!envKey) {
     console.warn(
-      "[bind/attest] BIND_ATTEST_PRIVKEY not set — generated an ephemeral dev key. " +
+      "[swish/attest] BIND_ATTEST_PRIVKEY not set — generated an ephemeral dev key. " +
         `Public key (register this in AttestorRegistry on-chain): 0x${bytesToHex(pub)}`
     );
   }

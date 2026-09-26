@@ -197,7 +197,7 @@ export async function verifyWorldProof(
     const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
     if (!res.ok) {
-      console.error("[bind/world] verify rejected", res.status, JSON.stringify(data));
+      console.error("[swish/world] verify rejected", res.status, JSON.stringify(data));
 
       // Worth naming this one specifically: it means World *did*
       // recognise the person and refused to issue a second uniqueness
@@ -228,7 +228,7 @@ export async function verifyWorldProof(
     const nullifierHash = nullifierFromProof(proof);
 
     if (!nullifierHash) {
-      console.error("[bind/world] verified but no nullifier in responses", JSON.stringify(data));
+      console.error("[swish/world] verified but no nullifier in responses", JSON.stringify(data));
       return { success: false, nullifierHash: "", detail: "World accepted the proof but it carried no nullifier." };
     }
 

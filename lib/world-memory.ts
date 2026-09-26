@@ -38,7 +38,7 @@ export function rememberVerification(entry: KnownHuman): void {
     mkdirSync(dirname(STORE), { recursive: true });
     writeFileSync(STORE, JSON.stringify(entry, null, 2), { mode: 0o600 });
   } catch (err) {
-    console.error("[bind] could not record the World verification", err);
+    console.error("[swish] could not record the World verification", err);
   }
 }
 

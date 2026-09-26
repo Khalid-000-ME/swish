@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: `unknown action: ${action}` }, { status: 400 });
   } catch (err) {
-    console.error("[bind] /api/wallet/connections failed", err);
+    console.error("[swish] /api/wallet/connections failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });
   }
 }

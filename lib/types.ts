@@ -1,5 +1,5 @@
 /**
- * Shared types for the Bind demo. Mirrors the object model in
+ * Shared types for the Swish demo. Mirrors the object model in
  * BIND_PRD.md §6 (Move) and §7 (the dry-run diff).
  */
 

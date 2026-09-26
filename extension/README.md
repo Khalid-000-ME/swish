@@ -1,6 +1,6 @@
-# Bind — browser extension
+# Swish — browser extension
 
-Registers Bind on every page as a Sui wallet, so any dApp can connect to
+Registers Swish on every page as a Sui wallet, so any dApp can connect to
 it the way it would to any other wallet. What it hands back is an
 **agent's** address, not yours.
 
@@ -12,7 +12,7 @@ it the way it would to any other wallet. What it hands back is an
 
 ## What happens when a site connects
 
-`connect` opens Bind's approval screen in a tab. You choose the agent,
+`connect` opens Swish's approval screen in a tab. You choose the agent,
 the envelope, a per-payment cap, an expiry and an action budget. Only
 then is a token minted, and it's stored per origin.
 
@@ -30,7 +30,7 @@ That's the wallet working. Verified against a real transaction: a
 blocked with both reasons and nothing signed.
 
 `signTransaction` is deliberately unimplemented — handing back a
-signature Bind doesn't execute would let a site hold it and broadcast
+signature Swish doesn't execute would let a site hold it and broadcast
 later, after the checks stopped being true.
 
 ## What it does not hold

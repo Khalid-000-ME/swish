@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
           generate?: boolean;
         };
 
-        // Bind is the wallet, so it mints the operator's key itself rather
+        // Swish is the wallet, so it mints the operator's key itself rather
         // than borrowing an address from one the person already installed.
         if (generate) {
           if (!isAgentKeyStorageConfigured()) {
@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(toJsonSafe({ ok: true, state: walletState() }));
   } catch (err) {
-    console.error("[bind] /api/wallet/onboarding failed", err);
+    console.error("[swish] /api/wallet/onboarding failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });
   }
 }

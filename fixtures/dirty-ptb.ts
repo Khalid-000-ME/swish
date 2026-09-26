@@ -8,7 +8,7 @@ import { DEMO_ADDRESSES } from "./addresses";
  *
  * Used as a labelled fallback DryRunResult when a live
  * devInspectTransactionBlock isn't available (e.g. no funded gas object to
- * reference yet) — see lib/sui.ts `dryRun()`. When gas is available, Bind
+ * reference yet) — see lib/sui.ts `dryRun()`. When gas is available, Swish
  * runs a real multi-command PTB and gets this same shape back from the
  * actual RPC instead of this fixture.
  */

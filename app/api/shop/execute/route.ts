@@ -12,7 +12,7 @@ import { toJsonSafe } from "@/lib/json";
  * which the public fullnode no longer serves (see lib/sui.ts) — so the
  * shop submits from its own backend over gRPC instead.
  *
- * This knows nothing about Bind. It takes a signed transaction from any
+ * This knows nothing about Swish. It takes a signed transaction from any
  * Sui wallet and broadcasts it.
  */
 export async function POST(req: NextRequest) {

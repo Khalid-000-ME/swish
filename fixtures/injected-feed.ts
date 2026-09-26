@@ -7,7 +7,7 @@ import { DEMO_ADDRESSES } from "./addresses";
  * trying to redirect a payment. The agent's own tool output is untrusted
  * input — this fixture *is* that untrusted input, disclosed as such.
  *
- * Bind's claim is not "the agent can't be fooled" — it's that a fooled
+ * Swish's claim is not "the agent can't be fooled" — it's that a fooled
  * agent still can't move money outside the vault's own config, because
  * authority is read only from `Vault.allowlist` / `Vault.owner`, which a
  * received object cannot touch. See allowance_vault.move: no function

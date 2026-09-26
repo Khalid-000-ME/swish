@@ -33,7 +33,7 @@ function violation(kind: Violation["kind"], detail: string): Violation {
 }
 
 /**
- * The technical heart of Bind (BIND_PRD.md §7): diff the *actual* simulated
+ * The technical heart of Swish (BIND_PRD.md §7): diff the *actual* simulated
  * effects of a transaction against what the agent *declared* it would do.
  * Anything the chain would really do that the declaration never named comes
  * back as a violation, and a violation means no MatchProof gets minted.

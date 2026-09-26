@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(toJsonSafe({ ...result, worldAuthorizeUrl }));
   } catch (err) {
-    console.error("[bind] /api/run failed", err);
+    console.error("[swish] /api/run failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });
   }
 }

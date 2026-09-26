@@ -6,7 +6,7 @@ import { useState, type ReactNode } from "react";
 import type { WalletSnapshot } from "./types";
 import { SourceBadge } from "./bits";
 import { ExplorerLink } from "./ExplorerLink";
-import { BindLogo } from "@/components/brand/Logo";
+import { SwishLogo } from "@/components/brand/Logo";
 import { clearStoredWallet } from "./WalletShell";
 
 /** The frame every wallet page sits in: a thin top bar with who you are
@@ -42,7 +42,7 @@ export function WalletChrome({
             </Link>
           ) : (
             <Link href="/" className="transition hover:opacity-80">
-              <BindLogo size={28} />
+              <SwishLogo size={28} />
             </Link>
           )}
 

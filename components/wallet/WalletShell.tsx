@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { WalletSnapshot } from "./types";
 
-const STORAGE_KEY = "bind:wallet";
+const STORAGE_KEY = "swish:wallet";
 
 /** The slice worth keeping — queues and flags are derived server-side. */
 function persistable(snap: WalletSnapshot) {

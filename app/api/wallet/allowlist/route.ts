@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     try {
       ({ digest } = await addToAllowlistOnChain({ vaultObjectId: sub.vaultObjectId, address: normalized }));
     } catch (err) {
-      console.error("[bind] on-chain allowlist add failed", err);
+      console.error("[swish] on-chain allowlist add failed", err);
       return NextResponse.json(
         {
           error: `The vault would not take this address: ${err instanceof Error ? err.message : err}`,
@@ -116,7 +116,7 @@ export async function DELETE(req: NextRequest) {
     try {
       ({ digest } = await removeFromAllowlistOnChain({ vaultObjectId: sub.vaultObjectId, address: normalized }));
     } catch (err) {
-      console.error("[bind] on-chain allowlist remove failed", err);
+      console.error("[swish] on-chain allowlist remove failed", err);
       return NextResponse.json(
         { error: `The vault still holds this address: ${err instanceof Error ? err.message : err}` },
         { status: 502 }

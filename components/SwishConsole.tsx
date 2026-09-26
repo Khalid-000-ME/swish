@@ -9,7 +9,7 @@ import { OutcomeBanner } from "./OutcomeBanner";
 import type { DisplayResult, OverrideOutcome } from "./types";
 import type { ScenarioId } from "@/lib/types";
 
-export function BindConsole() {
+export function SwishConsole() {
   const [scenario, setScenario] = useState<ScenarioId | null>(null);
   const [result, setResult] = useState<DisplayResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ export function BindConsole() {
     <div className="mx-auto max-w-5xl px-6 pb-24 pt-10">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl text-[var(--bind-mist)]">Bind console</h1>
+          <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Swish console</h1>
           <p className="mt-1 text-sm text-[var(--bind-fg-dim)]">
             Pick a scenario — villains first. Every run is a fresh agent invocation against a
             10 SUI demo vault, cap 2 SUI/tx.

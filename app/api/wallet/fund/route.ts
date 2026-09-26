@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[bind] funding failed", err);
+    console.error("[swish] funding failed", err);
     return NextResponse.json(
       {
         error: viaFaucet

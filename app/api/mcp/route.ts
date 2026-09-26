@@ -7,7 +7,7 @@ import { findTask, TASKS } from "@/lib/tasks";
 import { toJsonSafe } from "@/lib/json";
 
 /**
- * Bind as an MCP server.
+ * Swish as an MCP server.
  *
  * This is the integration surface: any agent framework that speaks MCP —
  * Claude, Cursor, a custom loop — can use this wallet without anyone
@@ -15,7 +15,7 @@ import { toJsonSafe } from "@/lib/json";
  * this gets you *agents*.
  *
  * Authorisation is the same connection token a site is granted, so an
- * agent reaching Bind over MCP is bound by exactly the limits its
+ * agent reaching Swish over MCP is bound by exactly the limits its
  * operator approved: which agent, which envelope, per-payment cap,
  * expiry, action budget. There is no tool here that bypasses the diff,
  * the screen, the allow-list or the guardrails — `propose_payment` runs
@@ -100,14 +100,14 @@ export async function POST(req: NextRequest) {
   const { id, method, params } = body as { id?: unknown; method?: string; params?: Record<string, unknown> };
 
   // Handshake and discovery need no connection — you can look at what
-  // Bind offers before you've been granted anything.
+  // Swish offers before you've been granted anything.
   if (method === "initialize") {
     return rpcResult(id, {
       protocolVersion: PROTOCOL_VERSION,
       capabilities: { tools: {} },
-      serverInfo: { name: "bind-wallet", version: "1.0.0" },
+      serverInfo: { name: "swish-wallet", version: "1.0.0" },
       instructions:
-        "Bind is an agent wallet. Payments you request here are checked against what the agent declared, screened for known-malicious counterparties, and bounded by the envelope's guardrails — so a request can legitimately come back blocked. That's the wallet working, not an error to retry around.",
+        "Swish is an agent wallet. Payments you request here are checked against what the agent declared, screened for known-malicious counterparties, and bounded by the envelope's guardrails — so a request can legitimately come back blocked. That's the wallet working, not an error to retry around.",
     });
   }
 
@@ -331,7 +331,7 @@ export async function POST(req: NextRequest) {
         return rpcError(id, -32602, `Unknown tool: ${name}`);
     }
   } catch (err) {
-    console.error("[bind/mcp] tool failed", name, err);
+    console.error("[swish/mcp] tool failed", name, err);
     return textResult(id, { error: String(err instanceof Error ? err.message : err) }, true);
   }
 }
@@ -339,7 +339,7 @@ export async function POST(req: NextRequest) {
 /** Lets a client confirm the endpoint is alive without a connection. */
 export async function GET() {
   return NextResponse.json({
-    name: "bind-wallet",
+    name: "swish-wallet",
     protocolVersion: PROTOCOL_VERSION,
     transport: "streamable-http (JSON-RPC 2.0 over POST)",
     tools: TOOLS.map((t) => t.name),

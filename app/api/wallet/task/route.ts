@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(toJsonSafe({ item }));
   } catch (err) {
-    console.error("[bind] /api/wallet/task failed", err);
+    console.error("[swish] /api/wallet/task failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });
   }
 }

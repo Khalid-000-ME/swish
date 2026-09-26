@@ -1,4 +1,4 @@
-# Bind
+# Swish
 
 **The allowance wallet for AI agents.** An agent can only spend what it said it would spend it on.
 
@@ -15,7 +15,7 @@ Full design rationale, threat model, and division-of-labour argument: [BIND_PRD.
 - **Bybit — $1.5B (February 2025).** Three security-trained employees approved a display reading
   "routine transfer." The signature actually authorized a malicious contract upgrade.
 
-Bind's claim: an agent can be fully fooled and still be structurally incapable of moving money
+Swish's claim: an agent can be fully fooled and still be structurally incapable of moving money
 anywhere it didn't declare, to anyone you didn't pre-approve, without your face.
 
 ## The mechanism
@@ -39,7 +39,7 @@ bind/sources/allowance_vault.move  — grep -n "balance::split"  →  exactly tw
 
 ## The wallet
 
-Bind is a wallet, and the account holders are your agents.
+Swish is a wallet, and the account holders are your agents.
 
 ```bash
 npm install
@@ -104,7 +104,7 @@ vault [`0xa8db67c36949c164cc18becd7e1de9dce704dd3757dda2308e8316755662c22c`](htt
 | World | Sandbox mode (fake identities, as the track's own rules permit) unless `WORLD_APP_ID` / `WORLD_CLIENT_ID` are set. The override callback is validated **server-side only** either way. |
 | Agent | Groq's free tier (`openai/gpt-oss-120b`) if `GROQ_API_KEY` is set, `claude-sonnet-5` if `ANTHROPIC_API_KEY` is set, else a deterministic scripted stand-in calling the identical tools in the identical order. |
 | x402 feed | A real 402 → retry-with-payment round trip, facilitated in-process rather than by a third-party facilitator. |
-| Honest boundary | Bind does not judge intent. An agent that honestly declares a bad payment to an address you'd already allow-listed will execute. Nothing can stop that short of judging intent — what Bind guarantees is that every outflow is either exactly what was declared to a pre-approved address, or it stopped and asked a verified human. |
+| Honest boundary | Swish does not judge intent. An agent that honestly declares a bad payment to an address you'd already allow-listed will execute. Nothing can stop that short of judging intent — what Swish guarantees is that every outflow is either exactly what was declared to a pre-approved address, or it stopped and asked a verified human. |
 
 ## Repo layout
 

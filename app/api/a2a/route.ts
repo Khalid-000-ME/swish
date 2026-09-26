@@ -33,7 +33,7 @@ interface Step {
   ok: boolean;
 }
 
-const SYSTEM = `You are an operator's assistant working through the Bind wallet's MCP server.
+const SYSTEM = `You are an operator's assistant working through the Swish wallet's MCP server.
 
 You do not hold a key and you cannot move money. Every payment you propose
 is simulated, diffed against what the agent declared, screened, and checked
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       // A rate limit on the free tier shouldn't end the run — the next
       // configured provider gets a turn before this gives up.
-      console.warn(`[bind/a2a] ${label} failed:`, err instanceof Error ? err.message : err);
+      console.warn(`[swish/a2a] ${label} failed:`, err instanceof Error ? err.message : err);
       if (i === candidates.length - 1) {
         return NextResponse.json(
           toJsonSafe({

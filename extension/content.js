@@ -16,7 +16,7 @@ script.remove();
 window.addEventListener("message", async (event) => {
   if (event.source !== window) return;
   const msg = event.data;
-  if (!msg || msg.target !== "bind-content") return;
+  if (!msg || msg.target !== "swish-content") return;
 
   try {
     const response = await chrome.runtime.sendMessage({
@@ -24,10 +24,10 @@ window.addEventListener("message", async (event) => {
       payload: msg.payload,
       origin: window.location.origin,
     });
-    window.postMessage({ target: "bind-inpage", id: msg.id, response }, window.location.origin);
+    window.postMessage({ target: "swish-inpage", id: msg.id, response }, window.location.origin);
   } catch (err) {
     window.postMessage(
-      { target: "bind-inpage", id: msg.id, response: { error: String(err?.message ?? err) } },
+      { target: "swish-inpage", id: msg.id, response: { error: String(err?.message ?? err) } },
       window.location.origin
     );
   }

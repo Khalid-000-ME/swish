@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const result = replaceWalletState(state as Parameters<typeof replaceWalletState>[0]);
     return NextResponse.json(toJsonSafe(result));
   } catch (err) {
-    console.error("[bind] /api/wallet/hydrate failed", err);
+    console.error("[swish] /api/wallet/hydrate failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });
   }
 }

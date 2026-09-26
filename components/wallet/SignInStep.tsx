@@ -7,7 +7,7 @@ import { ExplorerLink } from "./ExplorerLink";
  * Creating the operator's keys, rather than borrowing someone else's.
  *
  * This used to open a Slush/Suiet connect modal, which was backwards:
- * Bind *is* a wallet, so asking people to bring one made it a front-end
+ * Swish *is* a wallet, so asking people to bring one made it a front-end
  * for something they already had — and the address it got never signed
  * anything here anyway. Now the wallet mints an Ed25519 keypair, keeps a
  * sealed copy the way it keeps agent keys, and shows the secret once.
@@ -121,7 +121,7 @@ export function SignInStep({
     <div>
       <h2 className="text-lg font-semibold text-[var(--bind-fg)]">Create your wallet</h2>
       <p className="mt-1.5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
-        Bind is the wallet, so it makes your keys here — you don&apos;t need another one. The address
+        Swish is the wallet, so it makes your keys here — you don&apos;t need another one. The address
         it creates owns every vault below it. Agents get their own addresses, but they never own
         anything.
       </p>

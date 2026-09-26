@@ -66,7 +66,7 @@ async function callAndGetEffects(tx: Transaction, keypair: Ed25519Keypair, addre
     throw new Error(`bind: transaction failed — ${JSON.stringify(result.FailedTransaction.status)}`);
   }
 
-  // Bind runs several of these sequentially against one executor address,
+  // Swish runs several of these sequentially against one executor address,
   // all touching the same gas coin. Without waiting for this one to
   // checkpoint, the next call's automatic gas-object resolution can pick
   // up a version the network has already superseded ("object unavailable

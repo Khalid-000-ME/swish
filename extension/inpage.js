@@ -1,5 +1,5 @@
 /**
- * Registers Bind on the page as a Sui wallet.
+ * Registers Swish on the page as a Sui wallet.
  *
  * This implements the Wallet Standard's registration handshake by hand —
  * dispatching `wallet-standard:register-wallet` and answering
@@ -7,7 +7,7 @@
  * because an injected page script can't use npm imports without a
  * bundler and the handshake itself is only a few lines.
  *
- * What Bind reports as an "account" is an *agent's* address, not the
+ * What Swish reports as an "account" is an *agent's* address, not the
  * operator's. A site connecting here is connecting to an agent that
  * spends from a bounded envelope, and every transaction it asks for is
  * simulated and checked before anything is signed. A site can be
@@ -26,7 +26,7 @@
   window.addEventListener("message", (event) => {
     if (event.source !== window) return;
     const msg = event.data;
-    if (!msg || msg.target !== "bind-inpage") return;
+    if (!msg || msg.target !== "swish-inpage") return;
     const resolve = pending.get(msg.id);
     if (resolve) {
       pending.delete(msg.id);
@@ -38,12 +38,12 @@
     return new Promise((resolve) => {
       const id = nextId++;
       pending.set(id, resolve);
-      window.postMessage({ target: "bind-content", id, method, payload }, window.location.origin);
+      window.postMessage({ target: "swish-content", id, method, payload }, window.location.origin);
     });
   }
 
   /**
-   * Sends a transaction to be checked, and turns Bind's answer into
+   * Sends a transaction to be checked, and turns Swish's answer into
    * either a result or a thrown error.
    *
    * A refusal is not a failure — it's the wallet doing its job — but a
@@ -55,7 +55,7 @@
     if (res?.error) throw new Error(res.error);
     if (res?.outcome === "blocked") {
       const why = Array.isArray(res.why) ? res.why.join(" ") : res.why;
-      throw new Error(`Bind refused this transaction: ${why}`);
+      throw new Error(`Swish refused this transaction: ${why}`);
     }
     return res;
   }
@@ -82,7 +82,7 @@
   // --- the wallet ---------------------------------------------------------
   const wallet = {
     version: "1.0.0",
-    name: "Bind",
+    name: "Swish",
     icon:
       "data:image/svg+xml;base64," +
       btoa(
@@ -140,13 +140,13 @@
       "sui:signTransaction": {
         version: "2.0.0",
         signTransaction: async ({ transaction }) => {
-          // Most dApps reach Bind through here rather than through
+          // Most dApps reach Swish through here rather than through
           // signAndExecute — dapp-kit's own useSignAndExecuteTransaction
           // asks the wallet to sign and then broadcasts the result
           // itself. Refusing here would refuse nearly every site.
           //
           // The bytes coming back are not the bytes going in. A site
-          // can't know which coin this agent pays gas from, so Bind
+          // can't know which coin this agent pays gas from, so Swish
           // fills that in, bounds the transaction to the current epoch
           // so a held signature can't be broadcast indefinitely, and
           // checks *those* bytes. Returning them is what the Wallet

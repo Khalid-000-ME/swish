@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const outcome = await completeOverride(declarationId, decision, `0xsandbox-${declarationId}`);
     return NextResponse.json(outcome);
   } catch (err) {
-    console.error("[bind] /api/override failed", err);
+    console.error("[swish] /api/override failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });
   }
 }

@@ -1,7 +1,7 @@
 /**
  * The extension's service worker.
  *
- * Holds the connection token per origin and talks to the Bind server.
+ * Holds the connection token per origin and talks to the Swish server.
  * It deliberately holds no signing key: agent secrets stay sealed on the
  * server, and this worker's job is to route a site's request there and
  * carry the answer back. A browser extension is not a good place to keep
@@ -44,7 +44,7 @@ async function requestConnection(origin) {
     body: JSON.stringify({ origin, reason: `${origin} wants to use one of your agents` }),
   }).then((r) => r.json());
 
-  if (!started?.requestId) throw new Error(started?.error ?? "Could not reach the Bind wallet.");
+  if (!started?.requestId) throw new Error(started?.error ?? "Could not reach the Swish wallet.");
 
   const tab = await chrome.tabs.create({ url: `${base}/connect?request=${started.requestId}` });
 
@@ -142,7 +142,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         case "signPersonalMessage":
           // Not wired yet — saying so beats returning something that
           // looks like a signature and isn't.
-          sendResponse({ error: "Bind does not sign personal messages yet." });
+          sendResponse({ error: "Swish does not sign personal messages yet." });
           return;
 
         default:

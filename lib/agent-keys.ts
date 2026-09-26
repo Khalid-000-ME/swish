@@ -100,7 +100,7 @@ export function rememberSealed(address: string, sealed: string): void {
       mode: 0o600,
     });
   } catch (err) {
-    console.error("[bind] could not write the agent keystore", err);
+    console.error("[swish] could not write the agent keystore", err);
   }
 }
 
@@ -132,7 +132,7 @@ export function createAgentIdentity(): NewAgentIdentity {
 /**
  * The operator's own key, minted here rather than borrowed.
  *
- * Bind is a wallet. Asking someone to connect Slush to set it up was
+ * Swish is a wallet. Asking someone to connect Slush to set it up was
  * backwards — it made the product a front-end for a wallet they already
  * had, and the address it got never signed anything anyway. This mints a
  * real Ed25519 keypair, keeps a sealed copy the way agent keys are kept,

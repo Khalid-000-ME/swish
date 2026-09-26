@@ -15,7 +15,7 @@ import { toJsonSafe } from "@/lib/json";
  *
  * This is where the wallet's thesis meets a real dApp. An ordinary
  * wallet asks "do you approve this opaque blob?" and signs whatever
- * comes back. Bind simulates the transaction first and checks what it
+ * comes back. Swish simulates the transaction first and checks what it
  * would actually do against what this envelope is allowed to do — so a
  * site can't get a signature for something that moves more than the
  * cap, pays a counterparty nobody cleared, or quietly grants a
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     const client = suiClient();
     const tx = parseTransaction(transaction);
 
-    // A site can name a sender, but Bind only holds one key per agent.
+    // A site can name a sender, but Swish only holds one key per agent.
     // Quietly rewriting the sender would change what was asked for, so
     // a mismatch is refused instead.
     const declaredSender = tx.getData().sender;
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
     tx.setSender(agent.address);
 
     // The site left gas unset — it has no way to know which coin this
-    // agent pays from — so Bind resolves it before anything is checked.
+    // agent pays from — so Swish resolves it before anything is checked.
     const gas = await fundedGasCoin(agent.address);
     if (!gas) {
       return NextResponse.json(
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
 
     // Build once. Everything from here — the simulation, the checks, the
     // signature — is about these exact bytes, so there's no gap between
-    // what Bind approved and what it signed.
+    // what Swish approved and what it signed.
     const txBytes = await tx.build({ client });
 
     // What would this actually do?
@@ -249,10 +249,10 @@ export async function POST(req: NextRequest) {
       agentMode: "scripted",
       narration:
         breaches.length > 0
-          ? `${connection.origin} asked ${agent.name} to sign a transaction, and Bind refused.`
+          ? `${connection.origin} asked ${agent.name} to sign a transaction, and Swish refused.`
           : signOnly
-            ? `Bind signed this for ${connection.origin}, which broadcasts it itself — so there's no digest here. The signature is only good for the current epoch.`
-            : `${connection.origin} asked ${agent.name} to sign a transaction, and Bind signed and submitted it.`,
+            ? `Swish signed this for ${connection.origin}, which broadcasts it itself — so there's no digest here. The signature is only good for the current epoch.`
+            : `${connection.origin} asked ${agent.name} to sign a transaction, and Swish signed and submitted it.`,
       steps: [],
       txDigest: digest,
       reviewed: false,
@@ -268,7 +268,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // The bytes going back are Bind's, not the site's — gas and expiry
+    // The bytes going back are Swish's, not the site's — gas and expiry
     // are filled in, so the site must broadcast these rather than what
     // it built.
     return NextResponse.json(
@@ -281,7 +281,7 @@ export async function POST(req: NextRequest) {
       })
     );
   } catch (err) {
-    console.error("[bind/extension] sign failed", err);
+    console.error("[swish/extension] sign failed", err);
     return NextResponse.json({ error: String(err instanceof Error ? err.message : err) }, { status: 500 });
   }
 }

@@ -86,7 +86,7 @@ export async function GET(req: Request) {
       },
     });
   } catch (err) {
-    console.error("[bind] failed to sign World rp_context", err);
+    console.error("[swish] failed to sign World rp_context", err);
     return NextResponse.json({
       configured: false,
       missing: ["WORLD_RP_SIGNING_KEY (rejected by signRequest — check it's the raw hex private key)"],
