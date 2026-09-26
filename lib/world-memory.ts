@@ -36,6 +36,19 @@ export interface KnownHuman {
    * marker is not one.
    */
   via?: "proof" | "replay";
+  /**
+   * The action this was obtained for.
+   *
+   * A nullifier is per-action by definition, so a record from one action
+   * says nothing about another. Without this the remembered verification
+   * short-circuited the step forever: changing WORLD_ACTION to get a
+   * fresh identity had no effect, because the widget was never reached.
+   */
+  action?: string;
+}
+
+function currentAction(): string {
+  return process.env.WORLD_ACTION ?? "";
 }
 
 const STORE = resolve(process.env.SWISH_WORLD_MEMORY_PATH ?? ".swish-world.json");
@@ -53,7 +66,9 @@ export function rememberVerification(entry: KnownHuman): void {
 
   try {
     mkdirSync(dirname(STORE), { recursive: true });
-    writeFileSync(STORE, JSON.stringify(entry, null, 2), { mode: 0o600 });
+    writeFileSync(STORE, JSON.stringify({ ...entry, action: currentAction() }, null, 2), {
+      mode: 0o600,
+    });
   } catch (err) {
     console.error("[swish] could not record the World verification", err);
   }
@@ -65,11 +80,19 @@ export function recallVerification(): KnownHuman | null {
     if (!path) return null;
     const parsed = JSON.parse(readFileSync(path, "utf8")) as Partial<KnownHuman>;
     if (!parsed?.nullifierHash || !parsed.verifiedAt) return null;
+    // A record for a different action is not a record for this one.
+    // Treating it as one is what made WORLD_ACTION look like it did
+    // nothing; records written before this field existed are assumed to
+    // belong to whatever action is configured now, which is the only
+    // assumption available and the same behaviour as before.
+    if (parsed.action !== undefined && parsed.action !== currentAction()) return null;
+
     return {
       nullifierHash: parsed.nullifierHash,
       verifiedAt: parsed.verifiedAt,
       mode: parsed.mode === "live" ? "live" : "sandbox",
       via: parsed.via === "replay" ? "replay" : "proof",
+      action: parsed.action,
     };
   } catch {
     return null;
