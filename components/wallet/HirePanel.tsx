@@ -25,7 +25,6 @@ export function HirePanel({ snap }: { snap: WalletSnapshot }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const firstAgent = snap.agents.length === 0;
 
   async function hire() {
     setBusy(true);
@@ -100,7 +99,7 @@ export function HirePanel({ snap }: { snap: WalletSnapshot }) {
         <button
           disabled={busy || !name.trim() || !(perTxCapSui > 0)}
           onClick={hire}
-          className="mt-5 w-full rounded-full bg-[var(--swish-mist)] py-3 text-sm font-semibold text-[var(--swish-black)] transition disabled:opacity-40"
+          className="btn btn-primary btn-block btn-lg mt-5"
         >
           {busy ? "Hiring…" : `Hire ${name.trim() || "agent"}`}
         </button>
@@ -112,10 +111,9 @@ export function HirePanel({ snap }: { snap: WalletSnapshot }) {
         )}
 
         <p className="mt-3 text-[11.5px] leading-relaxed text-[var(--swish-fg-faint)]">
-          {firstAgent
-            ? "This one takes the published vault, so its payments settle on chain."
-            : "The published vault belongs to your first agent. This one gets an envelope the wallet tracks itself — it's marked as such wherever it appears."}{" "}
-          Either way it starts with nothing in its own address, and you top it up from its page.
+          The envelope is an allocation from your vault, not a second pot — every agent draws on the
+          same pool, bounded by what you give it here. It starts with nothing in its own address for
+          gas, and you top that up from its page.
         </p>
       </section>
     </div>
