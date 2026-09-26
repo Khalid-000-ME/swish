@@ -27,7 +27,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-space-grotesk);
+  --font-sans: var(--font-bricolage);
   --font-display: var(--font-instrument-serif);
 
   --color-accent: var(--bind-accent);
