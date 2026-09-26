@@ -42,6 +42,24 @@
     });
   }
 
+  /**
+   * Sends a transaction to be checked, and turns Bind's answer into
+   * either a result or a thrown error.
+   *
+   * A refusal is not a failure — it's the wallet doing its job — but a
+   * dApp only has one channel for "you don't get a signature", so the
+   * reasons travel as an error message.
+   */
+  async function submit(method, transaction) {
+    const res = await call(method, { transaction: await transaction.toJSON() });
+    if (res?.error) throw new Error(res.error);
+    if (res?.outcome === "blocked") {
+      const why = Array.isArray(res.why) ? res.why.join(" ") : res.why;
+      throw new Error(`Bind refused this transaction: ${why}`);
+    }
+    return res;
+  }
+
   function emitChange() {
     for (const listener of listeners) listener({ accounts });
   }
@@ -109,17 +127,7 @@
       "sui:signAndExecuteTransaction": {
         version: "2.0.0",
         signAndExecuteTransaction: async ({ transaction }) => {
-          // The bytes are simulated and checked server-side before
-          // anything is signed; a refusal comes back as an error, which
-          // is the wallet doing its job rather than failing.
-          const bytes = await transaction.toJSON?.() ?? transaction;
-          const res = await call("signAndExecute", { transaction: bytes });
-          if (res?.error) throw new Error(res.error);
-          if (res?.outcome === "blocked") {
-            throw new Error(
-              `Bind refused this transaction: ${Array.isArray(res.why) ? res.why.join(" ") : res.why}`
-            );
-          }
+          const res = await submit("signAndExecute", transaction);
           return {
             digest: res.digest,
             bytes: res.bytes,
@@ -131,13 +139,20 @@
 
       "sui:signTransaction": {
         version: "2.0.0",
-        signTransaction: async () => {
-          // Signing without executing would hand back a signature Bind
-          // can no longer stand behind — the transaction could be held
-          // and broadcast later, after the checks stopped being true.
-          throw new Error(
-            "Bind does not sign transactions it doesn't execute. Use signAndExecuteTransaction."
-          );
+        signTransaction: async ({ transaction }) => {
+          // Most dApps reach Bind through here rather than through
+          // signAndExecute — dapp-kit's own useSignAndExecuteTransaction
+          // asks the wallet to sign and then broadcasts the result
+          // itself. Refusing here would refuse nearly every site.
+          //
+          // The bytes coming back are not the bytes going in. A site
+          // can't know which coin this agent pays gas from, so Bind
+          // fills that in, bounds the transaction to the current epoch
+          // so a held signature can't be broadcast indefinitely, and
+          // checks *those* bytes. Returning them is what the Wallet
+          // Standard's `bytes` result is for.
+          const res = await submit("signTransaction", transaction);
+          return { bytes: res.bytes, signature: res.signature };
         },
       },
 

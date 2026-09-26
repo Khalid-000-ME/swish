@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fromBase64 } from "@mysten/sui/utils";
+import { fromBase64, toBase64 } from "@mysten/sui/utils";
 import { Transaction } from "@mysten/sui/transactions";
-import { suiClient } from "@/lib/sui";
+import { fundedGasCoin, suiClient } from "@/lib/sui";
 import { agentKeypair } from "@/lib/agent-keys";
 import { findAgent, findSubAccount, recordOutcome, walletState, type ActivityItem } from "@/lib/wallet-store";
 import { guardrailsFor } from "@/lib/guardrails";
@@ -28,9 +28,21 @@ import { toJsonSafe } from "@/lib/json";
 
 const CAP_RE = /(::.*Cap\b|Capability|AdminCap|TreasuryCap|OwnerCap|UpgradeCap)/i;
 
+const GAS_BUDGET_MIST = 10_000_000n;
+
+/**
+ * A site hands over its transaction in whichever form its kit produced:
+ * the Wallet Standard passes a JSON build plan, while anything talking
+ * to this endpoint directly is likelier to have BCS bytes.
+ */
+function parseTransaction(input: string): Transaction {
+  return Transaction.from(input.trimStart().startsWith("{") ? input : fromBase64(input));
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const { transaction, execute } = body as { transaction?: string; execute?: boolean };
+  const { transaction, mode } = body as { transaction?: string; mode?: "sign" | "signAndExecute" };
+  const signOnly = mode === "sign";
 
   const token =
     req.headers.get("authorization")?.replace(/^Bearer /i, "") ?? (body as { token?: string }).token;
@@ -67,13 +79,55 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const bytes = fromBase64(transaction);
-    const tx = Transaction.from(bytes);
     const client = suiClient();
+    const tx = parseTransaction(transaction);
+
+    // A site can name a sender, but Bind only holds one key per agent.
+    // Quietly rewriting the sender would change what was asked for, so
+    // a mismatch is refused instead.
+    const declaredSender = tx.getData().sender;
+    if (declaredSender && declaredSender !== agent.address) {
+      return NextResponse.json(
+        {
+          outcome: "blocked",
+          why: `This transaction is built to be sent by ${declaredSender}, which isn't ${agent.name}.`,
+        },
+        { status: 403 }
+      );
+    }
+    tx.setSender(agent.address);
+
+    // The site left gas unset — it has no way to know which coin this
+    // agent pays from — so Bind resolves it before anything is checked.
+    const gas = await fundedGasCoin(agent.address);
+    if (!gas) {
+      return NextResponse.json(
+        {
+          error: `${agent.name}'s address holds no SUI, so it can't pay gas. Send it some testnet SUI at ${agent.address}.`,
+        },
+        { status: 409 }
+      );
+    }
+    tx.setGasPayment([gas]);
+    tx.setGasBudget(GAS_BUDGET_MIST);
+    const { referenceGasPrice } = await client.getReferenceGasPrice();
+    tx.setGasPrice(BigInt(referenceGasPrice));
+
+    // Signing without broadcasting hands back something that can be held
+    // and replayed later, when the checks below may no longer hold. The
+    // signature is bounded to the current epoch so that window closes on
+    // its own rather than staying open forever.
+    const { systemState } = await client.getCurrentSystemState();
+    tx.setExpiration({ Epoch: Number(systemState.epoch) });
+
+    // Build once. Everything from here — the simulation, the checks, the
+    // signature — is about these exact bytes, so there's no gap between
+    // what Bind approved and what it signed.
+    const txBytes = await tx.build({ client });
 
     // What would this actually do?
     const sim = await client.simulateTransaction({
-      transaction: tx,
+      transaction: txBytes,
       include: { balanceChanges: true, effects: true, objectTypes: true },
     });
 
@@ -141,10 +195,12 @@ export async function POST(req: NextRequest) {
     let effects: string | undefined;
     let signature: string | undefined;
 
-    if (breaches.length === 0 && execute !== false) {
-      const result = await client.signAndExecuteTransaction({
-        signer: keypair,
-        transaction: tx,
+    if (breaches.length === 0 && signOnly) {
+      signature = (await keypair.signTransaction(txBytes)).signature;
+    } else if (breaches.length === 0) {
+      const result = await client.executeTransaction({
+        transaction: txBytes,
+        signatures: [(await keypair.signTransaction(txBytes)).signature],
         include: { effects: true },
       });
       if (result.$kind === "FailedTransaction") {
@@ -191,7 +247,12 @@ export async function POST(req: NextRequest) {
       intercepta: screen,
       dryRunSource: "chain",
       agentMode: "scripted",
-      narration: `${connection.origin} asked ${agent.name} to sign a transaction.`,
+      narration:
+        breaches.length > 0
+          ? `${connection.origin} asked ${agent.name} to sign a transaction, and Bind refused.`
+          : signOnly
+            ? `Bind signed this for ${connection.origin}, which broadcasts it itself — so there's no digest here. The signature is only good for the current epoch.`
+            : `${connection.origin} asked ${agent.name} to sign a transaction, and Bind signed and submitted it.`,
       steps: [],
       txDigest: digest,
       reviewed: false,
@@ -207,8 +268,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // The bytes going back are Bind's, not the site's — gas and expiry
+    // are filled in, so the site must broadcast these rather than what
+    // it built.
     return NextResponse.json(
-      toJsonSafe({ outcome: "executed", digest, effects, signature, bytes: transaction })
+      toJsonSafe({
+        outcome: signOnly ? "signed" : "executed",
+        digest,
+        effects,
+        signature,
+        bytes: toBase64(txBytes),
+      })
     );
   } catch (err) {
     console.error("[bind/extension] sign failed", err);

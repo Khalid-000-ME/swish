@@ -117,6 +117,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           sendResponse({ ok: true });
           return;
 
+        // Sign-only and sign-and-broadcast take the same road: the
+        // checks are identical, and only the last step differs.
+        case "signTransaction":
         case "signAndExecute": {
           const token = await tokenFor(origin);
           if (!token) {
@@ -127,7 +130,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           const res = await fetch(`${base}/api/extension/sign`, {
             method: "POST",
             headers: { "content-type": "application/json", authorization: `Bearer ${token}`, origin },
-            body: JSON.stringify({ transaction: msg.payload.transaction }),
+            body: JSON.stringify({
+              transaction: msg.payload.transaction,
+              mode: msg.type === "signTransaction" ? "sign" : "signAndExecute",
+            }),
           });
           sendResponse(await res.json());
           return;
