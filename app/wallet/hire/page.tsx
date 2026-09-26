@@ -11,7 +11,7 @@ export default function HirePage() {
   return (
     <WalletChrome snap={snap} back={{ href: "/wallet", label: "Wallet" }}>
       <div className="mx-auto w-full max-w-2xl px-5 pb-20">
-        <HirePanel snap={snap} />
+        <HirePanel />
       </div>
     </WalletChrome>
   );

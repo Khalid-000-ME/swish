@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
 
       case "verify": {
         const { worldDecision, proof, useRemembered } = body as {
-          worldDecision?: "approve" | "deny";
+          worldDecision?: "approve" | "deny" | "recognised";
           proof?: unknown;
           useRemembered?: boolean;
         };
@@ -88,6 +88,25 @@ export async function POST(req: NextRequest) {
             );
           }
           verifyOperator(known.nullifierHash);
+          break;
+        }
+
+        // World refused to issue a second proof because it already knows
+        // this human. That refusal happens inside the IDKit widget, so the
+        // proof never reaches our verify call and there is no nullifier to
+        // take from it — which is why this is recorded as a replay rather
+        // than dressed up as a proof. An override attestation needs a real
+        // nullifier and will say so; personhood for onboarding does not.
+        if (worldDecision === "recognised") {
+          const known = recallVerification();
+          const nullifierHash = known?.nullifierHash ?? `world-replay:${process.env.WORLD_ACTION ?? ""}`;
+          verifyOperator(nullifierHash);
+          rememberVerification({
+            nullifierHash,
+            verifiedAt: Date.now(),
+            mode: "live",
+            via: known?.via === "proof" ? "proof" : "replay",
+          });
           break;
         }
 
@@ -115,7 +134,12 @@ export async function POST(req: NextRequest) {
             const nullifier = verified.nullifierHash || recallVerification()?.nullifierHash;
             if (nullifier) {
               verifyOperator(nullifier);
-              rememberVerification({ nullifierHash: nullifier, verifiedAt: Date.now(), mode: "live" });
+              rememberVerification({
+                nullifierHash: nullifier,
+                verifiedAt: Date.now(),
+                mode: "live",
+                via: verified.nullifierHash ? "proof" : "replay",
+              });
               break;
             }
           }
@@ -130,6 +154,7 @@ export async function POST(req: NextRequest) {
             nullifierHash: verified.nullifierHash,
             verifiedAt: Date.now(),
             mode: "live",
+            via: "proof",
           });
           break;
         }
@@ -142,6 +167,7 @@ export async function POST(req: NextRequest) {
           nullifierHash: result.nullifierHash,
           verifiedAt: Date.now(),
           mode: result.mode,
+          via: "proof",
         });
         break;
       }

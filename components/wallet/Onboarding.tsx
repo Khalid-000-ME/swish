@@ -101,6 +101,7 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
             knownHuman={snap.worldKnownHuman}
             onUseRemembered={() => post({ step: "verify", useRemembered: true })}
             onVerified={(proof) => post({ step: "verify", worldDecision: "approve", proof })}
+            onRecognised={() => post({ step: "verify", worldDecision: "recognised" })}
             onCancelled={() => post({ step: "verify", worldDecision: "deny" })}
           />
         )}
@@ -124,12 +125,14 @@ function VerifyStep({
   knownHuman,
   onUseRemembered,
   onVerified,
+  onRecognised,
   onCancelled,
 }: {
   busy: boolean;
   knownHuman: KnownHuman | null;
   onUseRemembered: () => void;
   onVerified: (proof: unknown) => void;
+  onRecognised: () => void;
   onCancelled: () => void;
 }) {
   /**
@@ -156,7 +159,11 @@ function VerifyStep({
           <div className="flex items-center gap-2">
             <span className="dot" style={{ background: "var(--swish-ok)" }} />
             <span className="text-sm font-medium" style={{ color: "var(--swish-ok)" }}>
-              {knownHuman.mode === "live" ? "Verified with World ID" : "Verified in sandbox"}
+              {knownHuman.mode !== "live"
+                ? "Verified in sandbox"
+                : knownHuman.via === "replay"
+                  ? "Recognised by World ID"
+                  : "Verified with World ID"}
             </span>
           </div>
           <div className="mt-2 text-[11px] uppercase tracking-wider text-[var(--swish-fg-faint)]">
@@ -166,8 +173,9 @@ function VerifyStep({
             {knownHuman.nullifierHash}
           </div>
           <p className="mt-2 text-[11px] leading-snug text-[var(--swish-fg-faint)]">
-            A per-action pseudonym, not an identity. It says &ldquo;the same human as last time&rdquo;
-            and nothing else.
+            {knownHuman.via === "replay"
+              ? "World refused a second proof because it already knows you, and that refusal arrives without a nullifier — so this is a marker, not a real one."
+              : "A per-action pseudonym, not an identity. It says “the same human as last time” and nothing else."}
           </p>
         </div>
 
@@ -194,6 +202,7 @@ function VerifyStep({
         label="Verify with World ID"
         busy={busy}
         onVerified={onVerified}
+        onRecognised={onRecognised}
         onCancelled={onCancelled}
       />
     </div>

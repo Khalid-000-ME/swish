@@ -25,12 +25,20 @@ interface WorldConfig {
 export function WorldVerify({
   label,
   onVerified,
+  onRecognised,
   onCancelled,
   busy,
 }: {
   label: string;
   /** Receives the real IDKit proof when live, or null in simulation. */
   onVerified: (proof: IDKitResult | null) => void;
+  /**
+   * World refused a second proof because it already knows this human.
+   * That refusal lands here, inside the widget, so the proof never
+   * reaches our verify call — which is why it is a separate outcome from
+   * onVerified rather than being folded into it.
+   */
+  onRecognised?: () => void;
   onCancelled?: () => void;
   busy?: boolean;
 }) {
@@ -39,6 +47,7 @@ export function WorldVerify({
   const [open, setOpen] = useState(false);
   const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [replayed, setReplayed] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -76,6 +85,39 @@ export function WorldVerify({
 
   if (!config) {
     return <div className="text-sm text-[var(--swish-fg-faint)]">Checking World configuration…</div>;
+  }
+
+  // --------------------- already known to World ---------------------
+  if (replayed) {
+    return (
+      <div
+        className="rounded-xl border p-4"
+        style={{ borderColor: "var(--swish-ok-edge)", background: "var(--swish-ok-dim)" }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="dot" style={{ background: "var(--swish-ok)" }} />
+          <span className="text-sm font-medium" style={{ color: "var(--swish-ok)" }}>
+            World already knows you
+          </span>
+        </div>
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-[var(--swish-fg-dim)]">
+          This World ID has already verified for this action, so World won&apos;t issue a second
+          proof. That refusal is the uniqueness guarantee working — one human, once — and it&apos;s
+          all the personhood this step needs.
+        </p>
+        <button
+          disabled={busy}
+          onClick={() => onRecognised?.()}
+          className="btn btn-ok btn-block mt-3"
+        >
+          {busy ? "Continuing…" : "Continue"}
+        </button>
+        <p className="mt-2 text-[11px] leading-relaxed text-[var(--swish-fg-faint)]">
+          Recorded as recognition rather than a fresh proof, because the refusal arrives without a
+          nullifier. Register a new action in the Developer Portal if you need one.
+        </p>
+      </div>
+    );
   }
 
   // ------------------------------ live ------------------------------
@@ -133,12 +175,20 @@ export function WorldVerify({
             onError={(code) => {
               setOpen(false);
               setSession(null);
+
+              // Not a failure. World is refusing to issue a second
+              // uniqueness proof because it already knows this human,
+              // which is the guarantee working. Treating it as an error
+              // left onboarding with no way forward at all.
+              if (code === "nullifier_replayed") {
+                setReplayed(true);
+                return;
+              }
+
               setError(
                 code === "duplicate_nonce"
                   ? "That request was already used. Try again — a fresh one will be issued."
-                  : code === "nullifier_replayed"
-                    ? "World recognised you — this World ID has already verified for this action. That's the uniqueness guarantee working, not a failure. Register a fresh action to verify again, or move to session proofs for genuinely repeatable checks."
-                    : `World verification failed: ${code}`
+                  : `World verification failed: ${code}`
               );
               onCancelled?.();
             }}

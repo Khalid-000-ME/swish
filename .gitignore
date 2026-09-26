@@ -46,6 +46,7 @@ next-env.d.ts
 .bind-keys.json
 
 # Remembered World verification — survives a wallet reset.
+.swish-world.json
 .bind-world.json
 
 # Kept on disk, deliberately out of the repo.

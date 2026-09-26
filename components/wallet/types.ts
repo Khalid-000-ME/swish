@@ -4,6 +4,8 @@ export interface KnownHuman {
   nullifierHash: string;
   verifiedAt: number;
   mode: "live" | "sandbox";
+  /** "proof" carries a real nullifier; "replay" is recognition without one. */
+  via?: "proof" | "replay";
 }
 
 export interface AllowlistEntry {

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { WalletSnapshot } from "./types";
 
 /**
  * Hiring another agent.
@@ -16,7 +15,7 @@ import type { WalletSnapshot } from "./types";
  * implying otherwise would be the kind of thing the rest of the product
  * spends its time refusing to do.
  */
-export function HirePanel({ snap }: { snap: WalletSnapshot }) {
+export function HirePanel() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
