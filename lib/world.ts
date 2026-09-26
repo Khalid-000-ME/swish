@@ -156,35 +156,48 @@ export async function attestOverride(input: {
 }
 
 /**
- * Verifies a real IDKit proof against World's verify API. Used on the
- * onboarding path the moment a World app is configured — the browser
- * hands over a proof, and whether it counts is decided here, never there.
+ * Verifies a real IDKit proof against World. Per World's own integration
+ * guide the payload is forwarded **byte-for-byte** to
+ * `POST https://developer.world.org/api/v4/verify/{rp_id}` — no field
+ * remapping, because re-encoding the proof is one of the documented
+ * causes of `invalid_proof`.
  */
 export async function verifyWorldProof(
   proof: unknown
 ): Promise<{ success: boolean; nullifierHash: string; detail?: string }> {
-  const appId = process.env.WORLD_APP_ID;
-  const action = process.env.WORLD_ACTION;
-
-  if (!appId || !action) {
+  const rpId = process.env.WORLD_RP_ID;
+  if (!rpId) {
     return { success: false, nullifierHash: "", detail: "No World app configured on the server." };
   }
 
   try {
-    const res = await fetch(`https://developer.worldcoin.org/api/v2/verify/${appId}`, {
+    const res = await fetch(`https://developer.world.org/api/v4/verify/${rpId}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ...(proof as Record<string, unknown>), action }),
-      signal: AbortSignal.timeout(10_000),
+      body: JSON.stringify({ rp_id: rpId, idkitResponse: proof }),
+      signal: AbortSignal.timeout(15_000),
     });
-    const data = (await res.json()) as Record<string, unknown>;
+    const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
     if (!res.ok) {
-      return { success: false, nullifierHash: "", detail: String(data?.detail ?? `World returned ${res.status}`) };
+      return {
+        success: false,
+        nullifierHash: "",
+        detail: String(data?.detail ?? data?.code ?? `World returned ${res.status}`),
+      };
     }
 
-    const nullifierHash =
-      (proof as { nullifier_hash?: string })?.nullifier_hash ?? String(data?.nullifier_hash ?? "");
+    // The nullifier is what makes "one human" enforceable — it's the value
+    // to store and reject on if it ever shows up twice.
+    const nullifierHash = String(
+      data?.nullifier_hash ??
+        (proof as { nullifier_hash?: string })?.nullifier_hash ??
+        ""
+    );
+    if (!nullifierHash) {
+      return { success: false, nullifierHash: "", detail: "World accepted the proof but returned no nullifier." };
+    }
+
     return { success: true, nullifierHash };
   } catch (e) {
     return { success: false, nullifierHash: "", detail: String(e) };

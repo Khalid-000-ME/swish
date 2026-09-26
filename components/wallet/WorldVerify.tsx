@@ -9,6 +9,7 @@ interface WorldConfig {
   missing?: string[];
   app_id?: `app_${string}`;
   action?: string;
+  environment?: "staging" | "production";
   rp_context?: RpContext;
 }
 
@@ -73,6 +74,7 @@ export function WorldVerify({
           action={config.action}
           rp_context={config.rp_context}
           allow_legacy_proofs
+          environment={config.environment ?? "production"}
           preset={proofOfHuman()}
           onSuccess={(result) => {
             setOpen(false);
