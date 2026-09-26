@@ -36,6 +36,8 @@ export interface Agent {
   id: string;
   name: string;
   role: string;
+  address: string;
+  addressBalanceMist: string;
   worldVerified: boolean;
   worldNullifier: string;
   boundAt: number;
@@ -88,8 +90,31 @@ export interface AgentTask {
   environment: string;
 }
 
+export type OnboardingStep = "signin" | "verify" | "vault" | "agent" | "done";
+
+export interface Onboarding {
+  complete: boolean;
+  step: OnboardingStep;
+  credentials?: {
+    operatorAddress: string;
+    vaultObjectId?: string;
+    packageId?: string;
+    agentAddress?: string;
+    issuedAt: number;
+  };
+}
+
 export interface WalletSnapshot {
-  operator: { worldVerified: boolean; worldNullifier: string; verifiedAt: number; handle: string };
+  onboarding: Onboarding;
+  holdings: { vault: string; agents: string; total: string };
+  operator: {
+    worldVerified: boolean;
+    worldNullifier: string;
+    verifiedAt: number;
+    handle: string;
+    address?: string;
+    signedInAt?: number;
+  };
   agents: Agent[];
   activity: ActivityItem[];
   bannedAddresses: Array<{ address: string; bannedAt: number; reason: string }>;

@@ -52,13 +52,13 @@ function ApprovalCard({
   const [busy, setBusy] = useState(false);
   const agent = snap.agents.find((a) => a.id === item.agentId);
 
-  async function decide(decision: "approve" | "deny") {
+  async function decide(decision: "approve" | "deny", alsoAllow = false) {
     setBusy(true);
     try {
       await fetch("/api/wallet/approve", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ activityId: item.id, decision }),
+        body: JSON.stringify({ activityId: item.id, decision, alsoAllow }),
       });
       await onChanged();
     } finally {
@@ -94,26 +94,40 @@ function ApprovalCard({
         <DiffView item={item} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-[var(--bind-line)] p-4">
-        <button
-          disabled={busy}
-          onClick={() => decide("approve")}
-          className="rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-40"
-          style={{ background: "var(--bind-ok)", color: "var(--bind-black)" }}
-        >
-          Verify with World ID &amp; pay once
-        </button>
-        <button
-          disabled={busy}
-          onClick={() => decide("deny")}
-          className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-white/5 disabled:opacity-40"
-          style={{ borderColor: "var(--bind-line-strong)" }}
-        >
-          Decline
-        </button>
-        <span className="text-[11px] text-[var(--bind-fg-faint)]">
-          Approving pays this once — it does not add {shortAddr(item.recipient)} to the allow-list.
-        </span>
+      <div className="space-y-2.5 border-t border-[var(--bind-line)] p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            disabled={busy}
+            onClick={() => decide("approve")}
+            className="rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-40"
+            style={{ background: "var(--bind-ok)", color: "var(--bind-black)" }}
+          >
+            Verify &amp; pay once
+          </button>
+          <button
+            disabled={busy}
+            onClick={() => decide("approve", true)}
+            className="rounded-full border px-4 py-2 text-sm font-medium transition hover:bg-white/5 disabled:opacity-40"
+            style={{ borderColor: "var(--bind-ok)", color: "var(--bind-ok)" }}
+          >
+            Pay &amp; always allow
+          </button>
+          <button
+            disabled={busy}
+            onClick={() => decide("deny")}
+            className="rounded-full border px-4 py-2 text-sm font-medium text-[var(--bind-fg)] transition hover:bg-white/5 disabled:opacity-40"
+            style={{ borderColor: "var(--bind-line-strong)" }}
+          >
+            Decline
+          </button>
+        </div>
+        <p className="text-[11px] leading-snug text-[var(--bind-fg-faint)]">
+          <strong className="text-[var(--bind-fg-dim)]">Pay once</strong> settles this payment and
+          nothing more — {shortAddr(item.recipient)} will interrupt you again next time.{" "}
+          <strong className="text-[var(--bind-fg-dim)]">Always allow</strong> adds it to this
+          envelope&apos;s allow-list, so your agent stops asking. That&apos;s standing authority,
+          and it&apos;s how an agent earns its way to working unattended.
+        </p>
       </div>
     </article>
   );
