@@ -33,10 +33,11 @@ export function WalletHome({ snap }: { snap: WalletSnapshot }) {
           {fmtSui(snap.holdings.agents, 4)} held by agents
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-2.5">
+        <div className="mt-6 grid grid-cols-4 gap-2.5">
           <ActionButton href="/onboarding" label="Hire" glyph="+" />
           <ActionButton href="/wallet/caught" label="Review" glyph="⚑" badge={snap.caught.length} />
           <ActionButton href="/wallet/approvals" label="Approve" glyph="✓" badge={snap.approvals.length} />
+          <ActionButton href="/wallet/connections" label="Sites" glyph="⇄" />
         </div>
       </header>
 
