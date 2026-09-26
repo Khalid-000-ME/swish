@@ -1,5 +1,4 @@
 import type { DiffResult, DryRunResult, Intercepta, ScenarioId } from "./types";
-import { DEMO_ADDRESSES } from "@/fixtures/addresses";
 
 /**
  * The wallet's state model.
@@ -55,6 +54,10 @@ export interface Agent {
   id: string;
   name: string;
   role: string;
+  /** The agent's own Sui address — `Vault.agent` on-chain. Funds sitting
+   * here are the agent's working float, separate from its envelopes. */
+  address: string;
+  addressBalanceMist: string;
   /** Every agent is bound to the operator's verified World identity.
    * No verification, no agent — this is the spine, not a feature. */
   worldVerified: boolean;
@@ -105,9 +108,29 @@ export interface Operator {
   worldNullifier: string;
   verifiedAt: number;
   handle: string;
+  /** Set once the operator signs in — the address every vault below is
+   * owned by. Until then the wallet has nothing to show. */
+  address?: string;
+  signedInAt?: number;
+}
+
+export type OnboardingStep = "signin" | "verify" | "vault" | "agent" | "done";
+
+export interface Onboarding {
+  complete: boolean;
+  step: OnboardingStep;
+  /** Shown once, at the end of onboarding, then never again. */
+  credentials?: {
+    operatorAddress: string;
+    vaultObjectId?: string;
+    packageId?: string;
+    agentAddress?: string;
+    issuedAt: number;
+  };
 }
 
 export interface WalletState {
+  onboarding: Onboarding;
   operator: Operator;
   agents: Agent[];
   activity: ActivityItem[];
@@ -117,96 +140,18 @@ export interface WalletState {
 const LIVE_VAULT = process.env.BIND_VAULT_ID;
 
 function seed(): WalletState {
-  const now = Date.now();
   return {
+    // A fresh wallet has nobody in it. You sign in, verify, fund a vault
+    // and hire your first agent — the wallet has nothing to show until
+    // you do, which is the point of the onboarding flow.
+    onboarding: { complete: false, step: "signin" },
     operator: {
-      worldVerified: true,
-      worldNullifier: "0xsandbox-operator-nullifier",
-      verifiedAt: now - 1000 * 60 * 60 * 26,
+      worldVerified: false,
+      worldNullifier: "",
+      verifiedAt: 0,
       handle: "you",
     },
-    agents: [
-      {
-        id: "atlas",
-        name: "Atlas",
-        role: "Market data & research",
-        worldVerified: true,
-        worldNullifier: "0xsandbox-operator-nullifier",
-        boundAt: now - 1000 * 60 * 60 * 26,
-        status: "active",
-        accent: "#4f7bf0",
-        trust: { declarations: 0, clean: 0, caught: 0, humanApproved: 0, recent: [] },
-        subAccounts: [
-          {
-            id: LIVE_VAULT ?? "sub-atlas-data",
-            label: "Data subscriptions",
-            purpose: "Paid feeds and API calls this agent needs to do its job",
-            onChain: Boolean(LIVE_VAULT),
-            vaultObjectId: LIVE_VAULT,
-            balanceMist: "200000000",
-            perTxCapMist: "2000000000",
-            windowMs: 60_000,
-            windowSpentMist: "0",
-            accent: "#4f7bf0",
-            allowlist: [
-              {
-                address: DEMO_ADDRESSES.allowlistedMerchant,
-                label: "Helios Data Co.",
-                addedAt: now - 1000 * 60 * 60 * 20,
-                addedVia: "seeded",
-                totalPaidMist: "200000000",
-                lastPaidAt: now - 1000 * 60 * 42,
-              },
-            ],
-          },
-          {
-            id: "sub-atlas-compute",
-            label: "Compute",
-            purpose: "Inference and sandbox execution — sealed off from the data envelope",
-            onChain: false,
-            balanceMist: "150000000",
-            perTxCapMist: "500000000",
-            windowMs: 60_000,
-            windowSpentMist: "0",
-            accent: "#33d17a",
-            allowlist: [],
-          },
-        ],
-      },
-      {
-        id: "ledger",
-        name: "Ledger",
-        role: "Vendor payouts",
-        worldVerified: true,
-        worldNullifier: "0xsandbox-operator-nullifier",
-        boundAt: now - 1000 * 60 * 60 * 9,
-        status: "active",
-        accent: "#f5b942",
-        trust: { declarations: 0, clean: 0, caught: 0, humanApproved: 0, recent: [] },
-        subAccounts: [
-          {
-            id: "sub-ledger-payouts",
-            label: "Vendor payouts",
-            purpose: "Recurring invoices to counterparties you've already cleared",
-            onChain: false,
-            balanceMist: "900000000",
-            perTxCapMist: "1000000000",
-            windowMs: 60_000,
-            windowSpentMist: "0",
-            accent: "#f5b942",
-            allowlist: [
-              {
-                address: DEMO_ADDRESSES.allowlistedMerchant,
-                label: "Helios Data Co.",
-                addedAt: now - 1000 * 60 * 60 * 8,
-                addedVia: "seeded",
-                totalPaidMist: "0",
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    agents: [],
     activity: [],
     bannedAddresses: [],
   };
@@ -252,4 +197,127 @@ export function recordOutcome(agent: Agent, outcome: ActivityOutcome) {
     agent.trust.recent.push("caught");
   }
   agent.trust.recent = agent.trust.recent.slice(-24);
+}
+
+// ---------------------------------------------------------------------------
+// Onboarding
+// ---------------------------------------------------------------------------
+
+const ACCENTS = ["#4f7bf0", "#f5b942", "#33d17a", "#c084fc", "#f0715c"];
+
+/** Deterministic stand-in address for an agent until it's issued on-chain. */
+function deriveAgentAddress(seedStr: string): string {
+  let h = 0x811c9dc5;
+  const out: string[] = [];
+  for (let round = 0; round < 8; round++) {
+    for (let i = 0; i < seedStr.length; i++) {
+      h ^= seedStr.charCodeAt(i) + round;
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    out.push(h.toString(16).padStart(8, "0"));
+  }
+  return "0x" + out.join("").slice(0, 64);
+}
+
+export function signInOperator(address: string, handle?: string) {
+  const s = walletState();
+  s.operator.address = address;
+  s.operator.signedInAt = Date.now();
+  if (handle) s.operator.handle = handle;
+  if (s.onboarding.step === "signin") s.onboarding.step = "verify";
+}
+
+export function verifyOperator(nullifier: string) {
+  const s = walletState();
+  s.operator.worldVerified = true;
+  s.operator.worldNullifier = nullifier;
+  s.operator.verifiedAt = Date.now();
+  if (s.onboarding.step === "verify") s.onboarding.step = "vault";
+}
+
+export function markVaultReady() {
+  const s = walletState();
+  if (s.onboarding.step === "vault") s.onboarding.step = "agent";
+}
+
+/**
+ * Hire an agent. It's bound to the operator's verified identity at birth —
+ * there is no path here that creates an unbound agent — and it starts with
+ * one envelope, a small cap, and an empty allow-list. Everything it's
+ * eventually allowed to do, it has to be given or earn.
+ */
+export function hireAgent(input: {
+  name: string;
+  role: string;
+  envelopeLabel: string;
+  startingMist: string;
+  perTxCapMist: string;
+}): Agent {
+  const s = walletState();
+  const id = input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || `agent-${s.agents.length + 1}`;
+  const accent = ACCENTS[s.agents.length % ACCENTS.length];
+  const firstAgent = s.agents.length === 0;
+
+  const agent: Agent = {
+    id,
+    name: input.name,
+    role: input.role,
+    address: deriveAgentAddress(`${id}:${s.operator.address ?? "anon"}`),
+    addressBalanceMist: "0",
+    worldVerified: true,
+    worldNullifier: s.operator.worldNullifier,
+    boundAt: Date.now(),
+    status: "active",
+    accent,
+    trust: { declarations: 0, clean: 0, caught: 0, humanApproved: 0, recent: [] },
+    subAccounts: [
+      {
+        // The first agent takes the real on-chain vault when one exists, so
+        // the wallet's headline agent is genuinely live rather than a mock.
+        id: firstAgent && LIVE_VAULT ? LIVE_VAULT : `${id}-env-1`,
+        label: input.envelopeLabel,
+        purpose: `What ${input.name} may spend on for this job`,
+        onChain: Boolean(firstAgent && LIVE_VAULT),
+        vaultObjectId: firstAgent && LIVE_VAULT ? LIVE_VAULT : undefined,
+        balanceMist: input.startingMist,
+        perTxCapMist: input.perTxCapMist,
+        windowMs: 60_000,
+        windowSpentMist: "0",
+        accent,
+        allowlist: [],
+      },
+    ],
+  };
+
+  s.agents.push(agent);
+  return agent;
+}
+
+export function completeOnboarding(): Onboarding {
+  const s = walletState();
+  const first = s.agents[0];
+  s.onboarding = {
+    complete: true,
+    step: "done",
+    credentials: {
+      operatorAddress: s.operator.address ?? "",
+      vaultObjectId: first?.subAccounts[0]?.vaultObjectId,
+      packageId: process.env.BIND_PACKAGE_ID,
+      agentAddress: first?.address,
+      issuedAt: Date.now(),
+    },
+  };
+  return s.onboarding;
+}
+
+/** Vault holdings + whatever is sitting at each agent's own address. */
+export function totalHoldingsMist(): { vault: bigint; agents: bigint; total: bigint } {
+  const s = walletState();
+  let vault = 0n;
+  let agents = 0n;
+  for (const a of s.agents) {
+    agents += BigInt(a.addressBalanceMist);
+    for (const sub of a.subAccounts) vault += BigInt(sub.balanceMist);
+  }
+  return { vault, agents, total: vault + agents };
 }

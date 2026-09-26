@@ -11,7 +11,14 @@ import { toJsonSafe } from "@/lib/json";
  */
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const { activityId, decision } = body as { activityId?: string; decision?: "approve" | "deny" };
+  const { activityId, decision, alsoAllow, label } = body as {
+    activityId?: string;
+    decision?: "approve" | "deny";
+    /** Approve *and* grant standing permission, so this counterparty
+     * stops interrupting you. Same verification already covers it. */
+    alsoAllow?: boolean;
+    label?: string;
+  };
 
   if (!activityId || (decision !== "approve" && decision !== "deny")) {
     return NextResponse.json({ error: "activityId and decision are required" }, { status: 400 });
@@ -36,6 +43,18 @@ export async function POST(req: NextRequest) {
         const spent = BigInt(item.amountMist);
         sub.balanceMist = (BigInt(sub.balanceMist) - spent).toString();
         sub.windowSpentMist = (BigInt(sub.windowSpentMist) + spent).toString();
+
+        if (alsoAllow && !sub.allowlist.some((a) => a.address === item.recipient)) {
+          sub.allowlist.push({
+            address: item.recipient,
+            label: label?.trim() || "Approved counterparty",
+            addedAt: Date.now(),
+            addedVia: "promoted_from_review",
+            approvedBy: `0xsandbox-${activityId}`,
+            totalPaidMist: spent.toString(),
+            lastPaidAt: Date.now(),
+          });
+        }
       }
     } else {
       item.outcome = "denied";

@@ -67,13 +67,25 @@ export interface ScenarioRunResult extends ExecutionEvent {
   worldSandbox: boolean;
 }
 
-export async function runScenario(scenario: ScenarioId): Promise<ScenarioRunResult> {
+export interface ScenarioOptions {
+  /** The envelope's real allow-list, from the wallet. Without this the
+   * diff falls back to the agent session's own defaults, and a freshly
+   * hired agent with an empty allow-list would wrongly sail through — the
+   * wallet promises the opposite, so the wallet's list wins. */
+  allowlist?: string[];
+  perTxCapMist?: bigint;
+}
+
+export async function runScenario(scenario: ScenarioId, opts: ScenarioOptions = {}): Promise<ScenarioRunResult> {
   const run = await runBindAgent(scenario);
   const decl = run.outputs.declaration;
   const ptb = run.outputs.ptb;
   if (!decl || !ptb) {
     throw new Error("agent did not complete its declaration/build steps");
   }
+
+  if (opts.allowlist) run.session.vault.allowlist = opts.allowlist;
+  if (opts.perTxCapMist !== undefined) run.session.vault.perTxCap = opts.perTxCapMist;
 
   const { result: dryRunResult, source: dryRunSource } = await computeDryRun(run.session, decl, ptb);
   const diff = diffEffects(decl, dryRunResult, run.session.vault);

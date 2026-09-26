@@ -29,7 +29,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await runScenario(task.scenario);
+    const result = await runScenario(task.scenario, {
+      allowlist: sub.allowlist.map((a) => a.address),
+      perTxCapMist: BigInt(sub.perTxCapMist),
+    });
     const state = walletState();
 
     // An address the operator has banned is never payable again, whatever
