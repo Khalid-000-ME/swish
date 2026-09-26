@@ -21,6 +21,7 @@ export const metadata: Metadata = {
   title: "Bind — the allowance wallet for AI agents",
   description:
     "An agent can only spend what it said it would spend it on. Fund a vault, hand it to your agent, and every payment is diffed against its own declared intent before it can move.",
+  icons: { icon: "/swish_logo.png", apple: "/swish_logo.png" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

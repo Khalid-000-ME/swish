@@ -18,7 +18,13 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Bind"
+    "default_title": "Bind",
+    "default_icon": {
+      "16": "icons/bind-512.png",
+      "32": "icons/bind-512.png",
+      "48": "icons/bind-512.png",
+      "128": "icons/bind-512.png"
+    }
   },
   "content_scripts": [
     {
@@ -46,5 +52,11 @@
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; frame-src http://localhost:* http://127.0.0.1:* https:;"
+  },
+  "icons": {
+    "16": "icons/bind-512.png",
+    "32": "icons/bind-512.png",
+    "48": "icons/bind-512.png",
+    "128": "icons/bind-512.png"
   }
 }

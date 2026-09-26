@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { WalletSnapshot } from "@/components/wallet/types";
 import { fmtSui, shortAddr } from "@/components/wallet/types";
 import { TrustBars } from "@/components/wallet/bits";
+import { BindLogo } from "@/components/brand/Logo";
 import { MeshGradient } from "@/components/MeshGradient";
 
 interface ConnectionRow {
@@ -210,9 +211,8 @@ function Shell({ children }: { children: React.ReactNode }) {
         <MeshGradient columns={4} />
       </div>
       <div className="relative z-10">
-        <div className="mb-4 flex items-center gap-2 px-1">
-          <span className="dot" style={{ background: "var(--bind-accent-2)" }} />
-          <span className="text-[13px] font-medium text-[var(--bind-fg)]">Bind</span>
+        <div className="mb-4 px-1">
+          <BindLogo size={24} />
         </div>
         {children}
       </div>

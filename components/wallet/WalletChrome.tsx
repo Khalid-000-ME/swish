@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import type { WalletSnapshot } from "./types";
 import { SourceBadge } from "./bits";
 import { ExplorerLink } from "./ExplorerLink";
+import { BindLogo } from "@/components/brand/Logo";
 import { clearStoredWallet } from "./WalletShell";
 
 /** The frame every wallet page sits in: a thin top bar with who you are
@@ -40,9 +41,8 @@ export function WalletChrome({
               {back.label}
             </Link>
           ) : (
-            <Link href="/" className="flex items-center gap-2 text-sm font-medium text-[var(--bind-fg)]">
-              <span className="dot" style={{ background: "var(--bind-accent-2)" }} />
-              Bind
+            <Link href="/" className="transition hover:opacity-80">
+              <BindLogo size={28} />
             </Link>
           )}
 

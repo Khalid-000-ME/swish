@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BindLogo } from "@/components/brand/Logo";
 import { MeshGradient } from "@/components/MeshGradient";
 
 const SPONSORS = [
@@ -14,10 +15,7 @@ export default function Home() {
 
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-5xl flex-col px-6">
         <header className="flex items-center justify-between py-7">
-          <div className="flex items-center gap-2 text-sm font-medium tracking-tight text-[var(--bind-fg)]">
-            <span className="dot" style={{ background: "var(--bind-accent-2)" }} />
-            Bind
-          </div>
+          <BindLogo size={30} />
           <Link
             href="/wallet"
             className="chip bg-white/5 text-[var(--bind-fg)] transition hover:bg-white/10"

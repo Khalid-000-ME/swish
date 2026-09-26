@@ -14,6 +14,18 @@
         font-family: ui-sans-serif, system-ui, sans-serif;
       }
       #fallback h1 { font-size: 15px; margin: 0 0 10px; }
+      /* The source art is padded, so the image is scaled up inside a
+         clipped tile and the tile is what gets rounded — same trick as
+         components/brand/Logo.tsx. Scaling the img itself would enlarge
+         the rounded corners along with it. */
+      .mark {
+        border-radius: 10px; height: 34px; margin-bottom: 12px;
+        overflow: hidden; position: relative; width: 34px;
+      }
+      .mark img {
+        height: 65px; left: 50%; position: absolute; top: 50%;
+        transform: translate(-50%, -50%); width: 65px;
+      }
       #fallback p { font-size: 12px; line-height: 1.55; color: #a7b0cc; margin: 0 0 12px; }
       .label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #6b7394; margin-bottom: 5px; }
       input {
@@ -38,6 +50,7 @@
     <iframe id="frame" title="Bind wallet"></iframe>
 
     <div id="fallback">
+      <div class="mark"><img src="icons/bind-512.png" alt="" /></div>
       <h1>Can't reach your wallet</h1>
       <p id="why">Start it with <code>npm run dev</code>, or point this at wherever it's running.</p>
       <div class="label">Wallet server</div>
