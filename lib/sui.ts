@@ -83,10 +83,10 @@ const CAP_RE = /(::.*Cap\b|Capability|AdminCap|TreasuryCap|OwnerCap|UpgradeCap)/
  * access right now" is decided.
  */
 export async function dryRun(tx: Transaction, sender: string): Promise<DryRunResult | null> {
-  const gas = await fundedGasCoin(sender);
-  if (!gas) return null;
+  const gas = await allGasCoins(sender);
+  if (gas.length === 0) return null;
 
-  tx.setGasPayment([{ objectId: gas.objectId, version: gas.version, digest: gas.digest }]);
+  tx.setGasPayment(gas);
   tx.setGasBudget(10_000_000n);
 
   const client = suiClient();
@@ -170,5 +170,29 @@ export async function readVaultBalance(vaultObjectId: string): Promise<bigint | 
     return n;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Every spendable SUI coin an address holds, largest first.
+ *
+ * `fundedGasCoin` returns one, which is fine for a fixed-size call but
+ * wrong whenever the amount comes from the address's *total* balance: a
+ * sweep computed from `getBalance` (which sums every coin) and then paid
+ * from a single coin fails with InsufficientCoinBalance the moment the
+ * balance is spread across more than one. Passing all of them as gas
+ * payment merges them, so `tx.gas` is the whole balance.
+ */
+export async function allGasCoins(
+  address: string
+): Promise<Array<{ objectId: string; version: string; digest: string }>> {
+  try {
+    const coins = await suiClient().listCoins({ owner: address, coinType: "0x2::sui::SUI" });
+    return coins.objects
+      .filter((c) => BigInt(c.balance) > 0n)
+      .sort((a, b) => Number(BigInt(b.balance) - BigInt(a.balance)))
+      .map((c) => ({ objectId: c.objectId, version: c.version, digest: c.digest }));
+  } catch {
+    return [];
   }
 }

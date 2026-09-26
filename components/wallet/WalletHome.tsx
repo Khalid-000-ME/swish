@@ -40,8 +40,9 @@ export function WalletHome({ snap }: { snap: WalletSnapshot }) {
           envelopes
         </div>
 
-        <div className="mt-6 grid grid-cols-5 gap-2.5">
+        <div className="mt-6 grid grid-cols-3 gap-2.5 sm:grid-cols-6">
           <ActionButton href="/wallet/hire" label="Hire" glyph="+" />
+          <ActionButton href="/wallet/funds" label="Funds" glyph="↕" />
           <ActionButton href="/wallet/caught" label="Review" glyph="⚑" badge={snap.caught.length} />
           <ActionButton href="/wallet/approvals" label="Approve" glyph="✓" badge={snap.approvals.length} />
           <ActionButton href="/wallet/connections" label="Sites" glyph="⇄" />

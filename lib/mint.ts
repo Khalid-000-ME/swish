@@ -1,6 +1,6 @@
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Transaction } from "@mysten/sui/transactions";
-import { suiClient, fundedGasCoin } from "./sui";
+import { suiClient, allGasCoins } from "./sui";
 import type { Attestation } from "./attest";
 import type { Declaration } from "./types";
 import type { SuiClientTypes } from "@mysten/sui/client";
@@ -40,6 +40,39 @@ function executor(): { keypair: Ed25519Keypair; address: string } {
 
 const pkg = () => process.env.SWISH_PACKAGE_ID!;
 
+/** Reserved from the gas coins while a transaction runs — see below. */
+export const GAS_BUDGET_MIST = 10_000_000n;
+
+/**
+ * The address that owns the vault and pays for owner operations.
+ *
+ * Not the same as `operator.address`, which is the keypair the wallet
+ * mints at sign-in and uses as an identity. The vault was published by
+ * SWISH_EXECUTOR_KEY and `owner_withdraw` asserts that owner, so this is
+ * where money taken out of the vault has to land and what funds an agent.
+ * Sending it to the sign-in address instead would put it somewhere the
+ * wallet never spends from.
+ */
+export function executorAddress(): string | null {
+  try {
+    return executor().address;
+  } catch {
+    return null;
+  }
+}
+
+/** What that address can actually spend, for a check before a Move abort. */
+export async function executorBalanceMist(): Promise<bigint> {
+  const address = executorAddress();
+  if (!address) return 0n;
+  try {
+    const res = await suiClient().getBalance({ owner: address, coinType: "0x2::sui::SUI" });
+    return BigInt(res.balance.balance ?? "0");
+  } catch {
+    return 0n;
+  }
+}
+
 type EffectsInclude = { effects: true; objectTypes: true };
 
 /** Runs a moveCall-only transaction and returns its checked effects + a
@@ -51,10 +84,21 @@ async function callAndGetEffects(tx: Transaction, keypair: Ed25519Keypair, addre
   // resolution — several of these run back to back against one address,
   // and letting each call re-discover gas independently is what avoids
   // handing the network an object version it has already superseded.
-  const gas = await fundedGasCoin(address);
-  if (!gas) throw new Error(`bind: executor address ${address} has no spendable gas coin`);
-  tx.setGasPayment([{ objectId: gas.objectId, version: gas.version, digest: gas.digest }]);
-  tx.setGasBudget(30_000_000n);
+  // All the coins, not one. An address accumulates coins as it receives
+  // transfers, and a call that splits an amount out of `tx.gas` fails with
+  // InsufficientCoinBalance whenever that amount exceeds any single coin —
+  // even with plenty of SUI spread across several.
+  const gas = await allGasCoins(address);
+  if (gas.length === 0) {
+    throw new Error(`swish: executor address ${address} has no spendable gas coin`);
+  }
+  tx.setGasPayment(gas);
+  // Sui reserves the whole budget from the gas coins for the duration of
+  // the transaction, so a budget is a floor on what the sender must hold,
+  // not just a cap on what it may spend. At 30 mSUI a 0.025 transfer
+  // needed 0.055 on hand and failed with InsufficientCoinBalance while
+  // holding 0.035. These are single moveCalls; 10 mSUI is ample.
+  tx.setGasBudget(GAS_BUDGET_MIST);
 
   const result = await client.signAndExecuteTransaction({
     signer: keypair,
@@ -245,6 +289,107 @@ export async function addToAllowlistOnChain(input: {
 }
 
 /**
+ * Sends SUI out of an agent's own address, signed by that agent.
+ *
+ * The counterpart to funding one. Money that went into an agent's address
+ * for gas used to have no way back out — the operator could top it up and
+ * then watch it sit there. This is the agent's key signing an ordinary
+ * transfer, not a vault operation, because the agent genuinely owns that
+ * address.
+ *
+ * `amountMist` of null sweeps everything the address holds, less a margin
+ * for the gas this transaction itself costs. Splitting the exact balance
+ * would leave nothing to pay with.
+ */
+export async function sendFromAgent(input: {
+  agentKeypair: Ed25519Keypair;
+  recipient: string;
+  amountMist: bigint | null;
+}): Promise<{ digest: string; sentMist: bigint }> {
+  const client = suiClient();
+  const address = input.agentKeypair.toSuiAddress();
+
+  // Every coin, not one. The amount below comes from the address's total
+  // balance, and paying from a single coin fails the moment that balance
+  // is spread across several — which it is as soon as an address has been
+  // topped up twice.
+  const gas = await allGasCoins(address);
+  if (gas.length === 0) throw new Error(`${address} holds no SUI`);
+
+  const held = await client.getBalance({ owner: address, coinType: "0x2::sui::SUI" });
+  const total = BigInt(held.balance.balance ?? "0");
+
+  const budget = 6_000_000n;
+  const amount = input.amountMist ?? total - budget;
+  if (amount <= 0n) {
+    throw new Error(
+      `${address} holds ${Number(total) / 1e9} SUI, which is not enough to cover this transaction's own gas`
+    );
+  }
+  if (amount + budget > total) {
+    throw new Error(
+      `${address} holds ${Number(total) / 1e9} SUI — not enough for ${Number(amount) / 1e9} plus gas`
+    );
+  }
+
+  const tx = new Transaction();
+  tx.setSender(address);
+  const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(amount)]);
+  tx.transferObjects([coin], tx.pure.address(input.recipient));
+  tx.setGasPayment(gas);
+  tx.setGasBudget(budget);
+
+  const result = await client.signAndExecuteTransaction({
+    signer: input.agentKeypair,
+    transaction: tx,
+    include: { effects: true },
+  });
+  if (result.$kind === "FailedTransaction") {
+    throw new Error(`transfer failed: ${JSON.stringify(result.FailedTransaction.status)}`);
+  }
+  return { digest: result.Transaction.digest, sentMist: amount };
+}
+
+/**
+ * Puts SUI from an agent's own address back into the vault.
+ *
+ * `deposit` is public — anyone may fund a vault — so the agent can do
+ * this itself without the owner's key being involved.
+ */
+export async function depositFromAgent(input: {
+  agentKeypair: Ed25519Keypair;
+  vaultObjectId: string;
+  amountMist: bigint;
+}): Promise<{ digest: string }> {
+  const client = suiClient();
+  const address = input.agentKeypair.toSuiAddress();
+
+  const gas = await allGasCoins(address);
+  if (gas.length === 0) throw new Error(`${address} holds no SUI`);
+
+  const tx = new Transaction();
+  tx.setSender(address);
+  const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(input.amountMist)]);
+  tx.moveCall({
+    target: `${pkg()}::allowance_vault::deposit`,
+    typeArguments: ["0x2::sui::SUI"],
+    arguments: [tx.object(input.vaultObjectId), coin],
+  });
+  tx.setGasPayment(gas);
+  tx.setGasBudget(10_000_000n);
+
+  const result = await client.signAndExecuteTransaction({
+    signer: input.agentKeypair,
+    transaction: tx,
+    include: { effects: true },
+  });
+  if (result.$kind === "FailedTransaction") {
+    throw new Error(`deposit failed: ${JSON.stringify(result.FailedTransaction.status)}`);
+  }
+  return { digest: result.Transaction.digest };
+}
+
+/**
  * Moves money out of the vault to an agent's own address.
  *
  * This is the owner spending their own budget, not the agent spending
@@ -256,7 +401,7 @@ export async function addToAllowlistOnChain(input: {
  * vault published before it will abort, which the caller reports rather
  * than swallowing.
  */
-export async function fundAgentFromVault(input: {
+export async function withdrawFromVault(input: {
   vaultObjectId: string;
   recipient: string;
   amountMist: bigint;

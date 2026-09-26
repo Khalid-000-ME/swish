@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFaucetHost, requestSuiFromFaucetV2 } from "@mysten/sui/faucet";
 import { findAgent, findSubAccount, refreshAgentBalances, walletState } from "@/lib/wallet-store";
-import { fundAgentAddress, fundAgentFromVault, isMintConfigured } from "@/lib/mint";
+import {
+  executorBalanceMist,
+  fundAgentAddress,
+  withdrawFromVault,
+  isMintConfigured,
+  GAS_BUDGET_MIST,
+} from "@/lib/mint";
 import { suiToMist } from "@/lib/amount";
 import { toJsonSafe } from "@/lib/json";
 
@@ -88,7 +94,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const { digest } = await fundAgentFromVault({
+      const { digest } = await withdrawFromVault({
         vaultObjectId: sub.vaultObjectId,
         recipient: agent.address,
         amountMist: want,
@@ -125,7 +131,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { digest } = await fundAgentAddress({ recipient: agent.address, amountMist: suiToMist(want) });
+    // Checked before the call, so a shortfall reads as a number rather
+    // than as InsufficientCoinBalance from inside the Move runtime.
+    const owned = await executorBalanceMist();
+    const need = suiToMist(want);
+    // The gas budget is reserved from the same coins for the duration of
+    // the transaction, so it is part of what the sender must hold.
+    if (need + GAS_BUDGET_MIST > owned) {
+      return NextResponse.json(
+        {
+          error: `Your key holds ${Number(owned) / 1e9} SUI. Sending ${want} needs that plus ${Number(GAS_BUDGET_MIST) / 1e9} reserved for gas. Top it up at the faucet.`,
+        },
+        { status: 409 }
+      );
+    }
+
+    const { digest } = await fundAgentAddress({ recipient: agent.address, amountMist: need });
     await refreshAgentBalances();
 
     return NextResponse.json(

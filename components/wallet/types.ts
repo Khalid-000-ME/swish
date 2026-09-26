@@ -182,6 +182,8 @@ export interface WalletSnapshot {
   /** Set when World has already verified this operator for this action. */
   worldKnownHuman: KnownHuman | null;
   mcpServers: McpServerView[];
+  /** Owns the vault and pays for owner operations. Not operator.address. */
+  ownerAddress: string | null;
 }
 
 export interface McpToolView {
