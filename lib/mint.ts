@@ -1,23 +1,23 @@
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Transaction } from "@mysten/sui/transactions";
-import { suiClient } from "./sui";
+import { suiClient, fundedGasCoin } from "./sui";
 import type { Attestation } from "./attest";
 import type { Declaration } from "./types";
+import type { SuiClientTypes } from "@mysten/sui/client";
 
 /**
  * Real on-chain calls into the published `bind` package — used once
  * BIND_PACKAGE_ID / BIND_REGISTRY_ID / BIND_VAULT_ID / BIND_AGENT_CAP_ID /
- * BIND_EXECUTOR_KEY are all set (see scripts/deploy.ts, which publishes the
+ * BIND_EXECUTOR_KEY are all set (see scripts/deploy.sh, which publishes the
  * package, shares a funded Vault, and writes these into .env.local).
  * Until then, lib/pipeline.ts uses a clearly-labelled simulated proof
  * instead — the Move contracts and their tests are real regardless; this
  * module is what makes the demo's *execution* real too, once gas exists.
  *
- * [VERIFY before first live run]: argument encoding below (`tx.pure.*`
- * shapes, byte layout of `coin_type`/`reason_hash`) against the actual
- * deployed package — this was written against the Move source in
- * bind/sources/ and the @mysten/sui v2 Transaction builder API, but has
- * not yet been exercised against a funded signer end-to-end.
+ * Built on `SuiGrpcClient` (see lib/sui.ts) — the public testnet fullnode
+ * has fully retired JSON-RPC, so `signAndExecuteTransaction` here returns
+ * gRPC's `{$kind, Transaction | FailedTransaction}` shape, not the old
+ * `{digest, objectChanges}` response.
  */
 
 export function isMintConfigured(): boolean {
@@ -40,9 +40,57 @@ function executor(): { keypair: Ed25519Keypair; address: string } {
 
 const pkg = () => process.env.BIND_PACKAGE_ID!;
 
+type EffectsInclude = { effects: true; objectTypes: true };
+
+/** Runs a moveCall-only transaction and returns its checked effects + a
+ * lookup of created-object-id -> Move type, or throws on failure. */
+async function callAndGetEffects(tx: Transaction, keypair: Ed25519Keypair, address: string) {
+  const client = suiClient();
+
+  // Explicit, freshly-fetched gas payment rather than automatic
+  // resolution — several of these run back to back against one address,
+  // and letting each call re-discover gas independently is what avoids
+  // handing the network an object version it has already superseded.
+  const gas = await fundedGasCoin(address);
+  if (!gas) throw new Error(`bind: executor address ${address} has no spendable gas coin`);
+  tx.setGasPayment([{ objectId: gas.objectId, version: gas.version, digest: gas.digest }]);
+  tx.setGasBudget(30_000_000n);
+
+  const result = await client.signAndExecuteTransaction({
+    signer: keypair,
+    transaction: tx,
+    include: { effects: true, objectTypes: true } satisfies EffectsInclude,
+  });
+
+  if (result.$kind === "FailedTransaction") {
+    throw new Error(`bind: transaction failed — ${JSON.stringify(result.FailedTransaction.status)}`);
+  }
+
+  // Bind runs several of these sequentially against one executor address,
+  // all touching the same gas coin. Without waiting for this one to
+  // checkpoint, the next call's automatic gas-object resolution can pick
+  // up a version the network has already superseded ("object unavailable
+  // for consumption") — a real race this project hit the moment it first
+  // ran three real transactions back to back.
+  await client.waitForTransaction({ result });
+
+  return result.Transaction;
+}
+
+function findCreatedObjectId(
+  t: NonNullable<SuiClientTypes.TransactionResult<EffectsInclude>["Transaction"]>,
+  typeSuffix: string
+): string {
+  const objectTypes = t.objectTypes ?? {};
+  const created = (t.effects?.changedObjects ?? []).find(
+    (c) => c.idOperation === "Created" && objectTypes[c.objectId]?.endsWith(typeSuffix)
+  );
+  if (!created) throw new Error(`bind: no created object ending in ${typeSuffix} found in tx effects`);
+  return created.objectId;
+}
+
 export async function mintDeclarationOnChain(decl: Declaration): Promise<{ declarationObjectId: string; digest: string }> {
   const { keypair, address } = executor();
-  const client = suiClient();
   const tx = new Transaction();
   tx.setSender(address);
 
@@ -61,30 +109,18 @@ export async function mintDeclarationOnChain(decl: Declaration): Promise<{ decla
   });
   tx.transferObjects([declObj], tx.pure.address(address));
 
-  const result = await client.signAndExecuteTransaction({
-    signer: keypair,
-    transaction: tx,
-    options: { showObjectChanges: true },
-  });
-  await client.waitForTransaction({ digest: result.digest });
-
-  const created = result.objectChanges?.find(
-    (c) => c.type === "created" && "objectType" in c && c.objectType.endsWith("::declaration::Declaration")
-  );
-  if (!created || !("objectId" in created)) throw new Error("bind: Declaration object not found in tx effects");
-  return { declarationObjectId: created.objectId, digest: result.digest };
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { declarationObjectId: findCreatedObjectId(t, "::declaration::Declaration"), digest: t.digest };
 }
 
 export async function mintMatchProofOnChain(input: {
-  declarationId: string; // BIND_PRD note: caller must pass the REAL on-chain
-  // Declaration object id (from mintDeclarationOnChain), not the agent's
-  // in-memory string id — the attestation must be signed over that same
-  // real id (see attestMatch / canonicalAttestMessage) or E_BAD_SIG fires.
+  declarationId: string; // must be the REAL on-chain Declaration object id
+  // (from mintDeclarationOnChain), not the agent's in-memory string id —
+  // the attestation must be signed over that same real id or E_BAD_SIG fires.
   effectsDigest: string;
   attestation: Attestation;
 }): Promise<{ proofObjectId: string; digest: string }> {
   const { keypair, address } = executor();
-  const client = suiClient();
   const tx = new Transaction();
   tx.setSender(address);
 
@@ -99,18 +135,8 @@ export async function mintMatchProofOnChain(input: {
   });
   tx.transferObjects([proof], tx.pure.address(address));
 
-  const result = await client.signAndExecuteTransaction({
-    signer: keypair,
-    transaction: tx,
-    options: { showObjectChanges: true },
-  });
-  await client.waitForTransaction({ digest: result.digest });
-
-  const created = result.objectChanges?.find(
-    (c) => c.type === "created" && "objectType" in c && c.objectType.endsWith("::proofs::MatchProof")
-  );
-  if (!created || !("objectId" in created)) throw new Error("bind: MatchProof object not found in tx effects");
-  return { proofObjectId: created.objectId, digest: result.digest };
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { proofObjectId: findCreatedObjectId(t, "::proofs::MatchProof"), digest: t.digest };
 }
 
 export async function executeDeclaredOnChain(input: {
@@ -119,7 +145,6 @@ export async function executeDeclaredOnChain(input: {
   matchProofId: string;
 }): Promise<{ digest: string }> {
   const { keypair, address } = executor();
-  const client = suiClient();
   const tx = new Transaction();
   tx.setSender(address);
 
@@ -134,9 +159,8 @@ export async function executeDeclaredOnChain(input: {
     ],
   });
 
-  const result = await client.signAndExecuteTransaction({ signer: keypair, transaction: tx });
-  await client.waitForTransaction({ digest: result.digest });
-  return { digest: result.digest };
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { digest: t.digest };
 }
 
 export async function mintOverrideApprovalOnChain(input: {
@@ -147,7 +171,6 @@ export async function mintOverrideApprovalOnChain(input: {
   attestation: Attestation;
 }): Promise<{ approvalObjectId: string; digest: string }> {
   const { keypair, address } = executor();
-  const client = suiClient();
   const tx = new Transaction();
   tx.setSender(address);
 
@@ -164,18 +187,8 @@ export async function mintOverrideApprovalOnChain(input: {
   });
   tx.transferObjects([approval], tx.pure.address(address));
 
-  const result = await client.signAndExecuteTransaction({
-    signer: keypair,
-    transaction: tx,
-    options: { showObjectChanges: true },
-  });
-  await client.waitForTransaction({ digest: result.digest });
-
-  const created = result.objectChanges?.find(
-    (c) => c.type === "created" && "objectType" in c && c.objectType.endsWith("::proofs::OverrideApproval")
-  );
-  if (!created || !("objectId" in created)) throw new Error("bind: OverrideApproval object not found in tx effects");
-  return { approvalObjectId: created.objectId, digest: result.digest };
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { approvalObjectId: findCreatedObjectId(t, "::proofs::OverrideApproval"), digest: t.digest };
 }
 
 export async function executeWithOverrideOnChain(input: {
@@ -183,7 +196,6 @@ export async function executeWithOverrideOnChain(input: {
   overrideApprovalId: string;
 }): Promise<{ digest: string }> {
   const { keypair, address } = executor();
-  const client = suiClient();
   const tx = new Transaction();
   tx.setSender(address);
 
@@ -198,7 +210,6 @@ export async function executeWithOverrideOnChain(input: {
     ],
   });
 
-  const result = await client.signAndExecuteTransaction({ signer: keypair, transaction: tx });
-  await client.waitForTransaction({ digest: result.digest });
-  return { digest: result.digest };
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { digest: t.digest };
 }
