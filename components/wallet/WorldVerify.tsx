@@ -17,10 +17,10 @@ interface WorldConfig {
  * Real World ID verification when the app is configured; an explicitly
  * labelled simulation when it isn't.
  *
- * The distinction matters more here than in most places: a button that
- * says "Verify with World ID" and silently approves is precisely the
- * gap between a declared intent and an actual effect that the rest of
- * this project exists to catch. So it doesn't say that unless it does it.
+ * The rp_context is fetched fresh every time the widget opens, never
+ * cached — its nonce is single-use, and reusing one is exactly what
+ * World rejects as `duplicate_nonce`. The mount-time request only asks
+ * whether World is configured, which burns nothing.
  */
 export function WorldVerify({
   label,
@@ -35,7 +35,9 @@ export function WorldVerify({
   busy?: boolean;
 }) {
   const [config, setConfig] = useState<WorldConfig | null>(null);
+  const [session, setSession] = useState<WorldConfig | null>(null);
   const [open, setOpen] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -50,42 +52,90 @@ export function WorldVerify({
     };
   }, []);
 
+  /** One fresh nonce per attempt. */
+  async function beginVerification() {
+    setPreparing(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/world/config?sign=1", { cache: "no-store" });
+      const signed = (await res.json()) as WorldConfig;
+      if (!signed.configured || !signed.rp_context) {
+        setError("Could not get a signed request from the server.");
+        return;
+      }
+      setSession(signed);
+      setOpen(true);
+    } finally {
+      setPreparing(false);
+    }
+  }
+
   if (!config) {
     return <div className="text-sm text-[var(--bind-fg-faint)]">Checking World configuration…</div>;
   }
 
   // ------------------------------ live ------------------------------
-  if (config.configured && config.app_id && config.action && config.rp_context) {
+  if (config.configured) {
     return (
       <div>
         <button
-          disabled={busy}
-          onClick={() => setOpen(true)}
+          disabled={busy || preparing}
+          onClick={beginVerification}
           className="w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
           style={{ background: "var(--bind-ok)" }}
         >
-          {label}
+          {preparing ? "Preparing…" : label}
         </button>
 
-        <IDKitRequestWidget
-          open={open}
-          onOpenChange={setOpen}
-          app_id={config.app_id}
-          action={config.action}
-          rp_context={config.rp_context}
-          allow_legacy_proofs
-          environment={config.environment ?? "production"}
-          preset={proofOfHuman()}
-          onSuccess={(result) => {
-            setOpen(false);
-            onVerified(result);
-          }}
-          onError={(code) => {
-            setOpen(false);
-            setError(`World verification failed: ${code}`);
-            onCancelled?.();
-          }}
-        />
+        {config.environment === "staging" && (
+          <p className="mt-2 text-[11px] leading-snug text-[var(--bind-fg-faint)]">
+            Staging mode — this QR is for the{" "}
+            <a
+              href="https://simulator.worldcoin.org"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-[var(--bind-fg-dim)]"
+            >
+              World simulator
+            </a>
+            , not the World App on your phone. Scanning it with the real app won&apos;t work — switch
+            to production for that.
+          </p>
+        )}
+
+        {session?.rp_context && session.app_id && session.action && (
+          <IDKitRequestWidget
+            key={session.rp_context.nonce}
+            open={open}
+            onOpenChange={(next) => {
+              setOpen(next);
+              // Drop the spent request when the modal closes so the next
+              // attempt is forced to fetch a new nonce.
+              if (!next) setSession(null);
+            }}
+            app_id={session.app_id}
+            action={session.action}
+            rp_context={session.rp_context}
+            allow_legacy_proofs
+            environment={session.environment ?? "production"}
+            preset={proofOfHuman()}
+            onSuccess={(result) => {
+              setOpen(false);
+              setSession(null);
+              onVerified(result);
+            }}
+            onError={(code) => {
+              setOpen(false);
+              setSession(null);
+              setError(
+                code === "duplicate_nonce"
+                  ? "That request was already used. Try again — a fresh one will be issued."
+                  : `World verification failed: ${code}`
+              );
+              onCancelled?.();
+            }}
+          />
+        )}
 
         {error && (
           <p className="mt-2 text-[12px]" style={{ color: "var(--bind-danger)" }}>

@@ -1,4 +1,5 @@
 import type { DiffResult, DryRunResult, Intercepta, ScenarioId } from "./types";
+import { createAgentIdentity } from "./agent-keys";
 
 /**
  * The wallet's state model.
@@ -58,6 +59,12 @@ export interface Agent {
    * here are the agent's working float, separate from its envelopes. */
   address: string;
   addressBalanceMist: string;
+  /** AES-GCM sealed Ed25519 secret. Stripped before this ever reaches a
+   *  browser — see stripSecrets(). */
+  sealedSecret?: string;
+  /** False when no master key is configured: the address is real and can
+   *  receive, but nothing here can sign for it. */
+  signable: boolean;
   /** Every agent is bound to the operator's verified World identity.
    * No verification, no agent — this is the spine, not a feature. */
   worldVerified: boolean;
@@ -205,20 +212,6 @@ export function recordOutcome(agent: Agent, outcome: ActivityOutcome) {
 
 const ACCENTS = ["#4f7bf0", "#f5b942", "#33d17a", "#c084fc", "#f0715c"];
 
-/** Deterministic stand-in address for an agent until it's issued on-chain. */
-function deriveAgentAddress(seedStr: string): string {
-  let h = 0x811c9dc5;
-  const out: string[] = [];
-  for (let round = 0; round < 8; round++) {
-    for (let i = 0; i < seedStr.length; i++) {
-      h ^= seedStr.charCodeAt(i) + round;
-      h = Math.imul(h, 0x01000193) >>> 0;
-    }
-    out.push(h.toString(16).padStart(8, "0"));
-  }
-  return "0x" + out.join("").slice(0, 64);
-}
-
 export function signInOperator(address: string, handle?: string) {
   const s = walletState();
   s.operator.address = address;
@@ -258,11 +251,15 @@ export function hireAgent(input: {
   const accent = ACCENTS[s.agents.length % ACCENTS.length];
   const firstAgent = s.agents.length === 0;
 
+  const identity = createAgentIdentity();
+
   const agent: Agent = {
     id,
     name: input.name,
     role: input.role,
-    address: deriveAgentAddress(`${id}:${s.operator.address ?? "anon"}`),
+    address: identity.address,
+    sealedSecret: identity.sealedSecret,
+    signable: identity.signable,
     addressBalanceMist: "0",
     worldVerified: true,
     worldNullifier: s.operator.worldNullifier,
@@ -344,4 +341,38 @@ export function replaceWalletState(incoming: WalletState): { hydrated: boolean; 
     bannedAddresses: incoming.bannedAddresses ?? [],
   };
   return { hydrated: true };
+}
+
+/** The wallet as the browser may see it — no key material, ever. */
+export function stripSecrets(state: WalletState): WalletState {
+  return {
+    ...state,
+    agents: state.agents.map((agent) => {
+      const copy = { ...agent };
+      delete copy.sealedSecret;
+      return copy;
+    }),
+  };
+}
+
+/**
+ * Refreshes each agent's on-chain balance. Agents hold real addresses
+ * now, so "held by agents" in the balance header is a live number rather
+ * than a hardcoded zero — and it reads whatever anyone has sent them,
+ * which is the point of giving them an address at all.
+ */
+export async function refreshAgentBalances(): Promise<void> {
+  const s = walletState();
+  const { suiClient } = await import("./sui");
+
+  await Promise.all(
+    s.agents.map(async (agent) => {
+      try {
+        const res = await suiClient().getBalance({ owner: agent.address, coinType: "0x2::sui::SUI" });
+        agent.addressBalanceMist = String(res.balance.balance ?? "0");
+      } catch {
+        // A fullnode hiccup shouldn't blank out the balance we last saw.
+      }
+    })
+  );
 }

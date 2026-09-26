@@ -38,6 +38,7 @@ export interface Agent {
   role: string;
   address: string;
   addressBalanceMist: string;
+  signable: boolean;
   worldVerified: boolean;
   worldNullifier: string;
   boundAt: number;

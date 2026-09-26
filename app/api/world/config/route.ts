@@ -19,7 +19,12 @@ import { signRequest } from "@worldcoin/idkit-core/signing";
  *   WORLD_RP_SIGNING_KEY  signing_key.private_key — shown exactly once
  *   WORLD_ENVIRONMENT   "staging" for the simulator, "production" for real devices
  */
-export async function GET() {
+export async function GET(req: Request) {
+  // A signature carries a single-use nonce, so signing is opt-in: the UI
+  // probes for configuration on mount (no nonce burned) and asks for a
+  // fresh signature only when the widget is actually about to open.
+  // Reusing one is what World rejects as `duplicate_nonce`.
+  const sign = new URL(req.url).searchParams.get("sign") === "1";
   const appId = process.env.WORLD_APP_ID;
   const rpId = process.env.WORLD_RP_ID;
   const action = process.env.WORLD_ACTION;
@@ -37,6 +42,10 @@ export async function GET() {
 
   if (missing.length > 0) {
     return NextResponse.json({ configured: false, missing });
+  }
+
+  if (!sign) {
+    return NextResponse.json({ configured: true, app_id: appId, action, environment });
   }
 
   try {
