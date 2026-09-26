@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { walletState, findAgent, findSubAccount, recordOutcome, type ActivityItem } from "@/lib/wallet-store";
+import { findAgent, findSubAccount, recordOutcome, refreshAgentBalances, type ActivityItem, walletState } from "@/lib/wallet-store";
 import { guardrailsFor } from "@/lib/guardrails";
 import { runScenario } from "@/lib/pipeline";
 import { resolveConnection, recordConnectionUse } from "@/lib/connections";
@@ -146,6 +146,11 @@ export async function POST(req: NextRequest) {
   try {
     switch (name) {
       case "list_agents": {
+        // Balances go to an agent that may act on them, so they're read
+        // from chain first rather than served from whatever the wallet
+        // last remembered.
+        await refreshAgentBalances();
+
         // Scoped to what this connection was granted, not the whole wallet.
         const agent = findAgent(connection.agentId);
         if (!agent) return textResult(id, { error: "the granted agent no longer exists" }, true);
@@ -191,6 +196,24 @@ export async function POST(req: NextRequest) {
           refuseRiskScoreAtOrAbove: g.maxRiskScore,
           alwaysAskAboveSui: g.approvalThresholdMist ? Number(g.approvalThresholdMist) / 1e9 : null,
           enforcedOnChain: ["perPaymentCapSui", "windowCapSui"],
+          // Stated explicitly because the absence of a list reads as
+          // "unrestricted" to anything that isn't told otherwise — a model
+          // reading this concluded exactly that, which is the opposite of
+          // what an empty allow-list means.
+          allowlist: {
+            addresses: sub.allowlist.map((a) => a.address),
+            rule: "An address must be on this list to be paid without a human approving it.",
+            emptyMeans:
+              sub.allowlist.length === 0
+                ? "This list is empty, so NO counterparty can be paid automatically. Every payment stops for a verified human."
+                : undefined,
+          },
+          customLimits: (g.custom ?? []).map((c) => ({
+            title: c.title,
+            description: c.description,
+            measures: c.metric,
+            limit: c.limit,
+          })),
           note: "The on-chain limits hold even if this server is compromised. The rest are applied here before signing.",
         });
       }

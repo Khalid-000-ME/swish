@@ -57,7 +57,7 @@ function scenarioPrompt(scenario: ScenarioId, payee: string): string {
  * that case rather than the whole run degrading to scripted. Whichever
  * one actually answered is disclosed via `mode`, surfaced in the UI.
  */
-function candidateModels(): Array<{ label: string; model: LanguageModel }> {
+export function candidateModels(): Array<{ label: string; model: LanguageModel }> {
   const candidates: Array<{ label: string; model: LanguageModel }> = [];
   if (process.env.GROQ_API_KEY) candidates.push({ label: "groq/gpt-oss-120b", model: groq("openai/gpt-oss-120b") });
   if (process.env.ANTHROPIC_API_KEY) candidates.push({ label: "anthropic/claude-sonnet-5", model: anthropic("claude-sonnet-5") });
