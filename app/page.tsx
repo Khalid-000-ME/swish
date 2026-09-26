@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BindLogo } from "@/components/brand/Logo";
-import { MeshGradient } from "@/components/MeshGradient";
+import { HeroBackground } from "@/components/HeroBackground";
 
 const SPONSORS = [
   { name: "Sui", role: "object-consumption enforcement" },
@@ -11,7 +11,7 @@ const SPONSORS = [
 export default function Home() {
   return (
     <main className="relative min-h-dvh overflow-hidden">
-      <MeshGradient />
+      <HeroBackground />
 
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-5xl flex-col px-6">
         <header className="flex items-center justify-between py-7">
