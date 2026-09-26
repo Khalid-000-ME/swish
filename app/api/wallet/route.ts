@@ -10,6 +10,7 @@ import {
 import { TASKS } from "@/lib/tasks";
 import { toJsonSafe } from "@/lib/json";
 import { isMintConfigured } from "@/lib/mint";
+import { recallVerification } from "@/lib/world-memory";
 
 export async function GET() {
   // Agent addresses are real, so their balances are read from chain
@@ -28,6 +29,10 @@ export async function GET() {
       tasks: TASKS,
       chainLive: isMintConfigured(),
       worldSandbox: !process.env.WORLD_CLIENT_ID,
+      // A verification World already accepted, surviving resets. World
+      // won't issue a second one for the same action, so onboarding needs
+      // to know when asking again would be asking for the impossible.
+      worldKnownHuman: recallVerification(),
     })
   );
 }

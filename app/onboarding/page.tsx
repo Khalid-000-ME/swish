@@ -2,7 +2,6 @@
 
 import { Onboarding } from "@/components/wallet/Onboarding";
 import { useWallet, WalletLoading } from "@/components/wallet/WalletShell";
-import { SuiProviders } from "@/components/providers/SuiProviders";
 
 export default function OnboardingPage() {
   const { snap, refresh } = useWallet();
@@ -15,9 +14,10 @@ export default function OnboardingPage() {
         style={{ background: "radial-gradient(70% 100% at 50% 0%, var(--bind-navy-2), transparent)" }}
       />
       <div className="relative z-10">
-        <SuiProviders>
-          <Onboarding snap={snap} onChanged={refresh} />
-        </SuiProviders>
+        {/* No wallet providers here on purpose: Bind mints its own keys
+            during onboarding, so the wizard has no reason to go looking
+            for other wallets installed in the browser. */}
+        <Onboarding snap={snap} onChanged={refresh} />
       </div>
     </main>
   );

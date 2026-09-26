@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { OnboardingStep, WalletSnapshot } from "./types";
+import type { KnownHuman, OnboardingStep, WalletSnapshot } from "./types";
 import { ExplorerLink } from "./ExplorerLink";
 import { WorldVerify } from "./WorldVerify";
 import { SignInStep } from "./SignInStep";
@@ -83,10 +83,21 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
       </div>
 
       <div className="card p-6">
-        {step === "signin" && <SignInStep busy={busy} onSignedIn={(address) => post({ step: "signin", address })} />}
+        {step === "signin" && (
+          <SignInStep
+            busy={busy}
+            onGenerate={async () => {
+              const data = await post({ step: "signin", generate: true });
+              return (data?.generated as { address: string; secretKey: string } | undefined) ?? null;
+            }}
+            onPasted={(address) => post({ step: "signin", address })}
+          />
+        )}
         {step === "verify" && (
           <VerifyStep
             busy={busy}
+            knownHuman={snap.worldKnownHuman}
+            onUseRemembered={() => post({ step: "verify", useRemembered: true })}
             onVerified={(proof) => post({ step: "verify", worldDecision: "approve", proof })}
             onCancelled={() => post({ step: "verify", worldDecision: "deny" })}
           />
@@ -108,13 +119,68 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
 
 function VerifyStep({
   busy,
+  knownHuman,
+  onUseRemembered,
   onVerified,
   onCancelled,
 }: {
   busy: boolean;
+  knownHuman: KnownHuman | null;
+  onUseRemembered: () => void;
   onVerified: (proof: unknown) => void;
   onCancelled: () => void;
 }) {
+  /**
+   * World ID is one-per-human-per-action by design, so a second run
+   * through onboarding cannot produce a second proof — it produces
+   * `nullifier_replayed`. Sending someone to the widget to fail is not a
+   * step. When the server already holds a verification it checked against
+   * World, this says so and moves on.
+   */
+  if (knownHuman) {
+    return (
+      <div>
+        <h2 className="text-lg font-semibold text-[var(--bind-fg)]">You&apos;re already verified</h2>
+        <p className="mt-1.5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
+          World recognised you on {new Date(knownHuman.verifiedAt).toLocaleDateString()}. A World ID
+          verifies once per action by design, so there&apos;s nothing to do again here — that refusal
+          to repeat is the guarantee working.
+        </p>
+
+        <div
+          className="mt-5 rounded-xl border p-4"
+          style={{ borderColor: "var(--bind-ok)", background: "var(--bind-ok-dim)" }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="dot" style={{ background: "var(--bind-ok)" }} />
+            <span className="text-sm font-medium" style={{ color: "var(--bind-ok)" }}>
+              {knownHuman.mode === "live" ? "Verified with World ID" : "Verified in sandbox"}
+            </span>
+          </div>
+          <div className="mt-2 text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">
+            Nullifier
+          </div>
+          <div className="mt-1 break-all font-mono text-[11px] text-[var(--bind-fg-dim)]">
+            {knownHuman.nullifierHash}
+          </div>
+          <p className="mt-2 text-[11px] leading-snug text-[var(--bind-fg-faint)]">
+            A per-action pseudonym, not an identity. It says &ldquo;the same human as last time&rdquo;
+            and nothing else.
+          </p>
+        </div>
+
+        <button
+          disabled={busy}
+          onClick={onUseRemembered}
+          className="mt-4 w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
+          style={{ background: "var(--bind-mist)" }}
+        >
+          Continue
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 className="text-lg font-semibold text-[var(--bind-fg)]">Prove you&apos;re one human</h2>

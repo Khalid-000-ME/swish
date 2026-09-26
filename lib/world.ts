@@ -170,9 +170,18 @@ export async function attestOverride(input: {
  * the RP-scoped value that makes "one human, once" enforceable, and
  * it's what to store and reject a repeat of.
  */
+/**
+ * The nullifier lives inside each response item, not at the root — it's
+ * the RP-scoped value that makes "one human, once" enforceable.
+ */
+function nullifierFromProof(proof: unknown): string {
+  const responses = (proof as { responses?: Array<{ nullifier?: string }> })?.responses ?? [];
+  return responses.find((r) => r?.nullifier)?.nullifier ?? "";
+}
+
 export async function verifyWorldProof(
   proof: unknown
-): Promise<{ success: boolean; nullifierHash: string; detail?: string }> {
+): Promise<{ success: boolean; nullifierHash: string; detail?: string; alreadyVerified?: boolean }> {
   const rpId = process.env.WORLD_RP_ID;
   if (!rpId) {
     return { success: false, nullifierHash: "", detail: "No World app configured on the server." };
@@ -195,9 +204,15 @@ export async function verifyWorldProof(
       // claim for the same action. The integration is working; the
       // request was asking the wrong question.
       if (String(data?.code ?? "") === "nullifier_replayed") {
+        // The nullifier is readable from the proof here, and trustworthy:
+        // World only reaches "already used" after validating the proof
+        // cryptographically, so this code is itself evidence the proof was
+        // genuine. A fabricated one fails with a different code and never
+        // lands in this branch.
         return {
           success: false,
-          nullifierHash: "",
+          alreadyVerified: true,
+          nullifierHash: nullifierFromProof(proof),
           detail:
             "This World ID has already verified for this action. Uniqueness proofs are one-per-human-per-action by design — register a fresh action to verify again, or move to session proofs (createSession/proveSession) for genuinely repeatable checks.",
         };
@@ -210,8 +225,7 @@ export async function verifyWorldProof(
       };
     }
 
-    const responses = (proof as { responses?: Array<{ nullifier?: string }> })?.responses ?? [];
-    const nullifierHash = responses.find((r) => r?.nullifier)?.nullifier ?? "";
+    const nullifierHash = nullifierFromProof(proof);
 
     if (!nullifierHash) {
       console.error("[bind/world] verified but no nullifier in responses", JSON.stringify(data));

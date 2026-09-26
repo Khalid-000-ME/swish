@@ -129,6 +129,33 @@ export function createAgentIdentity(): NewAgentIdentity {
   return { address, sealedSecret: sealed.sealed, signable: true };
 }
 
+/**
+ * The operator's own key, minted here rather than borrowed.
+ *
+ * Bind is a wallet. Asking someone to connect Slush to set it up was
+ * backwards — it made the product a front-end for a wallet they already
+ * had, and the address it got never signed anything anyway. This mints a
+ * real Ed25519 keypair, keeps a sealed copy the way agent keys are kept,
+ * and hands the plaintext secret back exactly once so the person can
+ * write it down.
+ *
+ * The caller must not store the returned `secretKey` anywhere. It goes to
+ * the screen and nowhere else.
+ */
+export function createOperatorIdentity(): {
+  address: string;
+  secretKey: string;
+  sealedSecret?: string;
+} {
+  const keypair = new Ed25519Keypair();
+  const address = keypair.getPublicKey().toSuiAddress();
+  const secretKey = keypair.getSecretKey();
+  const sealed = sealSecret(secretKey);
+
+  if (sealed) rememberSealed(address, sealed.sealed);
+  return { address, secretKey, sealedSecret: sealed?.sealed };
+}
+
 /** Rehydrates an agent's signer. Server-side only. */
 export function agentKeypair(sealed: string | undefined): Ed25519Keypair | null {
   if (!sealed) return null;

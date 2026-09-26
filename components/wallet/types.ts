@@ -1,5 +1,11 @@
 // Client mirror of lib/wallet-store, post-JSON (bigints as strings).
 
+export interface KnownHuman {
+  nullifierHash: string;
+  verifiedAt: number;
+  mode: "live" | "sandbox";
+}
+
 export interface AllowlistEntry {
   address: string;
   label: string;
@@ -133,6 +139,8 @@ export interface WalletSnapshot {
   tasks: AgentTask[];
   chainLive: boolean;
   worldSandbox: boolean;
+  /** Set when World has already verified this operator for this action. */
+  worldKnownHuman: KnownHuman | null;
 }
 
 export const SUI = 1e9;
