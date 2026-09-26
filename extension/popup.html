@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bind</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; width: 340px; padding: 18px 16px 16px;
+        background: #05070c; color: #eef1fb;
+        font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      }
+      .top { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+      .dot { width: 7px; height: 7px; border-radius: 999px; background: #4f7bf0; }
+      h1 { font-size: 15px; font-weight: 600; margin: 0; }
+      .muted { color: #6b7394; font-size: 11px; }
+      .card {
+        background: rgba(238,243,255,.04); border: 1px solid rgba(238,243,255,.12);
+        border-radius: 12px; padding: 12px; margin-bottom: 8px;
+      }
+      .row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+      .name { font-size: 13px; font-weight: 500; }
+      .addr { font-family: ui-monospace, monospace; font-size: 10px; color: #6b7394; margin-top: 3px; }
+      .bal { font-size: 13px; color: #a7b0cc; }
+      label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #6b7394; margin-bottom: 5px; }
+      input {
+        width: 100%; background: rgba(0,0,0,.3); border: 1px solid rgba(238,243,255,.22);
+        border-radius: 8px; padding: 8px 10px; color: #eef1fb; font-size: 12px; outline: none;
+      }
+      input:focus { border-color: #4f7bf0; }
+      button {
+        width: 100%; margin-top: 10px; padding: 9px; border: 0; border-radius: 999px;
+        background: #eef3ff; color: #05070c; font-size: 12px; font-weight: 600; cursor: pointer;
+        font-family: inherit;
+      }
+      button.ghost { background: transparent; color: #a7b0cc; border: 1px solid rgba(238,243,255,.22); }
+      .empty { color: #6b7394; font-size: 12px; line-height: 1.5; padding: 6px 0 10px; }
+      a { color: #4f7bf0; }
+    </style>
+  </head>
+  <body>
+    <div class="top">
+      <span class="dot"></span>
+      <h1>Bind</h1>
+      <span class="muted" style="margin-left:auto" id="status">checking…</span>
+    </div>
+
+    <div id="agents"></div>
+    <div id="sites"></div>
+
+    <div class="card" style="margin-top:12px">
+      <label for="url">Wallet address</label>
+      <input id="url" placeholder="http://localhost:3000" />
+      <button id="save">Save</button>
+      <button class="ghost" id="open">Open full wallet</button>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

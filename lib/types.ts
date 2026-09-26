@@ -26,7 +26,10 @@ export type ViolationKind =
   | "object_destruction"
   | "unexpected_publish"
   | "dry_run_failed"
-  | "expired";
+  | "expired"
+  /** Raised against a transaction a connected site built, where the
+   *  envelope's own rules stand in for a declaration. */
+  | "site_transaction";
 
 export interface Violation {
   kind: ViolationKind;

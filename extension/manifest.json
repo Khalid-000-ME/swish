@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Bind — agent wallet",
+  "version": "1.0.0",
+  "description": "Connect AI agents to sites the way you'd connect a wallet — bounded, screened, and refusable.",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["http://localhost:3000/*", "https://*/*"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": { "default_popup": "popup.html", "default_title": "Bind" },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    { "resources": ["inpage.js"], "matches": ["http://*/*", "https://*/*"] }
+  ]
+}

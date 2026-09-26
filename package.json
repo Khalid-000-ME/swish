@@ -15,6 +15,7 @@
     "@anthropic-ai/sdk": "^0.128.0",
     "@mysten/dapp-kit": "^1.1.17",
     "@mysten/sui": "^2.33.1",
+    "@mysten/wallet-standard": "^0.21.30",
     "@noble/ed25519": "^3.2.0",
     "@noble/hashes": "^2.4.0",
     "@tanstack/react-query": "^5.104.0",
