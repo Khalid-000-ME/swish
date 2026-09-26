@@ -52,6 +52,37 @@ Instrument Serif and the body font to Bricolage Grotesque so every new slide inh
 Dark throughout. A single mesh-gradient glow at the top of each slide (radial, `#12256e` →
 transparent) is the only decoration — it matches the product's hero.
 
+### The product's own theme — say this on stage
+
+The deck and the product share one theme, and it's worth thirty seconds because it's an argument,
+not decoration.
+
+**Near-black, one accent, no chrome.** The whole app sits on `#05070c`. There is exactly one accent
+(`#2454e8` / `#4f7bf0`) and three status colours — green for executed, amber for stopped, red for
+refused. A wallet that shouts everywhere has nowhere left to shout when something is actually wrong,
+so the interface is quiet until it refuses you, and then it isn't.
+
+**Serif for the number, sans for everything else.** Balances, headline figures and the one big line
+per screen are Instrument Serif; every label, control and caption is Bricolage Grotesque. The
+serif's only job is to make the amount the thing your eye lands on, the way a bank statement does.
+
+**A moving grainient behind the hero.** Black through royal blue to pale mist, rendered per pixel in
+a fragment shader with animated grain — the same three tokens as the palette table above. It moves
+slowly enough to read as weather rather than animation. (It replaced a stretched SVG noise tile that
+looked like a low-resolution crop; if anyone asks why a wallet has a shader, the answer is that the
+landing page is the only surface allowed to be beautiful, and the wallet itself is deliberately
+flat.)
+
+**The mark.** Two offset parallelograms — one bar above, one below, not quite meeting. It reads as
+two parties and the gap between them, which is the product. Rounded-square tile, same radius ratio
+at every size, from the 16px favicon to the onboarding header.
+
+**Refusals are first-class.** This is the theme's real claim. Most wallets style the happy path and
+treat errors as an afterthought — a red toast that disappears. Here a refusal gets a bordered card,
+the full reason in plain language, and the operator's own wording when their own limit was what
+tripped. The most important thing this product does is say no, so saying no is the best-designed
+thing in it.
+
 ### Rules
 
 - One idea per slide. If a slide needs two sentences to explain, it's two slides.
@@ -304,8 +335,10 @@ Add these between 8 and 9:
 - **The agent's brief** — each agent carries an `AGENT.md` the operator edits in the wallet, fed to
   the model as instructions before every run. Show the split editor. The line that lands: *"it
   shapes what the agent intends; the caps decide what it can do."*
-- **MCP** — five tools over JSON-RPC, so an agent that isn't yours can ask this wallet for money and
-  get told no.
+- **The A2A tab** — five MCP tools over JSON-RPC, so an agent that isn't yours can ask this wallet
+  for money and get told no. Demo it live from the console in the tab: type "can you pay anyone
+  right now?" and let it answer "no, the allow-list is empty." It is doing real MCP calls with a
+  real token, and the transcript is expandable on screen.
 
 ---
 
@@ -349,11 +382,17 @@ Say these. They're verified.
 - The extension's sign endpoint refuses a real over-cap transaction, with both reasons.
 - Groq `openai/gpt-oss-120b` driving ordered tool calls; the agent brief demonstrably changes which
   vendor gets paid.
+- The package upgraded in place (`0x896cf6e9…`), preserving the existing vault and its on-chain
+  allow-list, and `owner_withdraw` called on that same vault — 0.02 to 0.01 SUI, digest
+  `E7hbXdouUcV9uaLmuBozW8HWAy9kaTg9hXorHGYtW2Gg`.
+- Topping an agent up out of its envelope: 0.005 SUI, digest
+  `3R2eTHQ9ACjAdoJ56rUbKiYhuany3szHdJeFk88VL5Se`.
+- Operator-named guardrails blocking real payments in the operator's own words.
+- The A2A console driving `list_agents -> get_guardrails -> list_tasks` over the wallet's own MCP
+  server, with a real connection token.
 
 Don't say these. They aren't.
 
-- **`owner_withdraw` is written and unit-tested but not yet republished**, so funding an agent from
-  the vault doesn't work on chain until the package is redeployed.
+- Mainnet. Nothing here has touched it.
 - The browser half of the extension — page injection, Wallet Standard discovery, the popup — has not
   been exercised in a real Chrome from this environment. **Test it yourself before you demo it.**
-- Mainnet. Nothing here has touched it.
