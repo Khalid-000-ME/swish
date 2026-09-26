@@ -17,7 +17,7 @@ export function ApprovalsPanel({ snap, onChanged }: { snap: WalletSnapshot; onCh
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="font-display text-3xl text-[var(--bind-mist)]">Needs you</h1>
+        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Needs you</h1>
         <p className="mt-1 max-w-2xl text-sm text-[var(--bind-fg-dim)]">
           Clean diffs to counterparties nobody has approved yet. Declining mints nothing at all — the
           declaration simply expires, which is what makes a refusal structural instead of a flag someone
@@ -81,7 +81,7 @@ function ApprovalCard({
             </span>
           </div>
           <div className="mt-1 flex items-center gap-1.5 text-[12px] text-[var(--bind-fg-faint)]">
-            <span>{fmtSui(item.amountMist)} SUI →</span>
+            <span className="font-num">{fmtSui(item.amountMist)} SUI →</span>
             <ExplorerLink value={item.recipient} kind="address" />
             <span>· {timeAgo(item.ts)}</span>
           </div>

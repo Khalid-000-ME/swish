@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { WalletSnapshot } from "@/components/wallet/types";
 import { fmtSui, shortAddr } from "@/components/wallet/types";
 import { TrustBars } from "@/components/wallet/bits";
-import { BindLogo } from "@/components/brand/Logo";
+import { SwishLogo } from "@/components/brand/Logo";
 import { MeshGradient } from "@/components/MeshGradient";
 
 interface ConnectionRow {
@@ -100,12 +100,13 @@ export default function PopupPage() {
     <Shell>
       {/* balance */}
       <div className="px-1 text-center">
-        <div className="font-display text-[42px] leading-none text-[var(--bind-mist)]">
+        <div className="font-num text-[42px] leading-none text-[var(--bind-mist)]">
           {fmtSui(snap.holdings.total, 3)}
           <span className="ml-1.5 text-lg text-[var(--bind-fg-dim)]">SUI</span>
         </div>
         <div className="mt-1.5 text-[11px] text-[var(--bind-fg-dim)]">
-          {fmtSui(snap.holdings.vault, 3)} in envelopes · {fmtSui(snap.holdings.agents, 3)} held by agents
+          <span className="font-num">{fmtSui(snap.holdings.vault, 3)}</span> in envelopes ·{" "}
+          <span className="font-num">{fmtSui(snap.holdings.agents, 3)}</span> held by agents
         </div>
         {snap.operator.address && (
           <button
@@ -212,7 +213,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       </div>
       <div className="relative z-10">
         <div className="mb-4 px-1">
-          <BindLogo size={24} />
+          <SwishLogo size={24} />
         </div>
         {children}
       </div>

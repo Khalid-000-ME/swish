@@ -103,6 +103,25 @@ body {
   opacity: 0.4;
 }
 
+/* Numbers: balances, caps, amounts, counts. Tabular so a column of them
+   lines up and a changing figure doesn't shift the layout around it. Hex
+   identifiers deliberately keep the system mono stack — see app/layout.tsx. */
+.font-num {
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Wallet headings. Instrument Serif is the landing page's voice; inside
+   the product it made every screen feel like an article rather than a
+   tool, so headings here are the same family as everything else, just
+   tighter and heavier. */
+.h-wallet {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
 .font-display {
   font-family: var(--font-display);
   font-weight: 400;
@@ -198,3 +217,105 @@ body {
   padding-left: 12px;
 }
 .brief-preview hr { border: 0; border-top: 1px solid var(--bind-line); margin: 1.2em 0; }
+
+/* The hero's second grain layer.
+   A 160x160 fractal-noise tile, repeated at its natural size. The point is
+   that it is never scaled: the previous version stretched one 200x200 tile
+   across the viewport, which turned every noise pixel into a visible blob.
+   Repeating keeps the grain the size of grain. */
+.hero-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 160px 160px;
+  mix-blend-mode: overlay;
+  opacity: 0.62;
+}
+
+/* Finer still, and moving, so the texture never looks like a fixed overlay
+   sitting on top of a moving gradient. */
+.hero-grain::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background-image: inherit;
+  background-size: 90px 90px;
+  opacity: 0.7;
+  animation: hero-grain-drift 7s steps(6) infinite;
+}
+
+@keyframes hero-grain-drift {
+  0%   { transform: translate(0, 0); }
+  16%  { transform: translate(-3%, 2%); }
+  33%  { transform: translate(2%, -3%); }
+  50%  { transform: translate(-2%, -2%); }
+  66%  { transform: translate(3%, 1%); }
+  83%  { transform: translate(-1%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-grain::after { animation: none; }
+}
+
+/* Hero chips.
+   The old .chip was a flat border on a flat tint, which looked pasted on
+   over a moving gradient. These sit on the background rather than on top
+   of it: a blurred, saturated sample of whatever is behind, a hairline
+   that catches light at the top edge, and a soft inner highlight. */
+.glass-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.44rem 0.95rem;
+  background: rgba(238, 243, 255, 0.055);
+  border: 1px solid rgba(238, 243, 255, 0.14);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(238, 243, 255, 0.14),
+    0 1px 2px rgba(5, 7, 12, 0.4);
+  color: var(--bind-fg);
+  letter-spacing: 0.005em;
+}
+
+.glass-chip-hover {
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+.glass-chip-hover:hover {
+  background: rgba(238, 243, 255, 0.1);
+  border-color: rgba(238, 243, 255, 0.26);
+  transform: translateY(-1px);
+}
+
+/* The headline sits over a gradient that moves under it, so flat fill
+   loses contrast as the blue passes through. A faint dark halo keeps the
+   letterforms readable at every point in the loop without looking like a
+   drop shadow. */
+.hero-title {
+  color: var(--bind-mist);
+  text-shadow:
+    0 1px 0 rgba(5, 7, 12, 0.28),
+    0 2px 22px rgba(5, 7, 12, 0.55);
+}
+
+/* Marks a live number in a chip — it should read as a reading, not a label. */
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(240, 79, 92, 0.45); }
+  50%      { opacity: 0.7; box-shadow: 0 0 0 5px rgba(240, 79, 92, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot { animation: none; }
+}

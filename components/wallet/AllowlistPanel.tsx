@@ -27,7 +27,7 @@ export function AllowlistPanel({ snap, onChanged }: { snap: WalletSnapshot; onCh
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="font-display text-3xl text-[var(--bind-mist)]">Allow-list</h1>
+        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Allow-list</h1>
         <p className="mt-1 max-w-2xl text-sm text-[var(--bind-fg-dim)]">
           Who each envelope may pay without asking. Scoped per envelope on purpose — clearing a
           counterparty for market data does not clear it for vendor payouts.
@@ -51,7 +51,7 @@ export function AllowlistPanel({ snap, onChanged }: { snap: WalletSnapshot; onCh
                   {agent.name} · {sub.label}
                 </span>
                 <span className="ml-auto text-[11px] text-[var(--bind-fg-faint)]">
-                  cap {fmtSui(sub.perTxCapMist, 1)} SUI / payment
+                  cap <span className="font-num">{fmtSui(sub.perTxCapMist, 1)} SUI</span> / payment
                 </span>
               </div>
 
@@ -70,7 +70,7 @@ export function AllowlistPanel({ snap, onChanged }: { snap: WalletSnapshot; onCh
                     </div>
                     <div className="flex flex-none items-center gap-3">
                       <div className="text-right text-[11px] text-[var(--bind-fg-faint)]">
-                        <div className="text-sm text-[var(--bind-fg-dim)]">{fmtSui(e.totalPaidMist)} SUI paid</div>
+                        <div className="font-num text-sm text-[var(--bind-fg-dim)]">{fmtSui(e.totalPaidMist)} SUI paid</div>
                         <div>{e.lastPaidAt ? `last ${timeAgo(e.lastPaidAt)}` : "never paid"}</div>
                       </div>
                       <RemoveButton

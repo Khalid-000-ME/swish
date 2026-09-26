@@ -75,7 +75,8 @@ export function FundFromVault({ agent, onChanged }: { agent: Agent; onChanged: (
           </div>
         </div>
         <span className="ml-auto text-[11px] text-[var(--bind-fg-faint)]">
-          {fmtSui(sub.balanceMist, 3)} SUI available
+          <span className="font-num text-[var(--bind-fg-dim)]">{fmtSui(sub.balanceMist, 3)} SUI</span>{" "}
+          available
         </span>
       </div>
 

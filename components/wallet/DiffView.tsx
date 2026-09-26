@@ -19,7 +19,7 @@ export function DiffView({ item }: { item: ActivityItem }) {
             What the agent declared
           </div>
           <div className="text-sm text-[var(--bind-fg)]">
-            Send <strong>{fmtSui(item.amountMist)} SUI</strong>
+            Send <strong className="font-num">{fmtSui(item.amountMist)} SUI</strong>
           </div>
           <div className="mt-0.5 text-sm text-[var(--bind-fg-dim)]">
             to <ExplorerLink value={item.recipient} kind="address" className="font-mono text-[13px] text-[var(--bind-fg-dim)] underline decoration-[var(--bind-line-strong)] underline-offset-2 transition hover:text-[var(--bind-accent-2)]" />

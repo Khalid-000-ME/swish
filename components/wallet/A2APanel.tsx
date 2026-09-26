@@ -104,7 +104,7 @@ export function A2APanel({ snap }: { snap: WalletSnapshot }) {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="font-display text-3xl text-[var(--bind-mist)]">Agent to agent</h1>
+        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Agent to agent</h1>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--bind-fg-dim)]">
           Other agents reach this wallet over MCP, and get refused by the same rules you set. Below,
           you can do the same thing from here — in a sentence.

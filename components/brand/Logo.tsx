@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 /**
- * The Bind mark.
+ * The Swish mark.
  *
  * The source PNG is a square with the glyph sitting small in the middle of
  * a lot of black padding — fine as a file, useless at 28px in a navbar,
@@ -15,7 +15,7 @@ import Image from "next/image";
  * page — it's above the fold everywhere, and lazy-loading it just makes
  * the chrome assemble itself in front of the person.
  */
-export function BindMark({
+export function SwishMark({
   size = 28,
   className = "",
   priority = true,
@@ -51,7 +51,7 @@ export function BindMark({
 }
 
 /** Mark plus name, for headers. The name is the wordmark, not a heading. */
-export function BindLogo({
+export function SwishLogo({
   size = 28,
   className = "",
   showName = true,
@@ -62,9 +62,9 @@ export function BindLogo({
 }) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <BindMark size={size} />
+      <SwishMark size={size} />
       {showName && (
-        <span className="text-[15px] font-semibold tracking-tight text-[var(--bind-fg)]">Bind</span>
+        <span className="text-[15px] font-semibold tracking-tight text-[var(--bind-fg)]">Swish</span>
       )}
     </span>
   );

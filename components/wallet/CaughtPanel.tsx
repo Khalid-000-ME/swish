@@ -17,7 +17,7 @@ export function CaughtPanel({ snap, onChanged }: { snap: WalletSnapshot; onChang
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="font-display text-3xl text-[var(--bind-mist)]">Caught</h1>
+        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Caught</h1>
         <p className="mt-1 max-w-2xl text-sm text-[var(--bind-fg-dim)]">
           Payments your agents proposed that never happened. Each one names which gate stopped it and what
           it would have actually done — so a block is something you can read, not something you have to
@@ -114,7 +114,7 @@ function CaughtCard({
             </span>
           </div>
           <div className="mt-1 flex items-center gap-1.5 text-[12px] text-[var(--bind-fg-faint)]">
-            <span>{fmtSui(item.amountMist)} SUI →</span>
+            <span className="font-num">{fmtSui(item.amountMist)} SUI →</span>
             <ExplorerLink value={item.recipient} kind="address" />
             <span>· {timeAgo(item.ts)}</span>
           </div>

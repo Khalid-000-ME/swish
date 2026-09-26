@@ -6,7 +6,7 @@ import type { KnownHuman, OnboardingStep, WalletSnapshot } from "./types";
 import { ExplorerLink } from "./ExplorerLink";
 import { WorldVerify } from "./WorldVerify";
 import { SignInStep } from "./SignInStep";
-import { BindMark } from "@/components/brand/Logo";
+import { SwishMark } from "@/components/brand/Logo";
 
 const STEPS: Array<{ id: OnboardingStep; label: string; caption: string }> = [
   { id: "signin", label: "Sign in", caption: "Your Sui address" },
@@ -49,8 +49,8 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
   return (
     <div className="mx-auto w-full max-w-xl px-5 py-10">
       <div className="mb-8 text-center">
-        <BindMark size={44} className="mb-4" />
-        <h1 className="font-display text-4xl text-[var(--bind-mist)]">Set up your wallet</h1>
+        <SwishMark size={44} className="mb-4" />
+        <h1 className="h-wallet text-4xl text-[var(--bind-mist)]">Set up your wallet</h1>
         <p className="mt-2 text-sm text-[var(--bind-fg-dim)]">
           Four steps. Nothing can hold money until all four are done.
         </p>
@@ -346,7 +346,7 @@ function Credentials({ snap, onDone }: { snap: WalletSnapshot; onDone: () => voi
             ✓
           </span>
         </div>
-        <h1 className="font-display text-4xl text-[var(--bind-mist)]">You&apos;re set up</h1>
+        <h1 className="h-wallet text-4xl text-[var(--bind-mist)]">You&apos;re set up</h1>
         <p className="mt-2 text-sm text-[var(--bind-fg-dim)]">
           Keep these somewhere. They identify your wallet on-chain — they aren&apos;t secrets, and
           signing keys never leave the server.

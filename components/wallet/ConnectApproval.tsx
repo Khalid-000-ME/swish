@@ -87,7 +87,7 @@ export function ConnectApproval({
   if (done) {
     return (
       <div className="mx-auto max-w-md p-10 text-center">
-        <h1 className="font-display text-3xl text-[var(--bind-mist)]">
+        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">
           {done === "approved" ? "Connected" : "Rejected"}
         </h1>
         <p className="mt-2 text-sm text-[var(--bind-fg-dim)]">
@@ -109,7 +109,7 @@ export function ConnectApproval({
   if (!request) {
     return (
       <div className="mx-auto max-w-md p-10 text-center">
-        <h1 className="font-display text-2xl text-[var(--bind-mist)]">Request not found</h1>
+        <h1 className="h-wallet text-2xl text-[var(--bind-mist)]">Request not found</h1>
         <p className="mt-2 text-sm text-[var(--bind-fg-dim)]">
           It may have already been handled, or expired — requests are good for five minutes.
         </p>
@@ -121,7 +121,7 @@ export function ConnectApproval({
     <div className="mx-auto w-full max-w-md px-5 py-10">
       <div className="mb-6 text-center">
         <div className="text-[12px] uppercase tracking-wider text-[var(--bind-fg-faint)]">Connection request</div>
-        <h1 className="mt-1 font-display text-3xl text-[var(--bind-mist)]">{request.origin}</h1>
+        <h1 className="mt-1 h-wallet text-3xl text-[var(--bind-mist)]">{request.origin}</h1>
         {request.reason && (
           <p className="mt-2 text-sm italic text-[var(--bind-fg-dim)]">&ldquo;{request.reason}&rdquo;</p>
         )}

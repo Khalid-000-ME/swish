@@ -23,14 +23,14 @@ export function WalletHome({ snap }: { snap: WalletSnapshot }) {
     <div className="mx-auto w-full max-w-2xl px-5 pb-20">
       {/* ------------------------- balance header ------------------------- */}
       <header className="pt-10 text-center">
-        <div className="font-display text-[56px] leading-none text-[var(--bind-mist)]">
+        <div className="font-num text-[56px] leading-none text-[var(--bind-mist)]">
           {fmtSui(snap.holdings.total, 4)}
           <span className="ml-2 text-2xl text-[var(--bind-fg-dim)]">SUI</span>
         </div>
         <div className="mt-2 text-sm text-[var(--bind-fg-dim)]">
-          {fmtSui(snap.holdings.vault, 4)} in vaults
+          <span className="font-num">{fmtSui(snap.holdings.vault, 4)}</span> in vaults
           <span className="mx-2 text-[var(--bind-fg-faint)]">·</span>
-          {fmtSui(snap.holdings.agents, 4)} held by agents
+          <span className="font-num">{fmtSui(snap.holdings.agents, 4)}</span> held by agents
         </div>
 
         <div className="mt-6 grid grid-cols-5 gap-2.5">
@@ -38,7 +38,7 @@ export function WalletHome({ snap }: { snap: WalletSnapshot }) {
           <ActionButton href="/wallet/caught" label="Review" glyph="⚑" badge={snap.caught.length} />
           <ActionButton href="/wallet/approvals" label="Approve" glyph="✓" badge={snap.approvals.length} />
           <ActionButton href="/wallet/connections" label="Sites" glyph="⇄" />
-          <ActionButton href="/wallet/a2a" label="A2A" glyph="⌘" />
+          <ActionButton href="/wallet/a2a" label="A2A" glyph="⇉" />
         </div>
       </header>
 
@@ -156,7 +156,7 @@ function AgentList({ snap }: { snap: WalletSnapshot }) {
             </div>
 
             <div className="flex-none text-right">
-              <div className="text-[15px] text-[var(--bind-fg)]">{fmtSui(envelopes + held, 4)}</div>
+              <div className="font-num text-[15px] text-[var(--bind-fg)]">{fmtSui(envelopes + held, 4)}</div>
               <div className="text-[12px] text-[var(--bind-fg-faint)]">
                 {a.subAccounts.length} envelope{a.subAccounts.length === 1 ? "" : "s"}
               </div>
@@ -201,7 +201,7 @@ function ActivityList({
               </div>
             </div>
             <div className="flex-none text-right">
-              <div className="text-[15px] text-[var(--bind-fg)]">{fmtSui(item.amountMist, 4)}</div>
+              <div className="font-num text-[15px] text-[var(--bind-fg)]">{fmtSui(item.amountMist, 4)}</div>
               <div className="mt-1">
                 <OutcomePill outcome={item.outcome} />
               </div>

@@ -61,7 +61,7 @@ export function AgentPanel({
       {/* header */}
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl text-[var(--bind-mist)]">{agent.name}</h1>
+          <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">{agent.name}</h1>
           <p className="mt-1 text-sm text-[var(--bind-fg-dim)]">{agent.role}</p>
           <div className="mt-2 flex items-center gap-3">
             <span className="chip text-[11px]" style={{ color: "var(--bind-ok)", borderColor: "var(--bind-ok)" }}>
@@ -73,7 +73,7 @@ export function AgentPanel({
         </div>
         <div className="text-right">
           <div className="text-[11px] uppercase tracking-wider text-[var(--bind-fg-faint)]">Across envelopes</div>
-          <div className="font-display text-3xl text-[var(--bind-mist)]">{fmtSui(total.toString())} SUI</div>
+          <div className="font-num text-3xl text-[var(--bind-mist)]">{fmtSui(total.toString())} SUI</div>
           <button
             onClick={() => setStatus(agent.status === "frozen" ? "active" : "frozen")}
             className="mt-2 rounded-full border px-3 py-1.5 text-xs font-medium transition hover:bg-white/5"
@@ -183,7 +183,7 @@ export function AgentPanel({
                       <OutcomePill outcome={item.outcome} />
                     </div>
                     <div className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-[var(--bind-fg-faint)]">
-                      <span>{fmtSui(item.amountMist)} SUI →</span>
+                      <span className="font-num">{fmtSui(item.amountMist)} SUI →</span>
                       <ExplorerLink value={item.recipient} kind="address" />
                       <span>· {timeAgo(item.ts)}</span>
                     </div>
@@ -246,14 +246,14 @@ function EnvelopeCard({
         )}
       </div>
 
-      <div className="mt-3 font-display text-2xl text-[var(--bind-mist)]">{fmtSui(sub.balanceMist)} SUI</div>
+      <div className="font-num mt-3 text-2xl text-[var(--bind-mist)]">{fmtSui(sub.balanceMist)} SUI</div>
 
       <div className="mt-3">
         <WindowMeter spent={sub.windowSpentMist} cap={sub.perTxCapMist} accent={sub.accent} />
       </div>
 
       <div className="mt-3 flex justify-between text-[11px] text-[var(--bind-fg-faint)]">
-        <span>cap {fmtSui(sub.perTxCapMist, 1)} SUI / payment</span>
+        <span className="font-num">cap {fmtSui(sub.perTxCapMist, 1)} SUI / payment</span>
         <span>
           {sub.allowlist.length} address{sub.allowlist.length === 1 ? "" : "es"} allowed
         </span>

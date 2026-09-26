@@ -82,7 +82,7 @@ export function ConnectionsPanel({ snap }: { snap: WalletSnapshot }) {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="font-display text-3xl text-[var(--bind-mist)]">Connections</h1>
+        <h1 className="h-wallet text-3xl text-[var(--bind-mist)]">Connections</h1>
         <p className="mt-1 max-w-2xl text-sm text-[var(--bind-fg-dim)]">
           Sites that may ask your agents for payments. None of them hold a key — each request still
           goes through the diff, the screen and the envelope&apos;s allow-list.
