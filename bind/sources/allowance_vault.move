@@ -1,12 +1,19 @@
 /// The only place spending authority exists. BIND_PRD.md §6.1.
 ///
-/// Two functions can move money out of a Vault: `execute_declared` and
+/// Two functions let an *agent's* money move: `execute_declared` and
 /// `execute_with_override`. Both take a Declaration and a proof object as
 /// arguments and *destroy both on the way in* — so there is no boolean
 /// flag to forget to check and no path that survives a future refactor,
 /// which is the exact failure that let the Grok/Bankr wallet get drained
-/// twice (BIND_PRD.md §2). `grep -n "balance::split"` in this file finds
-/// exactly two call sites; that is the whole spending surface.
+/// twice (BIND_PRD.md §2).
+///
+/// `grep -n "balance::split"` finds three call sites. Two are those, and
+/// the third is `owner_withdraw`, which asserts the caller is `owner` and
+/// touches no agent machinery at all. The guarantee this module makes has
+/// always been about what an agent can do without a declaration — it was
+/// never that the person who funded a vault can't get their money back.
+/// Stating it as "two call sites" was the cleaner sentence and the less
+/// accurate one.
 module bind::allowance_vault;
 
 use sui::balance::{Self, Balance};
@@ -25,6 +32,7 @@ const E_DECLARATION_EXPIRED: u64 = 5;
 const E_NOT_ALLOWLISTED: u64 = 8;
 const E_VAULT_FROZEN: u64 = 9;
 const E_PROOF_MISMATCH: u64 = 10;
+const E_INSUFFICIENT_BALANCE: u64 = 11;
 
 /// Authority is read only from these fields, mutable only by `owner`.
 /// This is what makes the Bankr-style attack — an unsolicited object
@@ -54,6 +62,7 @@ public struct Executed has copy, drop {
     via_override: bool,
 }
 public struct VaultFrozenEvent has copy, drop { vault_id: ID }
+public struct OwnerWithdrew has copy, drop { vault_id: ID, recipient: address, amount: u64 }
 
 public fun create_vault<T>(
     agent: address,
@@ -120,6 +129,41 @@ public fun unfreeze_vault<T>(v: &mut Vault<T>, ctx: &TxContext) {
 /// Anyone may top up a vault — deposits need no authority.
 public fun deposit<T>(v: &mut Vault<T>, c: Coin<T>) {
     balance::join(&mut v.balance, coin::into_balance(c));
+}
+
+/// Owner-only withdrawal, to any address — including the agent's own, so
+/// an operator can hand their agent gas money out of the budget they
+/// already set aside for it.
+///
+/// A vault is a budget, not a trap. Without this, money could go in and
+/// only ever leave through a declared, allow-listed, capped payment, which
+/// means an owner who mis-set an allow-list had no way to retrieve their
+/// own funds. That's a bug, not a guarantee.
+///
+/// Deliberately not routed through `per_tx_cap` or the window. Those bound
+/// the *agent*, and the owner can already rewrite both with `set_caps` —
+/// running the owner through limits they can lift in the same transaction
+/// would only make this look more constrained than it is.
+///
+/// Withdrawal works while frozen on purpose: `freeze_vault` exists to stop
+/// an agent mid-incident, and getting your money out is the first thing
+/// you'd want to do next.
+public fun owner_withdraw<T>(
+    v: &mut Vault<T>,
+    amount: u64,
+    recipient: address,
+    ctx: &mut TxContext,
+) {
+    assert!(tx_context::sender(ctx) == v.owner, E_NOT_OWNER);
+    assert!(balance::value(&v.balance) >= amount, E_INSUFFICIENT_BALANCE);
+
+    let out = coin::from_balance(balance::split(&mut v.balance, amount), ctx);
+    transfer::public_transfer(out, recipient);
+    sui::event::emit(OwnerWithdrew {
+        vault_id: object::uid_to_inner(&v.id),
+        recipient,
+        amount,
+    });
 }
 
 fun roll_window<T>(v: &mut Vault<T>, clock: &Clock) {

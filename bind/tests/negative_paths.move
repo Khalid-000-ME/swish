@@ -208,3 +208,85 @@ fun blocks_rolling_window_exceeded() {
     teardown(v, cap, clock);
     test_scenario::end(scenario);
 }
+
+// ---- owner withdrawal ----------------------------------------------------
+
+#[test]
+fun owner_can_take_money_back_out() {
+    // A vault is a budget, not a trap. This is the case that had no path
+    // before `owner_withdraw` existed: money in, and no way out except
+    // through a declared payment to an allow-listed address.
+    let mut scenario = test_scenario::begin(OWNER);
+    let (mut v, cap, clock) = setup(&mut scenario);
+    let ctx = test_scenario::ctx(&mut scenario);
+
+    vault::owner_withdraw(&mut v, 3 * ONE_SUI, AGENT, ctx);
+    assert!(vault::balance_value(&v) == 7 * ONE_SUI, 0);
+
+    teardown(v, cap, clock);
+    test_scenario::end(scenario);
+}
+
+#[test]
+fun owner_withdrawal_ignores_the_agent_cap() {
+    // The per-tx cap bounds the agent, and the owner can rewrite it with
+    // set_caps anyway — so running the owner through it would be theatre.
+    // 5 SUI is well over the 2 SUI cap set in `setup`.
+    let mut scenario = test_scenario::begin(OWNER);
+    let (mut v, cap, clock) = setup(&mut scenario);
+    let ctx = test_scenario::ctx(&mut scenario);
+
+    vault::owner_withdraw(&mut v, 5 * ONE_SUI, OWNER, ctx);
+    assert!(vault::balance_value(&v) == 5 * ONE_SUI, 0);
+    // The agent's window is untouched: this was not an agent payment.
+    assert!(vault::window_spent(&v) == 0, 1);
+
+    teardown(v, cap, clock);
+    test_scenario::end(scenario);
+}
+
+#[test]
+fun owner_can_withdraw_while_frozen() {
+    // Freezing stops the agent mid-incident. Getting your money out is the
+    // next thing you'd want, so freeze must not block the owner.
+    let mut scenario = test_scenario::begin(OWNER);
+    let (mut v, cap, clock) = setup(&mut scenario);
+    let ctx = test_scenario::ctx(&mut scenario);
+
+    vault::freeze_vault(&mut v, ctx);
+    vault::owner_withdraw(&mut v, ONE_SUI, OWNER, ctx);
+    assert!(vault::balance_value(&v) == 9 * ONE_SUI, 0);
+    assert!(vault::is_frozen(&v), 1);
+
+    teardown(v, cap, clock);
+    test_scenario::end(scenario);
+}
+
+#[test]
+#[expected_failure(abort_code = 1, location = bind::allowance_vault)] // E_NOT_OWNER
+fun nobody_else_can_withdraw() {
+    // The whole point. An agent that could call this would have found a
+    // way around every declaration check in the module.
+    let mut scenario = test_scenario::begin(OWNER);
+    let (mut v, cap, clock) = setup(&mut scenario);
+
+    test_scenario::next_tx(&mut scenario, NOT_OWNER);
+    let ctx = test_scenario::ctx(&mut scenario);
+    vault::owner_withdraw(&mut v, ONE_SUI, NOT_OWNER, ctx);
+
+    teardown(v, cap, clock);
+    test_scenario::end(scenario);
+}
+
+#[test]
+#[expected_failure(abort_code = 11, location = bind::allowance_vault)] // E_INSUFFICIENT_BALANCE
+fun cannot_withdraw_more_than_it_holds() {
+    let mut scenario = test_scenario::begin(OWNER);
+    let (mut v, cap, clock) = setup(&mut scenario);
+    let ctx = test_scenario::ctx(&mut scenario);
+
+    vault::owner_withdraw(&mut v, 11 * ONE_SUI, OWNER, ctx);
+
+    teardown(v, cap, clock);
+    test_scenario::end(scenario);
+}
