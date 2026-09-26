@@ -72,11 +72,26 @@ export function AgentPanel({
           {fmtSui(total.toString())}
           <span className="ml-2 text-xl text-[var(--swish-fg-dim)]">SUI</span>
         </div>
+        {/*
+          The big number is an allocation — a claim on the vault — and the
+          agent still can't transact without gas in its own address. Those
+          are two different pots, and reading the headline as "this agent
+          has money" is exactly the mistake the old wording invited: an
+          agent showing 0.5 SUI was refusing every payment for want of
+          0.01. When there's no gas, the sub-line says so instead of
+          printing a quiet zero.
+        */}
         <div className="mt-2 text-[12px] text-[var(--swish-fg-faint)]">
           allocated across {agent.subAccounts.length} envelope
           {agent.subAccounts.length === 1 ? "" : "s"}
           <span className="mx-2">·</span>
-          <span className="font-num">{fmtSui(agent.addressBalanceMist, 4)}</span> for its own gas
+          {BigInt(agent.addressBalanceMist) === 0n ? (
+            <span style={{ color: "var(--swish-warn)" }}>no gas in its own address</span>
+          ) : (
+            <>
+              <span className="font-num">{fmtSui(agent.addressBalanceMist, 4)}</span> for its own gas
+            </>
+          )}
         </div>
 
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

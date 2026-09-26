@@ -164,9 +164,19 @@ function AgentList({ snap }: { snap: WalletSnapshot }) {
             </div>
 
             <div className="flex-none text-right">
-              <div className="font-num text-[15px] text-[var(--swish-fg)]">{fmtSui(envelopes + held, 4)}</div>
-              <div className="text-[12px] text-[var(--swish-fg-faint)]">
-                {a.subAccounts.length} envelope{a.subAccounts.length === 1 ? "" : "s"}
+              <div className="font-num text-[15px] text-[var(--swish-fg)]">{fmtSui(envelopes, 4)}</div>
+              {/* An agent with no gas cannot transact whatever it is
+                  allocated, so the roster says that rather than the
+                  envelope count it would otherwise show. */}
+              <div
+                className="text-[12px]"
+                style={{
+                  color: held === 0n ? "var(--swish-warn)" : "var(--swish-fg-faint)",
+                }}
+              >
+                {held === 0n
+                  ? "needs gas"
+                  : `${a.subAccounts.length} envelope${a.subAccounts.length === 1 ? "" : "s"}`}
               </div>
             </div>
           </Link>
