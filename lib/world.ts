@@ -156,17 +156,24 @@ export async function attestOverride(input: {
 }
 
 /**
- * Verifies a real IDKit proof against World. Per World's own integration
- * guide the payload is forwarded **byte-for-byte** to
- * `POST https://developer.world.org/api/v4/verify/{rp_id}` — no field
- * remapping, because re-encoding the proof is one of the documented
- * causes of `invalid_proof`.
+ * Verifies a real IDKit proof against World.
+ *
+ * "Forward the payload as-is" means exactly that: the IDKitResult the
+ * widget hands back already carries `protocol_version`, `nonce`,
+ * `action`, `environment` and the `responses` array, and World's verify
+ * API wants that object at the top level. Wrapping it in an envelope —
+ * which is what the docs' own React example does when POSTing to *your*
+ * backend, not to World's — gets you
+ * `validation_error: responses array is required`.
+ *
+ * The nullifier lives inside each response item, not at the root: it's
+ * the RP-scoped value that makes "one human, once" enforceable, and
+ * it's what to store and reject a repeat of.
  */
 export async function verifyWorldProof(
   proof: unknown
 ): Promise<{ success: boolean; nullifierHash: string; detail?: string }> {
   const rpId = process.env.WORLD_RP_ID;
-  const action = process.env.WORLD_ACTION;
   if (!rpId) {
     return { success: false, nullifierHash: "", detail: "No World app configured on the server." };
   }
@@ -175,38 +182,26 @@ export async function verifyWorldProof(
     const res = await fetch(`https://developer.world.org/api/v4/verify/${rpId}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      // `action` has to be here as well as in the signed rp_context:
-      // a uniqueness proof is scoped to an action, and verifying one
-      // without naming it comes back as
-      // "action is required for uniqueness proofs".
-      body: JSON.stringify({ rp_id: rpId, action, idkitResponse: proof }),
+      body: JSON.stringify(proof),
       signal: AbortSignal.timeout(15_000),
     });
     const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
     if (!res.ok) {
-      // Log the whole body once — World's failure codes are specific and
-      // guessing at them from a truncated message wastes more time than
-      // the log line costs.
       console.error("[bind/world] verify rejected", res.status, JSON.stringify(data));
       return {
         success: false,
         nullifierHash: "",
-        detail: String(
-          data?.detail ?? data?.message ?? data?.code ?? `World returned ${res.status}`
-        ),
+        detail: String(data?.detail ?? data?.message ?? data?.code ?? `World returned ${res.status}`),
       };
     }
 
-    // The nullifier is what makes "one human" enforceable — it's the value
-    // to store and reject on if it ever shows up twice.
-    const nullifierHash = String(
-      data?.nullifier_hash ??
-        (proof as { nullifier_hash?: string })?.nullifier_hash ??
-        ""
-    );
+    const responses = (proof as { responses?: Array<{ nullifier?: string }> })?.responses ?? [];
+    const nullifierHash = responses.find((r) => r?.nullifier)?.nullifier ?? "";
+
     if (!nullifierHash) {
-      return { success: false, nullifierHash: "", detail: "World accepted the proof but returned no nullifier." };
+      console.error("[bind/world] verified but no nullifier in responses", JSON.stringify(data));
+      return { success: false, nullifierHash: "", detail: "World accepted the proof but it carried no nullifier." };
     }
 
     return { success: true, nullifierHash };
