@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the favicon from the Swish mark.
+"""Builds the favicon and the in-app mark from the Swish logo.
 
 The source PNG has the glyph sitting small inside a lot of black padding.
 At 32px that renders as a dark square with a smudge in it, which is why
@@ -58,6 +58,32 @@ def main() -> None:
     crop.save(ROOT / "app" / "icon.png")
     crop.save(ROOT / "app" / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48), (64, 64)])
     print("wrote app/icon.png and app/favicon.ico")
+
+    # The in-app mark: the glyph alone, on transparency, centred in a square
+    # with room around it.
+    #
+    # The component used to scale the padded source 1.9x inside a clipped
+    # tile, which was the wrong shape of fix. The glyph is wide — roughly
+    # 780x270 — so enlarging it until it filled a square tile vertically
+    # pushed its ends off both sides. Framing it here means the component
+    # can just draw it at its own aspect ratio.
+    glyph = src.crop((x0, y0, x1 + 1, y1 + 1))
+    grey = glyph.convert("L")
+    transparent = Image.new("RGBA", glyph.size, (0, 0, 0, 0))
+    tp, gp = transparent.load(), grey.load()
+    for y in range(glyph.height):
+        for x in range(glyph.width):
+            a = gp[x, y] / 255
+            if a > 0.02:
+                tp[x, y] = (255, 255, 255, int(a * 255))
+
+    side = int(max(glyph.size) * 1.14)
+    square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+    square.alpha_composite(
+        transparent, ((side - glyph.width) // 2, (side - glyph.height) // 2)
+    )
+    square.resize((512, 512), Image.LANCZOS).save(ROOT / "public" / "swish-mark.png")
+    print(f"wrote public/swish-mark.png (glyph {glyph.size}, framed {side}x{side})")
 
 
 if __name__ == "__main__":

@@ -3,13 +3,15 @@ import Image from "next/image";
 /**
  * The Swish mark.
  *
- * The source PNG is a square with the glyph sitting small in the middle of
- * a lot of black padding — fine as a file, useless at 28px in a navbar,
- * where it would render as a dark square with a smudge in it. So the image
- * is scaled up inside an overflow-hidden tile and the tile is what gets
- * rounded: the artwork's own black becomes the tile's fill, which lands
- * exactly on --bind-black, and the corners round cleanly without needing a
- * second asset.
+ * Draws `public/swish-mark.png`, which is the glyph alone on transparency,
+ * already squared and padded by scripts/make-favicon.py.
+ *
+ * The previous version took the raw logo — a wide glyph sitting in a lot
+ * of black padding — and scaled it 1.9x inside a clipped tile to fill the
+ * frame. That was the wrong shape of fix: the glyph is roughly 780x270, so
+ * enlarging it until it filled a square vertically pushed its ends off
+ * both sides, and the mark showed up zoomed and clipped. Framing the asset
+ * once means this can simply draw it at its own aspect ratio.
  *
  * `priority` is on by default because this sits in the header of every
  * page — it's above the fold everywhere, and lazy-loading it just makes
@@ -26,25 +28,22 @@ export function SwishMark({
 }) {
   return (
     <span
-      className={`relative inline-block flex-none overflow-hidden bg-[var(--bind-black)] ${className}`}
+      className={`inline-flex flex-none items-center justify-center bg-[var(--bind-black)] ${className}`}
       style={{
         width: size,
         height: size,
         // Scales with the mark rather than being a fixed radius, so it
-        // reads the same as a 20px favicon and as a 96px hero tile.
-        borderRadius: Math.max(6, Math.round(size * 0.28)),
+        // reads the same at 20px and at 96px.
+        borderRadius: Math.max(6, Math.round(size * 0.26)),
       }}
     >
       <Image
-        src="/swish_logo.png"
+        src="/swish-mark.png"
         alt=""
         width={size}
         height={size}
         priority={priority}
-        // 1.9x is what it takes to bring the glyph out to the tile edges;
-        // the artwork is padded to roughly half the frame.
-        className="absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
-        style={{ width: size * 1.9, height: size * 1.9 }}
+        style={{ width: size, height: size }}
       />
     </span>
   );

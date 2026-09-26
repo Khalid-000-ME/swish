@@ -42,15 +42,6 @@ export default function Home() {
         </header>
 
         <section className="flex flex-1 flex-col items-center justify-center py-16 text-center">
-          <p className="fade-up glass-chip mb-8 text-[12px]">
-            <span className="pulse-dot" style={{ background: "var(--bind-danger)" }} />
-            <span className="text-[var(--bind-fg-dim)]">Grok/Bankr wallet</span>
-            <span className="font-num text-[var(--bind-mist)]">$330K</span>
-            <span className="text-[var(--bind-fg-faint)]">then</span>
-            <span className="font-num text-[var(--bind-mist)]">$175K</span>
-            <span className="text-[var(--bind-fg-faint)]">again</span>
-          </p>
-
           <h1 className="fade-up font-display hero-title max-w-3xl text-balance text-6xl leading-[1.02] sm:text-[80px]">
             An agent can only spend
             <br />
@@ -58,12 +49,10 @@ export default function Home() {
           </h1>
 
           <p
-            className="fade-up mt-8 max-w-xl text-balance text-[17px] leading-relaxed text-[var(--bind-sky)]"
+            className="fade-up mt-8 max-w-xl text-balance text-[19px] leading-relaxed text-[var(--bind-sky)]"
             style={{ animationDelay: "80ms" }}
           >
-            Fund a vault, hand it to your AI agent. Every payment is diffed against its own declared
-            intent before it can move — and the guard is an object the chain has to consume, not a
-            check a future rewrite can quietly drop.
+            The only wallet you will ever need for the agentic economy.
           </p>
 
           <div
