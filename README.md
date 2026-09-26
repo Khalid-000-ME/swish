@@ -119,3 +119,8 @@ app/wallet            the product · app/ the hero + API routes
 scripts/deploy.sh     publish + wire + share, once gas exists
 BIND_PRD.md           full design rationale and build log
 ```
+
+## License
+
+[MIT](./LICENSE). That covers the Move package and the app alike — including the parts a judge
+would want to fork and the parts a sponsor would want to lift.
