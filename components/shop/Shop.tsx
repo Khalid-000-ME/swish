@@ -65,9 +65,28 @@ type Outcome =
   | { kind: "paid"; digest: string }
   | { kind: "refused"; message: string };
 
+/**
+ * The shop broadcasts the signed transaction from its own backend.
+ *
+ * dapp-kit's default would submit it in the browser through its
+ * JSON-RPC client, which the public fullnode has retired. The wallet's
+ * job ended at the signature either way — this is the shop's side of
+ * the handoff, and it works with any Sui wallet.
+ */
+async function broadcast({ bytes, signature }: { bytes: string; signature: string }) {
+  const res = await fetch("/api/shop/execute", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ bytes, signature }),
+  });
+  const body = await res.json();
+  if (!res.ok) throw new Error(body.error ?? "The shop could not submit your payment.");
+  return { digest: body.digest as string, bytes, signature, effects: "" };
+}
+
 export function Shop() {
   const account = useCurrentAccount();
-  const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction();
+  const { mutateAsync: signAndExecute } = useSignAndExecuteTransaction({ execute: broadcast });
   const [outcomes, setOutcomes] = useState<Record<string, Outcome>>({});
 
   async function buy(product: Product) {
