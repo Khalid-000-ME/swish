@@ -3,8 +3,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { WalletSnapshot } from "./types";
-import { shortAddr } from "./types";
 import { SourceBadge } from "./bits";
+import { ExplorerLink } from "./ExplorerLink";
 
 /** The frame every wallet page sits in: a thin top bar with who you are
  *  and what's live, and a mesh glow behind it. Deliberately quiet — the
@@ -50,7 +50,11 @@ export function WalletChrome({
             {snap.operator.address && (
               <span className="chip text-[11px] text-[var(--bind-fg-dim)]">
                 <span className="dot" style={{ background: "var(--bind-ok)" }} />
-                {shortAddr(snap.operator.address)}
+                <ExplorerLink
+                  value={snap.operator.address}
+                  kind="address"
+                  className="font-mono text-[11px] text-[var(--bind-fg-dim)] transition hover:text-[var(--bind-accent-2)]"
+                />
               </span>
             )}
           </div>

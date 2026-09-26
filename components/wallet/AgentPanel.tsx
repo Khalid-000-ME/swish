@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import type { Agent, SubAccount, WalletSnapshot } from "./types";
-import { fmtSui, shortAddr, timeAgo } from "./types";
+import { fmtSui, timeAgo } from "./types";
 import { OutcomePill, TrustBars, WindowMeter, EmptyState } from "./bits";
 import { DiffView } from "./DiffView";
+import { ExplorerLink } from "./ExplorerLink";
 
 export function AgentPanel({
   agent,
@@ -169,8 +170,10 @@ export function AgentPanel({
                       <span className="truncate text-sm font-medium text-[var(--bind-fg)]">{item.task}</span>
                       <OutcomePill outcome={item.outcome} />
                     </div>
-                    <div className="mt-0.5 truncate text-[12px] text-[var(--bind-fg-faint)]">
-                      {fmtSui(item.amountMist)} SUI → {shortAddr(item.recipient)} · {timeAgo(item.ts)}
+                    <div className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-[var(--bind-fg-faint)]">
+                      <span>{fmtSui(item.amountMist)} SUI →</span>
+                      <ExplorerLink value={item.recipient} kind="address" />
+                      <span>· {timeAgo(item.ts)}</span>
                     </div>
                   </div>
                   <span className="text-[11px] text-[var(--bind-fg-faint)]">{expanded === item.id ? "Hide" : "Details"}</span>
@@ -184,7 +187,11 @@ export function AgentPanel({
                       <span>agent: {item.agentMode === "live" ? "live model" : "scripted"}</span>
                       <span>diff: {item.dryRunSource === "chain" ? "live simulateTransaction" : "simulated"}</span>
                       <span>screen: {item.intercepta.source === "live" ? "Intercepta live" : "fixture"}</span>
-                      {item.txDigest && <span>tx: {item.txDigest.slice(0, 16)}…</span>}
+                      {item.txDigest && (
+                        <span className="flex items-center gap-1">
+                          tx: <ExplorerLink value={item.txDigest} kind="tx" className="font-mono text-[11px] underline decoration-[var(--bind-line-strong)] underline-offset-2 transition hover:text-[var(--bind-accent-2)]" />
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}

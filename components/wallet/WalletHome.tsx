@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { WalletSnapshot } from "./types";
-import { fmtSui, shortAddr, timeAgo } from "./types";
+import { fmtSui, timeAgo } from "./types";
 import { OutcomePill, TrustBars, EmptyState } from "./bits";
+import { ExplorerLink } from "./ExplorerLink";
 
 type Tab = "agents" | "activity" | "caught" | "approvals";
 
@@ -185,8 +186,9 @@ function ActivityList({
             </span>
             <div className="min-w-0 flex-1">
               <div className="truncate text-[15px] text-[var(--bind-fg)]">{item.task}</div>
-              <div className="mt-0.5 truncate text-[12px] text-[var(--bind-fg-faint)]">
-                {shortAddr(item.recipient)} · {timeAgo(item.ts)}
+              <div className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] text-[var(--bind-fg-faint)]">
+                <ExplorerLink value={item.recipient} kind="address" />
+                <span>· {timeAgo(item.ts)}</span>
               </div>
             </div>
             <div className="flex-none text-right">

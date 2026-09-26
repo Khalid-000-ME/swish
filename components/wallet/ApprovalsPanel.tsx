@@ -5,6 +5,7 @@ import type { ActivityItem, WalletSnapshot } from "./types";
 import { fmtSui, shortAddr, timeAgo } from "./types";
 import { EmptyState } from "./bits";
 import { DiffView } from "./DiffView";
+import { ExplorerLink } from "./ExplorerLink";
 
 /**
  * Declarations parked because the recipient isn't on the envelope's
@@ -79,8 +80,10 @@ function ApprovalCard({
               {agent?.name ?? item.agentId} · {item.task}
             </span>
           </div>
-          <div className="mt-1 text-[12px] text-[var(--bind-fg-faint)]">
-            {fmtSui(item.amountMist)} SUI → {shortAddr(item.recipient)} · {timeAgo(item.ts)}
+          <div className="mt-1 flex items-center gap-1.5 text-[12px] text-[var(--bind-fg-faint)]">
+            <span>{fmtSui(item.amountMist)} SUI →</span>
+            <ExplorerLink value={item.recipient} kind="address" />
+            <span>· {timeAgo(item.ts)}</span>
           </div>
         </div>
         <span className="chip text-[11px]" style={{ color: "var(--bind-warn)", borderColor: "var(--bind-warn)" }}>

@@ -154,3 +154,39 @@ export async function attestOverride(input: {
     nullifierHashHex: Buffer.from(nullifierBytes).toString("hex"),
   };
 }
+
+/**
+ * Verifies a real IDKit proof against World's verify API. Used on the
+ * onboarding path the moment a World app is configured — the browser
+ * hands over a proof, and whether it counts is decided here, never there.
+ */
+export async function verifyWorldProof(
+  proof: unknown
+): Promise<{ success: boolean; nullifierHash: string; detail?: string }> {
+  const appId = process.env.WORLD_APP_ID;
+  const action = process.env.WORLD_ACTION;
+
+  if (!appId || !action) {
+    return { success: false, nullifierHash: "", detail: "No World app configured on the server." };
+  }
+
+  try {
+    const res = await fetch(`https://developer.worldcoin.org/api/v2/verify/${appId}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...(proof as Record<string, unknown>), action }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    const data = (await res.json()) as Record<string, unknown>;
+
+    if (!res.ok) {
+      return { success: false, nullifierHash: "", detail: String(data?.detail ?? `World returned ${res.status}`) };
+    }
+
+    const nullifierHash =
+      (proof as { nullifier_hash?: string })?.nullifier_hash ?? String(data?.nullifier_hash ?? "");
+    return { success: true, nullifierHash };
+  } catch (e) {
+    return { success: false, nullifierHash: "", detail: String(e) };
+  }
+}

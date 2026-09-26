@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { OnboardingStep, WalletSnapshot } from "./types";
-import { shortAddr } from "./types";
+import { ExplorerLink } from "./ExplorerLink";
+import { WorldVerify } from "./WorldVerify";
 
 const STEPS: Array<{ id: OnboardingStep; label: string; caption: string }> = [
   { id: "signin", label: "Sign in", caption: "Your Sui address" },
@@ -85,8 +86,8 @@ export function Onboarding({ snap, onChanged }: { snap: WalletSnapshot; onChange
         {step === "verify" && (
           <VerifyStep
             busy={busy}
-            sandbox={snap.worldSandbox}
-            onVerify={(decision) => post({ step: "verify", worldDecision: decision })}
+            onVerified={(proof) => post({ step: "verify", worldDecision: "approve", proof })}
+            onCancelled={() => post({ step: "verify", worldDecision: "deny" })}
           />
         )}
         {step === "vault" && (
@@ -142,40 +143,27 @@ function SignInStep({ busy, onSubmit }: { busy: boolean; onSubmit: (address: str
 
 function VerifyStep({
   busy,
-  sandbox,
-  onVerify,
+  onVerified,
+  onCancelled,
 }: {
   busy: boolean;
-  sandbox: boolean;
-  onVerify: (decision: "approve" | "deny") => void;
+  onVerified: (proof: unknown) => void;
+  onCancelled: () => void;
 }) {
   return (
     <div>
       <h2 className="text-lg font-semibold text-[var(--bind-fg)]">Prove you&apos;re one human</h2>
-      <p className="mt-1.5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
-        Every agent you hire is bound to this verification. It&apos;s what makes &ldquo;ask the human&rdquo;
-        mean a specific person rather than whoever holds a key.
-        {sandbox && (
-          <span className="italic text-[var(--bind-fg-faint)]"> Sandbox mode — fake identity.</span>
-        )}
+      <p className="mt-1.5 mb-5 text-sm leading-relaxed text-[var(--bind-fg-dim)]">
+        Every agent you hire is bound to this verification. It&apos;s what makes &ldquo;ask the
+        human&rdquo; mean a specific person rather than whoever holds a key.
       </p>
 
-      <button
-        disabled={busy}
-        onClick={() => onVerify("approve")}
-        className="mt-5 w-full rounded-full py-3 text-sm font-semibold text-[var(--bind-black)] transition disabled:opacity-40"
-        style={{ background: "var(--bind-ok)" }}
-      >
-        Verify with World ID
-      </button>
-
-      <button
-        disabled={busy}
-        onClick={() => onVerify("deny")}
-        className="mt-2 w-full rounded-full py-2.5 text-sm text-[var(--bind-fg-faint)] transition hover:bg-white/5 disabled:opacity-40"
-      >
-        Cancel verification
-      </button>
+      <WorldVerify
+        label="Verify with World ID"
+        busy={busy}
+        onVerified={onVerified}
+        onCancelled={onCancelled}
+      />
     </div>
   );
 }
@@ -310,11 +298,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
  *  here is a secret key — those never leave the server. */
 function Credentials({ snap, onDone }: { snap: WalletSnapshot; onDone: () => void }) {
   const c = snap.onboarding.credentials!;
-  const rows: Array<[string, string | undefined]> = [
-    ["Your address", c.operatorAddress],
-    ["Agent address", c.agentAddress],
-    ["Vault object", c.vaultObjectId],
-    ["Package", c.packageId],
+  const rows: Array<[string, string | undefined, "address" | "object"]> = [
+    ["Your address", c.operatorAddress, "address"],
+    ["Agent address", c.agentAddress, "address"],
+    ["Vault object", c.vaultObjectId, "object"],
+    ["Package", c.packageId, "object"],
   ];
 
   return (
@@ -335,16 +323,19 @@ function Credentials({ snap, onDone }: { snap: WalletSnapshot; onDone: () => voi
       <div className="card divide-y divide-[var(--bind-line)]">
         {rows
           .filter(([, v]) => Boolean(v))
-          .map(([label, value]) => (
+          .map(([label, value, kind]) => (
             <div key={label} className="flex items-center justify-between gap-4 p-4">
               <span className="text-[12px] text-[var(--bind-fg-faint)]">{label}</span>
-              <button
-                onClick={() => navigator.clipboard?.writeText(value!)}
-                title="Copy"
-                className="font-mono text-[12px] text-[var(--bind-fg)] transition hover:text-[var(--bind-accent-2)]"
-              >
-                {shortAddr(value!)}
-              </button>
+              <div className="flex items-center gap-3">
+                <ExplorerLink value={value!} kind={kind} />
+                <button
+                  onClick={() => navigator.clipboard?.writeText(value!)}
+                  title="Copy"
+                  className="text-[11px] text-[var(--bind-fg-faint)] transition hover:text-[var(--bind-fg)]"
+                >
+                  Copy
+                </button>
+              </div>
             </div>
           ))}
       </div>

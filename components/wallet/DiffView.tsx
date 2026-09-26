@@ -1,5 +1,6 @@
 import type { ActivityItem } from "./types";
-import { fmtSui, shortAddr } from "./types";
+import { fmtSui } from "./types";
+import { ExplorerLink } from "./ExplorerLink";
 
 /**
  * "You said X. The chain would actually also do Y." The whole product in
@@ -20,7 +21,9 @@ export function DiffView({ item }: { item: ActivityItem }) {
           <div className="text-sm text-[var(--bind-fg)]">
             Send <strong>{fmtSui(item.amountMist)} SUI</strong>
           </div>
-          <div className="mt-0.5 text-sm text-[var(--bind-fg-dim)]">to {shortAddr(item.recipient)}</div>
+          <div className="mt-0.5 text-sm text-[var(--bind-fg-dim)]">
+            to <ExplorerLink value={item.recipient} kind="address" className="font-mono text-[13px] text-[var(--bind-fg-dim)] underline decoration-[var(--bind-line-strong)] underline-offset-2 transition hover:text-[var(--bind-accent-2)]" />
+          </div>
           <div className="mt-2 text-sm italic leading-snug text-[var(--bind-fg-faint)]">“{item.reason}”</div>
         </div>
 
@@ -41,7 +44,14 @@ export function DiffView({ item }: { item: ActivityItem }) {
                     style={{ color: undeclared ? "var(--bind-danger)" : "var(--bind-fg-dim)" }}
                   >
                     {out ? "−" : "+"}
-                    {fmtSui(b.amount.replace("-", ""))} SUI {out ? "from this envelope" : `to ${shortAddr(b.owner)}`}
+                    {fmtSui(b.amount.replace("-", ""))} SUI{" "}
+                    {out ? (
+                      "from this envelope"
+                    ) : (
+                      <>
+                        to <ExplorerLink value={b.owner} kind="address" className="font-mono text-[13px] underline decoration-current/30 underline-offset-2" />
+                      </>
+                    )}
                     {undeclared && " · never declared"}
                   </div>
                 );
@@ -49,7 +59,12 @@ export function DiffView({ item }: { item: ActivityItem }) {
             {item.dryRun.objectChanges.map((o, i) => (
               <div key={i} className="text-sm" style={{ color: "var(--bind-danger)" }}>
                 {o.type === "created" ? "creates" : o.type} {o.objectType?.split("::").pop() ?? "object"}
-                {o.recipient ? ` → ${shortAddr(o.recipient)}` : ""}
+                {o.recipient ? (
+                  <>
+                    {" → "}
+                    <ExplorerLink value={o.recipient} kind="address" className="font-mono text-[13px] underline decoration-current/30 underline-offset-2" />
+                  </>
+                ) : null}
               </div>
             ))}
           </div>

@@ -1,8 +1,9 @@
 "use client";
 
 import type { WalletSnapshot } from "./types";
-import { fmtSui, shortAddr, timeAgo } from "./types";
+import { fmtSui, timeAgo } from "./types";
 import { EmptyState } from "./bits";
+import { ExplorerLink } from "./ExplorerLink";
 
 const VIA_LABEL: Record<string, string> = {
   seeded: "set up with the envelope",
@@ -55,8 +56,8 @@ export function AllowlistPanel({ snap }: { snap: WalletSnapshot }) {
                       <div key={e.address} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
                         <div className="min-w-0">
                           <div className="text-sm font-medium text-[var(--bind-fg)]">{e.label}</div>
-                          <div className="mt-0.5 font-mono text-[11px] text-[var(--bind-fg-faint)]">
-                            {shortAddr(e.address)}
+                          <div className="mt-0.5">
+                            <ExplorerLink value={e.address} kind="address" className="font-mono text-[11px] text-[var(--bind-fg-faint)] underline decoration-[var(--bind-line-strong)] underline-offset-2 transition hover:text-[var(--bind-accent-2)]" />
                           </div>
                           <div className="mt-1 text-[11px] text-[var(--bind-fg-faint)]">
                             {VIA_LABEL[e.addedVia] ?? e.addedVia}

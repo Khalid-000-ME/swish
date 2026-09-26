@@ -7,7 +7,7 @@ import {
   hireAgent,
   completeOnboarding,
 } from "@/lib/wallet-store";
-import { validateAgentCallback } from "@/lib/world";
+import { validateAgentCallback, verifyWorldProof } from "@/lib/world";
 import { suiToMist } from "@/lib/amount";
 import { toJsonSafe } from "@/lib/json";
 
@@ -33,15 +33,31 @@ export async function POST(req: NextRequest) {
       }
 
       case "verify": {
-        // Same server-side-only discipline as every other World gate here:
-        // the client asks for a verification, it never asserts one.
-        const { worldDecision } = body as { worldDecision?: "approve" | "deny" };
-        const result = await validateAgentCallback({ state: "onboarding", sandboxDecision: worldDecision });
-        if (!result.approved) {
+        const { worldDecision, proof } = body as { worldDecision?: "approve" | "deny"; proof?: unknown };
+
+        if (worldDecision === "deny") {
           return NextResponse.json(
             toJsonSafe({ ok: false, reason: "World verification was not completed.", state: walletState() })
           );
         }
+
+        // A real IDKit proof is verified against World before it counts.
+        // The client cannot talk its way past this by asserting success —
+        // it hands over a proof and the server decides.
+        if (proof) {
+          const verified = await verifyWorldProof(proof);
+          if (!verified.success) {
+            return NextResponse.json(
+              toJsonSafe({ ok: false, reason: verified.detail ?? "World rejected this proof.", state: walletState() })
+            );
+          }
+          verifyOperator(verified.nullifierHash);
+          break;
+        }
+
+        // No proof and no World app configured — the simulated path, which
+        // the UI labels as simulated rather than calling it verification.
+        const result = await validateAgentCallback({ state: "onboarding", sandboxDecision: "approve" });
         verifyOperator(result.nullifierHash);
         break;
       }

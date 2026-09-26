@@ -5,6 +5,7 @@ import type { ActivityItem, WalletSnapshot } from "./types";
 import { fmtSui, shortAddr, timeAgo } from "./types";
 import { EmptyState } from "./bits";
 import { DiffView } from "./DiffView";
+import { ExplorerLink } from "./ExplorerLink";
 
 /**
  * The quarantine inbox. Every declaration a gate stopped lands here
@@ -44,7 +45,7 @@ export function CaughtPanel({ snap, onChanged }: { snap: WalletSnapshot; onChang
             {snap.bannedAddresses.map((b) => (
               <div key={b.address} className="flex items-start justify-between gap-4 p-4">
                 <div className="min-w-0">
-                  <div className="font-mono text-[12px] text-[var(--bind-fg)]">{shortAddr(b.address)}</div>
+                  <ExplorerLink value={b.address} kind="address" className="font-mono text-[12px] text-[var(--bind-fg)] underline decoration-[var(--bind-line-strong)] underline-offset-2 transition hover:text-[var(--bind-accent-2)]" />
                   <div className="mt-0.5 text-[12px] text-[var(--bind-fg-faint)]">{b.reason}</div>
                 </div>
                 <span className="flex-none text-[11px] text-[var(--bind-fg-faint)]">{timeAgo(b.bannedAt)}</span>
@@ -112,8 +113,10 @@ function CaughtCard({
               {agent?.name ?? item.agentId} · {item.task}
             </span>
           </div>
-          <div className="mt-1 text-[12px] text-[var(--bind-fg-faint)]">
-            {fmtSui(item.amountMist)} SUI → {shortAddr(item.recipient)} · {timeAgo(item.ts)}
+          <div className="mt-1 flex items-center gap-1.5 text-[12px] text-[var(--bind-fg-faint)]">
+            <span>{fmtSui(item.amountMist)} SUI →</span>
+            <ExplorerLink value={item.recipient} kind="address" />
+            <span>· {timeAgo(item.ts)}</span>
           </div>
         </div>
         <div
