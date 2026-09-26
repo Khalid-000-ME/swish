@@ -28,6 +28,7 @@ import { ExplorerLink } from "./ExplorerLink";
 type Direction =
   | "vault_to_agent"
   | "vault_to_operator"
+  | "operator_to_vault"
   | "agent_to_vault"
   | "agent_to_operator";
 
@@ -42,6 +43,12 @@ interface Move {
 }
 
 const MOVES: Move[] = [
+  {
+    id: "operator_to_vault",
+    label: "Your key → vault",
+    hint: "Top the pool up. Every envelope draws on it.",
+    needsAgent: false,
+  },
   {
     id: "vault_to_agent",
     label: "Vault → agent's address",

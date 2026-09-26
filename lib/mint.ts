@@ -289,6 +289,39 @@ export async function addToAllowlistOnChain(input: {
 }
 
 /**
+ * Puts SUI from the vault owner's key into the vault.
+ *
+ * The other half of `withdrawFromVault`, and the one scripts/topup.sh
+ * already did from the command line. `deposit` needs no authority — it is
+ * public, because funding someone else's vault harms nobody — so the only
+ * reason this is signed by the owner's key is that the owner's key is
+ * where the money is.
+ *
+ * The split has to come out of `tx.gas` rather than a coin fetched
+ * separately: on an address holding one coin, splitting from anything
+ * else means the same coin has to serve as both source and gas payment,
+ * which resolution refuses.
+ */
+export async function depositFromOwner(input: {
+  vaultObjectId: string;
+  amountMist: bigint;
+}): Promise<{ digest: string }> {
+  const { keypair, address } = executor();
+  const tx = new Transaction();
+  tx.setSender(address);
+
+  const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(input.amountMist)]);
+  tx.moveCall({
+    target: `${pkg()}::allowance_vault::deposit`,
+    typeArguments: ["0x2::sui::SUI"],
+    arguments: [tx.object(input.vaultObjectId), coin],
+  });
+
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { digest: t.digest };
+}
+
+/**
  * Sends SUI out of an agent's own address, signed by that agent.
  *
  * The counterpart to funding one. Money that went into an agent's address

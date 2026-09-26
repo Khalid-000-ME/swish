@@ -3,7 +3,10 @@ import { findAgent, findSubAccount, refreshAgentBalances, walletState } from "@/
 import { agentKeypair } from "@/lib/agent-keys";
 import {
   depositFromAgent,
+  depositFromOwner,
   executorAddress,
+  executorBalanceMist,
+  GAS_BUDGET_MIST,
   isMintConfigured,
   sendFromAgent,
   withdrawFromVault,
@@ -21,7 +24,8 @@ import { toJsonSafe } from "@/lib/json";
  * signs, not in what the operator is trying to do.
  *
  *   vault_to_agent     owner_withdraw, signed by the vault owner
- *   vault_to_operator  the same call, paid to the operator's own address
+ *   vault_to_operator  the same call, paid back to the owner's own key
+ *   operator_to_vault  the owner signs a deposit, topping the pool up
  *   agent_to_vault     the agent signs a deposit; deposit is public
  *   agent_to_operator  the agent signs an ordinary transfer
  *   reallocate         no chain call at all — see below
@@ -34,6 +38,7 @@ import { toJsonSafe } from "@/lib/json";
 type Direction =
   | "vault_to_agent"
   | "vault_to_operator"
+  | "operator_to_vault"
   | "agent_to_vault"
   | "agent_to_operator"
   | "reallocate";
@@ -83,8 +88,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Listed rather than excluded one by one — the previous form said
+  // "everything except vault_to_operator needs an agent", which quietly
+  // became wrong the moment a second agentless direction was added.
+  const NEEDS_AGENT: Direction[] = ["vault_to_agent", "agent_to_vault", "agent_to_operator"];
   const agent = agentId ? findAgent(agentId) : undefined;
-  if (direction !== "vault_to_operator" && !agent) {
+  if (direction && NEEDS_AGENT.includes(direction) && !agent) {
     return NextResponse.json({ error: "no such agent" }, { status: 404 });
   }
 
@@ -93,7 +102,12 @@ export async function POST(req: NextRequest) {
   // different keypairs, and paying the identity would strand the funds
   // somewhere the wallet never spends from.
   const owner = executorAddress();
-  if ((direction === "vault_to_operator" || direction === "agent_to_operator") && !owner) {
+  if (
+    (direction === "vault_to_operator" ||
+      direction === "agent_to_operator" ||
+      direction === "operator_to_vault") &&
+    !owner
+  ) {
     return NextResponse.json(
       { error: "No vault owner key is configured, so there's nowhere for this to go." },
       { status: 409 }
@@ -152,6 +166,35 @@ export async function POST(req: NextRequest) {
 
         await refreshAgentBalances();
         return NextResponse.json(toJsonSafe({ direction, digest, recipient }));
+      }
+
+      case "operator_to_vault": {
+        if (want === null) {
+          return NextResponse.json({ error: "amountSui is required" }, { status: 400 });
+        }
+
+        // Checked before the call, because the gas budget is reserved from
+        // the same coins for the transaction's duration — so it is part of
+        // what the key must hold, not just a cap on what it may spend.
+        const owned = await executorBalanceMist();
+        if (want + GAS_BUDGET_MIST > owned) {
+          return NextResponse.json(
+            {
+              error: `Your key holds ${Number(owned) / 1e9} SUI. Depositing ${Number(want) / 1e9} needs that plus ${Number(GAS_BUDGET_MIST) / 1e9} reserved for gas.`,
+            },
+            { status: 409 }
+          );
+        }
+
+        const { digest } = await depositFromOwner({
+          vaultObjectId: state.vault.objectId,
+          amountMist: want,
+        });
+
+        // Deposits land in the pool without being earmarked; the operator
+        // decides which envelope gets to draw on them.
+        await refreshAgentBalances();
+        return NextResponse.json(toJsonSafe({ direction, digest }));
       }
 
       case "agent_to_vault":
