@@ -19,10 +19,10 @@ export default function Home() {
             Bind
           </div>
           <Link
-            href="/app"
+            href="/wallet"
             className="chip bg-white/5 text-[var(--bind-fg)] transition hover:bg-white/10"
           >
-            Open the console →
+            Open the wallet →
           </Link>
         </header>
 
@@ -50,11 +50,11 @@ export default function Home() {
             style={{ animationDelay: "140ms" }}
           >
             <Link
-              href="/app"
+              href="/wallet"
               className="rounded-full px-6 py-3 text-sm font-semibold text-[var(--bind-black)] transition hover:opacity-90"
               style={{ background: "var(--bind-mist)" }}
             >
-              Run the villain demo
+              Open the wallet
             </Link>
             <a
               href="https://github.com/Khalid-000-ME/swish"
