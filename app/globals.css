@@ -149,3 +149,52 @@ body {
 .fade-up {
   animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* Rendered agent briefs. Deliberately typographic rather than styled to
+   match the rest of the chrome — this is a document the operator wrote,
+   and it should read like one. */
+.brief-preview { color: var(--bind-fg-dim); font-size: 13px; line-height: 1.65; }
+.brief-preview > :first-child { margin-top: 0; }
+.brief-preview > :last-child { margin-bottom: 0; }
+.brief-preview h1,
+.brief-preview h2,
+.brief-preview h3 {
+  color: var(--bind-mist);
+  font-family: var(--font-instrument-serif), serif;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 1.4em 0 0.5em;
+}
+.brief-preview h1 { font-size: 26px; }
+.brief-preview h2 { font-size: 19px; }
+.brief-preview h3 { font-size: 16px; }
+.brief-preview p { margin: 0.7em 0; }
+.brief-preview ul,
+.brief-preview ol { margin: 0.7em 0; padding-left: 1.3em; }
+.brief-preview li { margin: 0.3em 0; }
+.brief-preview ul { list-style: disc; }
+.brief-preview ol { list-style: decimal; }
+.brief-preview strong { color: var(--bind-fg); font-weight: 600; }
+.brief-preview em { color: var(--bind-fg); font-style: italic; }
+.brief-preview a { color: var(--bind-accent-2); text-decoration: underline; text-underline-offset: 2px; }
+.brief-preview code {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  font-size: 11.5px;
+  padding: 1px 5px;
+}
+.brief-preview pre {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+  margin: 0.8em 0;
+  overflow-x: auto;
+  padding: 12px 14px;
+}
+.brief-preview pre code { background: none; padding: 0; }
+.brief-preview blockquote {
+  border-left: 2px solid var(--bind-line-strong);
+  color: var(--bind-fg-faint);
+  margin: 0.8em 0;
+  padding-left: 12px;
+}
+.brief-preview hr { border: 0; border-top: 1px solid var(--bind-line); margin: 1.2em 0; }

@@ -4,6 +4,7 @@ import { groq } from "@ai-sdk/groq";
 import { BindSession } from "./session";
 import { buildBindTools, type ToolOutputs } from "./tools";
 import { SYSTEM_PROMPT, TOOL_ORDER } from "./prompt";
+import { composeInstructions } from "@/lib/agent-brief";
 import type { ScenarioId } from "@/lib/types";
 
 export interface AgentStep {
@@ -68,11 +69,14 @@ async function runWithModel(
   scenario: ScenarioId,
   session: BindSession,
   outputs: ToolOutputs,
-  tools: ReturnType<typeof buildBindTools>
+  tools: ReturnType<typeof buildBindTools>,
+  brief?: string
 ): Promise<AgentRunResult> {
   const agent = new ToolLoopAgent({
     model,
-    instructions: SYSTEM_PROMPT,
+    // The operator's brief goes in ahead of the hard rules, which are
+    // restated after it so nothing written there can relax them.
+    instructions: composeInstructions(SYSTEM_PROMPT, brief),
     tools,
     stopWhen: isStepCount(TOOL_ORDER.length + 2),
     prepareStep: async () => {
@@ -102,13 +106,13 @@ async function runWithModel(
   };
 }
 
-export async function runBindAgent(scenario: ScenarioId): Promise<AgentRunResult> {
+export async function runBindAgent(scenario: ScenarioId, brief?: string): Promise<AgentRunResult> {
   for (const { label, model } of candidateModels()) {
     const session = new BindSession(scenario);
     const outputs: ToolOutputs = {};
     const tools = buildBindTools(session, outputs);
     try {
-      return await runWithModel(model, scenario, session, outputs, tools);
+      return await runWithModel(model, scenario, session, outputs, tools, brief);
     } catch (err) {
       // A provider outage or a rate limit shouldn't take the wallet down
       // — try the next configured provider before giving up on "live".

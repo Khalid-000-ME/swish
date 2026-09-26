@@ -8,6 +8,7 @@ import { DiffView } from "./DiffView";
 import { GuardrailsEditor } from "./GuardrailsEditor";
 import { ExplorerLink } from "./ExplorerLink";
 import { FundAgent } from "./FundAgent";
+import { AgentBrief } from "./AgentBrief";
 
 export function AgentPanel({
   agent,
@@ -86,6 +87,8 @@ export function AgentPanel({
       </header>
 
       <FundAgent agent={agent} onChanged={onChanged} />
+
+      <AgentBrief agent={agent} onChanged={onChanged} />
 
       {agent.status === "frozen" && (
         <div

@@ -1,5 +1,6 @@
 import type { DiffResult, DryRunResult, Intercepta, ScenarioId } from "./types";
 import { createAgentIdentity, recallSealed } from "./agent-keys";
+import { defaultBrief } from "./agent-brief";
 import type { Guardrails } from "./guardrails";
 
 /**
@@ -66,6 +67,9 @@ export interface Agent {
   /** AES-GCM sealed Ed25519 secret. Stripped before this ever reaches a
    *  browser — see stripSecrets(). */
   sealedSecret?: string;
+  /** The operator's own description of the job, in Markdown. Fed to the
+   *  model verbatim before every run — see lib/agent-brief.ts. */
+  brief: string;
   /** False when no master key is configured: the address is real and can
    *  receive, but nothing here can sign for it. */
   signable: boolean;
@@ -276,6 +280,7 @@ export function hireAgent(input: {
     role: input.role,
     address: identity.address,
     sealedSecret: identity.sealedSecret,
+    brief: defaultBrief({ name: input.name, role: input.role, envelopeLabel: input.envelopeLabel }),
     signable: identity.signable,
     addressBalanceMist: "0",
     worldVerified: true,
@@ -360,7 +365,20 @@ export function replaceWalletState(incoming: WalletState): { hydrated: boolean; 
   // receive money and never spend it — a restart would orphan every
   // agent, funded address included. The keystore is the server's own,
   // and the browser never had anything to do with it.
-  const agents = incoming.agents.map((agent) => {
+  const agents = incoming.agents.map((incomingAgent) => {
+    // Agents predating the brief arrive without one; a blank page there
+    // would read as "the operator deleted it" rather than "this is old".
+    const agent = incomingAgent.brief
+      ? incomingAgent
+      : {
+          ...incomingAgent,
+          brief: defaultBrief({
+            name: incomingAgent.name,
+            role: incomingAgent.role,
+            envelopeLabel: incomingAgent.subAccounts[0]?.label ?? "Working budget",
+          }),
+        };
+
     if (agent.sealedSecret) return agent;
     const sealedSecret = recallSealed(agent.address);
     return sealedSecret ? { ...agent, sealedSecret, signable: true } : { ...agent, signable: false };

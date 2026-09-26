@@ -83,10 +83,12 @@ export interface ScenarioOptions {
   guardrails?: Guardrails;
   /** This envelope's settled history, for the cumulative limits. */
   history?: ActivityItem[];
+  /** The agent's own brief, handed to the model as its instructions. */
+  brief?: string;
 }
 
 export async function runScenario(scenario: ScenarioId, opts: ScenarioOptions = {}): Promise<ScenarioRunResult> {
-  const run = await runBindAgent(scenario);
+  const run = await runBindAgent(scenario, opts.brief);
   const decl = run.outputs.declaration;
   const ptb = run.outputs.ptb;
   if (!decl || !ptb) {

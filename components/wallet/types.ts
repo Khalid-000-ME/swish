@@ -53,6 +53,8 @@ export interface Agent {
   address: string;
   addressBalanceMist: string;
   signable: boolean;
+  /** Markdown the operator wrote; read by the model before every run. */
+  brief: string;
   worldVerified: boolean;
   worldNullifier: string;
   boundAt: number;

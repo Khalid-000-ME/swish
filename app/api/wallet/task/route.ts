@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
       perTxCapMist: BigInt(sub.perTxCapMist),
       guardrails: guardrailsFor(sub),
       history: state.activity.filter((a) => a.subAccountId === sub.id),
+      // The operator's own words about this job, not a generic prompt.
+      brief: agent.brief,
     });
 
     // An address the operator has banned is never payable again, whatever
