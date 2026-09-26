@@ -60,8 +60,12 @@ export function WorldVerify({
     try {
       const res = await fetch("/api/world/config?sign=1", { cache: "no-store" });
       const signed = (await res.json()) as WorldConfig;
-      if (!signed.configured || !signed.rp_context) {
-        setError("Could not get a signed request from the server.");
+      if (!signed.configured || !signed.rp_context || !signed.app_id || signed.action === undefined) {
+        setError(
+          `Could not build a World request${
+            signed.missing?.length ? ` — missing ${signed.missing.join(", ")}` : "."
+          }`
+        );
         return;
       }
       setSession(signed);
@@ -104,7 +108,9 @@ export function WorldVerify({
           </p>
         )}
 
-        {session?.rp_context && session.app_id && session.action && (
+        {/* action is "" in personhood mode — a truthiness check here is
+            what silently swallowed the widget and left the button spinning. */}
+        {session?.rp_context && session.app_id && session.action !== undefined && (
           <IDKitRequestWidget
             key={session.rp_context.nonce}
             open={open}
