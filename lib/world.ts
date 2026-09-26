@@ -166,6 +166,7 @@ export async function verifyWorldProof(
   proof: unknown
 ): Promise<{ success: boolean; nullifierHash: string; detail?: string }> {
   const rpId = process.env.WORLD_RP_ID;
+  const action = process.env.WORLD_ACTION;
   if (!rpId) {
     return { success: false, nullifierHash: "", detail: "No World app configured on the server." };
   }
@@ -174,16 +175,26 @@ export async function verifyWorldProof(
     const res = await fetch(`https://developer.world.org/api/v4/verify/${rpId}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ rp_id: rpId, idkitResponse: proof }),
+      // `action` has to be here as well as in the signed rp_context:
+      // a uniqueness proof is scoped to an action, and verifying one
+      // without naming it comes back as
+      // "action is required for uniqueness proofs".
+      body: JSON.stringify({ rp_id: rpId, action, idkitResponse: proof }),
       signal: AbortSignal.timeout(15_000),
     });
     const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
     if (!res.ok) {
+      // Log the whole body once — World's failure codes are specific and
+      // guessing at them from a truncated message wastes more time than
+      // the log line costs.
+      console.error("[bind/world] verify rejected", res.status, JSON.stringify(data));
       return {
         success: false,
         nullifierHash: "",
-        detail: String(data?.detail ?? data?.code ?? `World returned ${res.status}`),
+        detail: String(
+          data?.detail ?? data?.message ?? data?.code ?? `World returned ${res.status}`
+        ),
       };
     }
 
