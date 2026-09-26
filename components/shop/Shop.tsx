@@ -35,7 +35,7 @@ const PRODUCTS: Product[] = [
     name: "Daily market feed",
     vendor: "Helios Data Co.",
     blurb: "One day of pricing data. The vendor your agent already buys from.",
-    priceSui: 0.02,
+    priceSui: 0.005,
     payTo: DEMO_ADDRESSES.allowlistedMerchant,
     accent: "#4f7bf0",
   },
@@ -44,7 +44,11 @@ const PRODUCTS: Product[] = [
     name: "Ten-year archive",
     vendor: "Helios Data Co.",
     blurb: "Same trusted vendor — but a much larger invoice.",
-    priceSui: 0.4,
+    // Priced just over a demo-scale cap rather than at 0.4. The point is
+    // to be refused for exceeding the limit, and at 0.4 the transaction
+    // failed simulation for want of funds long before the cap was
+    // reached — which demonstrates nothing except an empty wallet.
+    priceSui: 0.021,
     payTo: DEMO_ADDRESSES.allowlistedMerchant,
     accent: "#f5b942",
   },
@@ -53,7 +57,7 @@ const PRODUCTS: Product[] = [
     name: "Alt-data bundle",
     vendor: "Novi Signals",
     blurb: "A vendor your agent has never paid before.",
-    priceSui: 0.02,
+    priceSui: 0.005,
     payTo: DEMO_ADDRESSES.novelMerchant,
     accent: "#c084fc",
   },

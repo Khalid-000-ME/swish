@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fromBase64, toBase64 } from "@mysten/sui/utils";
 import { Transaction } from "@mysten/sui/transactions";
-import { fundedGasCoin, suiClient } from "@/lib/sui";
+import { allGasCoins, suiClient } from "@/lib/sui";
 import { agentKeypair } from "@/lib/agent-keys";
 import { findAgent, findSubAccount, recordOutcome, walletState, type ActivityItem } from "@/lib/wallet-store";
 import { guardrailsFor } from "@/lib/guardrails";
@@ -28,7 +28,14 @@ import { toJsonSafe } from "@/lib/json";
 
 const CAP_RE = /(::.*Cap\b|Capability|AdminCap|TreasuryCap|OwnerCap|UpgradeCap)/i;
 
-const GAS_BUDGET_MIST = 10_000_000n;
+/**
+ * Reserved from the agent's coins while the transaction runs, which makes
+ * it a floor on what the agent must hold rather than only a cap on what it
+ * may spend. At 10 mSUI an agent with 0.027 could not pay 0.02 — the split
+ * left 0.002 behind and the budget wanted 0.01. A split-and-transfer costs
+ * well under 5.
+ */
+const GAS_BUDGET_MIST = 5_000_000n;
 
 /**
  * A site hands over its transaction in whichever form its kit produced:
@@ -99,8 +106,14 @@ export async function POST(req: NextRequest) {
 
     // The site left gas unset — it has no way to know which coin this
     // agent pays from — so Swish resolves it before anything is checked.
-    const gas = await fundedGasCoin(agent.address);
-    if (!gas) {
+    //
+    // Every coin, not the first. An agent accumulates coins as it is
+    // topped up, and paying from one of them means the amount being sent
+    // has to fit inside that single coin: an agent holding 0.022 and
+    // 0.005 could not send 0.02, because the split came out of the 0.022
+    // and left too little behind for gas.
+    const gas = await allGasCoins(agent.address);
+    if (gas.length === 0) {
       return NextResponse.json(
         {
           error: `${agent.name}'s address holds no SUI, so it can't pay gas. Send it some testnet SUI at ${agent.address}.`,
@@ -108,7 +121,7 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       );
     }
-    tx.setGasPayment([gas]);
+    tx.setGasPayment(gas);
     tx.setGasBudget(GAS_BUDGET_MIST);
     const { referenceGasPrice } = await client.getReferenceGasPrice();
     tx.setGasPrice(BigInt(referenceGasPrice));
@@ -133,27 +146,46 @@ export async function POST(req: NextRequest) {
 
     const t = sim.$kind === "Transaction" ? sim.Transaction : sim.FailedTransaction;
     if (sim.$kind === "FailedTransaction") {
-      return NextResponse.json(
-        toJsonSafe({ outcome: "blocked", why: "The transaction fails in simulation.", status: t.status }),
-        { status: 422 }
-      );
+      // Say what went wrong. "Fails in simulation" is true of every
+      // failure and useful for none of them — it sent us looking at the
+      // guardrails when the agent simply had less SUI than the payment
+      // plus its gas.
+      const detail = t.status?.error?.message ?? "";
+      const why = /InsufficientCoinBalance|InsufficientGas|balance/i.test(detail)
+        ? `${agent.name} holds less SUI than this payment plus its gas. Top up ${agent.address}.`
+        : detail
+          ? `This transaction fails on chain: ${detail}`
+          : "This transaction fails in simulation.";
+
+      return NextResponse.json(toJsonSafe({ outcome: "blocked", why, status: t.status }), {
+        status: 422,
+      });
     }
 
     const guardrails = { ...guardrailsFor(sub), ...connection.guardrails };
     const breaches: string[] = [];
 
-    // Everything leaving this agent, and everyone receiving.
-    const outflow = (t.balanceChanges ?? [])
-      .filter((b) => b.address === agent.address && BigInt(b.amount) < 0n)
-      .reduce((n, b) => n + -BigInt(b.amount), 0n);
+    // What counterparties actually receive.
+    //
+    // This used to be the agent's own debit, which is the payment *plus
+    // the network fee* — so a 0.02 cap refused a 0.02 purchase every time,
+    // for being 0.02199788. Gas is paid to validators, not to anyone the
+    // operator is trying to bound; a per-payment cap is about who gets the
+    // money. Measuring the credits rather than the debit also means a
+    // transaction that merely burns gas has an outflow of zero, which is
+    // the truthful answer.
+    const credits = (t.balanceChanges ?? []).filter(
+      (b) => b.address !== agent.address && BigInt(b.amount) > 0n
+    );
+    const outflow = credits.reduce((n, b) => n + BigInt(b.amount), 0n);
+    const recipients = [...new Set(credits.map((b) => b.address))];
 
-    const recipients = [
-      ...new Set(
-        (t.balanceChanges ?? [])
-          .filter((b) => b.address !== agent.address && BigInt(b.amount) > 0n)
-          .map((b) => b.address)
-      ),
-    ];
+    // Kept for the record, so the wallet's history can show what the
+    // transaction cost on top of what it paid.
+    const gasMist =
+      (t.balanceChanges ?? [])
+        .filter((b) => b.address === agent.address && BigInt(b.amount) < 0n)
+        .reduce((n, b) => n + -BigInt(b.amount), 0n) - outflow;
 
     if (outflow > BigInt(guardrails.perTxCapMist)) {
       breaches.push(
@@ -249,7 +281,7 @@ export async function POST(req: NextRequest) {
       agentMode: "scripted",
       narration:
         breaches.length > 0
-          ? `${connection.origin} asked ${agent.name} to sign a transaction, and Swish refused.`
+          ? `${connection.origin} asked ${agent.name} to sign a transaction, and Swish refused. It would have paid ${Number(outflow) / 1e9} SUI, plus ${Number(gasMist) / 1e9} in gas.`
           : signOnly
             ? `Swish signed this for ${connection.origin}, which broadcasts it itself — so there's no digest here. The signature is only good for the current epoch.`
             : `${connection.origin} asked ${agent.name} to sign a transaction, and Swish signed and submitted it.`,
