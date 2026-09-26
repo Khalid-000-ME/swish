@@ -41,3 +41,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Sealed agent secrets — encrypted, but still key material.
+.bind-keys.json

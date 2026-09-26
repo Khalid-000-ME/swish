@@ -1,5 +1,5 @@
 import type { DiffResult, DryRunResult, Intercepta, ScenarioId } from "./types";
-import { createAgentIdentity } from "./agent-keys";
+import { createAgentIdentity, recallSealed } from "./agent-keys";
 import type { Guardrails } from "./guardrails";
 
 /**
@@ -344,10 +344,21 @@ export function replaceWalletState(incoming: WalletState): { hydrated: boolean; 
     return { hydrated: false, reason: "snapshot is not a wallet" };
   }
 
+  // The browser's copy went through `stripSecrets`, so its agents arrive
+  // with no key. Without this they'd come back as addresses that can
+  // receive money and never spend it — a restart would orphan every
+  // agent, funded address included. The keystore is the server's own,
+  // and the browser never had anything to do with it.
+  const agents = incoming.agents.map((agent) => {
+    if (agent.sealedSecret) return agent;
+    const sealedSecret = recallSealed(agent.address);
+    return sealedSecret ? { ...agent, sealedSecret, signable: true } : { ...agent, signable: false };
+  });
+
   g.__bindWallet = {
     onboarding: incoming.onboarding,
     operator: incoming.operator,
-    agents: incoming.agents,
+    agents,
     activity: incoming.activity ?? [],
     bannedAddresses: incoming.bannedAddresses ?? [],
   };

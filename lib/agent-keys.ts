@@ -1,4 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 
 /**
@@ -63,6 +65,49 @@ export function openSecret(sealed: string): string | null {
   }
 }
 
+/**
+ * Where sealed secrets outlive the process.
+ *
+ * The wallet's state lives in memory, and the browser keeps a backup —
+ * but that backup goes through `stripSecrets`, so restoring from it gave
+ * back an agent that could never sign again. A restart therefore
+ * orphaned every agent permanently, funded address and all, which is an
+ * unusable way to run anything.
+ *
+ * What lands on disk is the same AES-256-GCM blob that was already
+ * described as encrypted at rest: worthless without
+ * BIND_AGENT_KEY_SECRET, which is deliberately not in this file.
+ */
+const KEYSTORE = resolve(process.env.BIND_KEYSTORE_PATH ?? ".bind-keys.json");
+
+function readKeystore(): Record<string, string> {
+  try {
+    if (!existsSync(KEYSTORE)) return {};
+    const parsed = JSON.parse(readFileSync(KEYSTORE, "utf8"));
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    // A corrupt keystore shouldn't take the wallet down with it; the
+    // agents it covered simply read as unsignable.
+    return {};
+  }
+}
+
+/** Keyed by address, because that's what survives in every snapshot. */
+export function rememberSealed(address: string, sealed: string): void {
+  try {
+    mkdirSync(dirname(KEYSTORE), { recursive: true });
+    writeFileSync(KEYSTORE, JSON.stringify({ ...readKeystore(), [address]: sealed }, null, 2), {
+      mode: 0o600,
+    });
+  } catch (err) {
+    console.error("[bind] could not write the agent keystore", err);
+  }
+}
+
+export function recallSealed(address: string): string | undefined {
+  return readKeystore()[address];
+}
+
 export interface NewAgentIdentity {
   address: string;
   sealedSecret?: string;
@@ -78,9 +123,10 @@ export function createAgentIdentity(): NewAgentIdentity {
   const address = keypair.getPublicKey().toSuiAddress();
   const sealed = sealSecret(keypair.getSecretKey());
 
-  return sealed
-    ? { address, sealedSecret: sealed.sealed, signable: true }
-    : { address, signable: false };
+  if (!sealed) return { address, signable: false };
+
+  rememberSealed(address, sealed.sealed);
+  return { address, sealedSecret: sealed.sealed, signable: true };
 }
 
 /** Rehydrates an agent's signer. Server-side only. */
