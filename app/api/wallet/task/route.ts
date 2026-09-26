@@ -3,6 +3,7 @@ import { runScenario } from "@/lib/pipeline";
 import { findTask } from "@/lib/tasks";
 import { findAgent, findSubAccount, recordOutcome, walletState, type ActivityItem } from "@/lib/wallet-store";
 import { toJsonSafe } from "@/lib/json";
+import { guardrailsFor } from "@/lib/guardrails";
 
 /**
  * Give an agent a task. The agent runs its fixed tool sequence, the
@@ -29,11 +30,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const state = walletState();
     const result = await runScenario(task.scenario, {
       allowlist: sub.allowlist.map((a) => a.address),
       perTxCapMist: BigInt(sub.perTxCapMist),
+      guardrails: guardrailsFor(sub),
+      history: state.activity.filter((a) => a.subAccountId === sub.id),
     });
-    const state = walletState();
 
     // An address the operator has banned is never payable again, whatever
     // the agent declares and whatever the screen says this time.
@@ -71,6 +74,7 @@ export async function POST(req: NextRequest) {
       txDigest: result.txDigest,
       proofObjectId: result.proofObjectId,
       reviewed: false,
+      guardrailBreaches: result.guardrailBreaches,
     };
 
     state.activity.unshift(item);

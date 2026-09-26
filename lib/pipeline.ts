@@ -8,6 +8,8 @@ import { pendingStore } from "./store";
 import { suiToMist } from "./amount";
 import type { BuiltPtb } from "@/agent/tools";
 import type { Declaration, DryRunResult, ExecutionEvent, Intercepta, ScenarioId } from "./types";
+import { checkGuardrails, type Breach, type Guardrails } from "./guardrails";
+import type { ActivityItem } from "./wallet-store";
 import { BindSession } from "@/agent/session";
 
 const DEMO_SENDER =
@@ -64,6 +66,7 @@ export interface ScenarioRunResult extends ExecutionEvent {
   agent: Pick<AgentRunResult, "mode" | "narration" | "steps">;
   dryRunSource: "chain" | "simulated";
   interceptaSource: Intercepta["source"];
+  guardrailBreaches: Breach[];
   worldSandbox: boolean;
 }
 
@@ -74,6 +77,12 @@ export interface ScenarioOptions {
    * wallet promises the opposite, so the wallet's list wins. */
   allowlist?: string[];
   perTxCapMist?: bigint;
+  /** The envelope's policy. Checked *before* anything executes — a
+   * guardrail that only annotates a payment after the money moved isn't
+   * a guardrail. */
+  guardrails?: Guardrails;
+  /** This envelope's settled history, for the cumulative limits. */
+  history?: ActivityItem[];
 }
 
 export async function runScenario(scenario: ScenarioId, opts: ScenarioOptions = {}): Promise<ScenarioRunResult> {
@@ -105,12 +114,40 @@ export async function runScenario(scenario: ScenarioId, opts: ScenarioOptions = 
     worldSandbox: !process.env.WORLD_CLIENT_ID,
   };
 
+  const verdict = opts.guardrails
+    ? checkGuardrails({
+        guardrails: opts.guardrails,
+        amountMist: decl.maxAmount,
+        coinType: decl.coinType,
+        recipient: decl.recipient,
+        riskScore: intercepta.riskScore,
+        history: opts.history ?? [],
+      })
+    : { breaches: [] as Breach[], needsApproval: false };
+
   if (intercepta.flagged) {
-    return { ...base, worldStatus: "not_required", outcome: "hard_blocked" };
+    return { ...base, guardrailBreaches: verdict.breaches, worldStatus: "not_required", outcome: "hard_blocked" };
   }
 
   if (diff.verdict === "violations") {
-    return { ...base, worldStatus: "not_required", outcome: "blocked" };
+    return { ...base, guardrailBreaches: verdict.breaches, worldStatus: "not_required", outcome: "blocked" };
+  }
+
+  // A payment can be exactly what was declared and still be more than
+  // this envelope is permitted to spend. Checked here, before any
+  // minting or execution happens.
+  if (verdict.breaches.length > 0) {
+    return { ...base, guardrailBreaches: verdict.breaches, worldStatus: "not_required", outcome: "blocked" };
+  }
+
+  // Clean and within every limit, but large enough that the operator
+  // asked to see it regardless.
+  if (verdict.needsApproval && !diff.needsHuman) {
+    pendingStore.set(decl.id, {
+      id: decl.id, scenario, declaration: decl, vault: run.session.vault,
+      dryRun: dryRunResult, diff, intercepta, status: "awaiting_human", createdAt: Date.now(),
+    });
+    return { ...base, guardrailBreaches: [], worldStatus: "pending", outcome: "awaiting_human" };
   }
 
   if (!diff.needsHuman) {
@@ -138,7 +175,7 @@ export async function runScenario(scenario: ScenarioId, opts: ScenarioOptions = 
       txDigest = digestBytes(new TextEncoder().encode("tx:" + decl.id));
     }
 
-    return { ...base, worldStatus: "not_required", outcome: "auto_executed", proofObjectId, txDigest };
+    return { ...base, guardrailBreaches: [], worldStatus: "not_required", outcome: "auto_executed", proofObjectId, txDigest };
   }
 
   // Needs a human: park it and tell the caller to send the owner through World.
@@ -154,5 +191,5 @@ export async function runScenario(scenario: ScenarioId, opts: ScenarioOptions = 
     createdAt: Date.now(),
   });
 
-  return { ...base, worldStatus: "pending", outcome: "awaiting_human" };
+  return { ...base, guardrailBreaches: [], worldStatus: "pending", outcome: "awaiting_human" };
 }

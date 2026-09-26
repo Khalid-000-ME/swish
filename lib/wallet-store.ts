@@ -1,5 +1,6 @@
 import type { DiffResult, DryRunResult, Intercepta, ScenarioId } from "./types";
 import { createAgentIdentity } from "./agent-keys";
+import type { Guardrails } from "./guardrails";
 
 /**
  * The wallet's state model.
@@ -40,6 +41,9 @@ export interface SubAccount {
   windowSpentMist: string;
   allowlist: AllowlistEntry[];
   accent: string;
+  /** Policy on top of the chain-enforced caps. Unset fields fall back to
+   *  DEFAULT_GUARDRAILS — see lib/guardrails.ts. */
+  guardrails?: Partial<Guardrails>;
 }
 
 export interface AgentTrust {
@@ -106,6 +110,8 @@ export interface ActivityItem {
   proofObjectId?: string;
   /** Caught items stay in the review queue until the operator acts. */
   reviewed: boolean;
+  /** Guardrails this payment broke, if any. */
+  guardrailBreaches?: Array<{ code: string; enforcedOnChain: boolean; plain: string }>;
   reviewAction?: "dismissed" | "address_banned" | "address_promoted";
   reviewedAt?: number;
 }
@@ -282,6 +288,11 @@ export function hireAgent(input: {
         windowSpentMist: "0",
         accent,
         allowlist: [],
+        guardrails: {
+          windowCapMist: (BigInt(input.perTxCapMist) * 5n).toString(),
+          maxRiskScore: 70,
+          allowedCoinTypes: ["0x2::sui::SUI"],
+        },
       },
     ],
   };

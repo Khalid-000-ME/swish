@@ -5,6 +5,7 @@ import type { Agent, SubAccount, WalletSnapshot } from "./types";
 import { fmtSui, timeAgo } from "./types";
 import { OutcomePill, TrustBars, WindowMeter, EmptyState } from "./bits";
 import { DiffView } from "./DiffView";
+import { GuardrailsEditor } from "./GuardrailsEditor";
 import { ExplorerLink } from "./ExplorerLink";
 
 export function AgentPanel({
@@ -107,6 +108,8 @@ export function AgentPanel({
           ))}
         </div>
       </section>
+
+      {sub && <GuardrailsEditor agentId={agent.id} sub={sub} onSaved={onChanged} />}
 
       {/* task composer */}
       <section className="card p-5">

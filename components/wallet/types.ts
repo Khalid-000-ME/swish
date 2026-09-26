@@ -22,6 +22,14 @@ export interface SubAccount {
   windowSpentMist: string;
   allowlist: AllowlistEntry[];
   accent: string;
+  guardrails?: {
+    windowCapMist?: string;
+    dailyCapMist?: string;
+    perCounterpartyCapMist?: string;
+    maxRiskScore?: number;
+    approvalThresholdMist?: string;
+    allowedCoinTypes?: string[];
+  };
 }
 
 export interface AgentTrust {
@@ -79,6 +87,7 @@ export interface ActivityItem {
   txDigest?: string;
   proofObjectId?: string;
   reviewed: boolean;
+  guardrailBreaches?: Array<{ code: string; enforcedOnChain: boolean; plain: string }>;
   reviewAction?: "dismissed" | "address_banned" | "address_promoted";
   reviewedAt?: number;
 }
