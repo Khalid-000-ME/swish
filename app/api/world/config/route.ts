@@ -33,23 +33,27 @@ export async function GET(req: Request) {
   const signingKeyHex = process.env.WORLD_RP_SIGNING_KEY ?? process.env.WORLD_RP_PRIVATE_KEY;
   const environment = process.env.WORLD_ENVIRONMENT === "staging" ? "staging" : "production";
 
-  // Two different questions, and they are not interchangeable:
+  // The signed message is `version || nonce || created_at || expires_at`
+  // for session proofs (49 bytes) and appends a hashed action for
+  // uniqueness proofs (81 bytes). Those are the only two shapes World
+  // verifies against, so the signature and the request have to agree
+  // about whether an action exists at all.
   //
-  //   uniqueness (WORLD_UNIQUENESS=true) — "has this human done this
-  //     before?" Scoped to an action, and World refuses a second claim
-  //     with `nullifier_replayed`. Right for an airdrop or a vote.
+  // Signing without an action while still sending `action: ""` is what
+  // produced `invalid_rp_signature`: World saw an action on the request
+  // and recomputed the 81-byte message, which could never match a
+  // 49-byte signature. A blank action isn't a third mode — it's a
+  // contradiction.
   //
-  //   personhood (default) — "is this a real human?" Sign-in shaped, no
-  //     action, repeatable. Right here: binding an agent to a verified
-  //     operator doesn't require that the operator has never verified
-  //     before, and making onboarding once-per-lifetime-per-human was a
-  //     design mistake, not a security property.
-  const uniqueness = process.env.WORLD_UNIQUENESS === "true";
+  // So this path is a uniqueness proof and always carries its action.
+  // Repeat verification is a genuinely different flow (session proofs:
+  // createSession / proveSession, which sign without an action by
+  // design) and would need IDKitSessionWidget plus a stored session_id.
 
   const missing = [
     !appId && "WORLD_APP_ID",
     !rpId && "WORLD_RP_ID",
-    uniqueness && !action && "WORLD_ACTION (required when WORLD_UNIQUENESS=true)",
+    !action && "WORLD_ACTION",
     !signingKeyHex && "WORLD_RP_SIGNING_KEY (or WORLD_RP_PRIVATE_KEY)",
   ].filter(Boolean) as string[];
 
@@ -58,13 +62,7 @@ export async function GET(req: Request) {
   }
 
   if (!sign) {
-    return NextResponse.json({
-      configured: true,
-      app_id: appId,
-      action: uniqueness ? action : "",
-      environment,
-      uniqueness,
-    });
+    return NextResponse.json({ configured: true, app_id: appId, action, environment });
   }
 
   try {
@@ -72,18 +70,13 @@ export async function GET(req: Request) {
     // (version || nonce || createdAt || expiresAt || action). Hand-rolling
     // this with a generic ECDSA sign does not work — it's a specific
     // 49/81-byte preimage, not a free-form string.
-    // The signed message includes the action only for uniqueness proofs;
-    // omitting it is what makes the proof repeatable.
-    const sig = uniqueness
-      ? signRequest({ signingKeyHex: signingKeyHex!, action: action! })
-      : signRequest({ signingKeyHex: signingKeyHex! });
+    const sig = signRequest({ signingKeyHex: signingKeyHex!, action: action! });
 
     return NextResponse.json({
       configured: true,
       app_id: appId,
-      action: uniqueness ? action : "",
+      action,
       environment,
-      uniqueness,
       rp_context: {
         rp_id: rpId,
         nonce: sig.nonce,

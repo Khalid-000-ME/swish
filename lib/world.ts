@@ -199,7 +199,7 @@ export async function verifyWorldProof(
           success: false,
           nullifierHash: "",
           detail:
-            "This World ID has already verified for this action. Uniqueness proofs are one-per-human-per-action by design — set WORLD_UNIQUENESS=false for repeatable personhood checks, or register a new action.",
+            "This World ID has already verified for this action. Uniqueness proofs are one-per-human-per-action by design — register a fresh action to verify again, or move to session proofs (createSession/proveSession) for genuinely repeatable checks.",
         };
       }
 
