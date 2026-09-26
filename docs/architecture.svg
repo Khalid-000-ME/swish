@@ -1,0 +1,246 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 1680 1000" width="1680" height="1000" font-family="Bricolage Grotesque, Inter, system-ui, sans-serif">
+  <title>Bind — how a payment actually moves</title>
+  <desc>Four stages: something asks, Bind bounds what it may ask for, Bind checks what would happen, and the Sui contract enforces it by destroying the declaration and the proof on the way in.</desc>
+
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700&amp;family=Instrument+Serif&amp;display=swap');
+      .h        { font-family: 'Instrument Serif', Georgia, serif; fill: #eef3ff; }
+      .lane     { font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+      .box-t    { font-size: 19px; font-weight: 600; fill: #eef1fb; }
+      .box-s    { font-size: 13.5px; font-weight: 400; fill: #a7b0cc; }
+      .mono     { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12.5px; fill: #6b7394; }
+      .tag      { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+      .sponsor  { font-size: 10.5px; font-weight: 600; letter-spacing: .06em; fill: #6b7394; }
+      .mono-w   { font-family: 'Bricolage Grotesque', sans-serif; font-size: 17px; font-weight: 700; }
+    </style>
+
+    <!-- Circle crops for the sponsor marks.
+
+         The diagram ships with drawn rings rather than logo files: an
+         <image> whose href is missing paints a broken-image glyph right
+         over the ring, which looks worse than no logo at all. Drop the
+         official PNG or SVG into docs/logos/ and uncomment the matching
+         <image> line below its ring — the clip is already circular, and
+         preserveAspectRatio="slice" handles non-square source art. -->
+    <clipPath id="clip-sui"><circle cx="0" cy="0" r="26"/></clipPath>
+    <clipPath id="clip-world"><circle cx="0" cy="0" r="26"/></clipPath>
+    <clipPath id="clip-intercepta"><circle cx="0" cy="0" r="26"/></clipPath>
+
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12256e" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#05070c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="spine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2454e8" stop-opacity=".15"/>
+      <stop offset="45%" stop-color="#4f7bf0" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#33d17a" stop-opacity=".55"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4f7bf0"/>
+    </marker>
+    <marker id="arrow-stop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f5b942"/>
+    </marker>
+  </defs>
+
+  <rect width="1680" height="1000" fill="#05070c"/>
+  <rect width="1680" height="360" fill="url(#glow)"/>
+
+  <!-- ─────────────────────────── title ─────────────────────────── -->
+  <g transform="translate(70,0)">
+    <rect x="0" y="44" width="34" height="34" rx="10" fill="#eef3ff"/>
+    <path d="M17,53 L29,53 L24,60 L12,60 Z M13,62 L25,62 L20,69 L8,69 Z" fill="#05070c"/>
+    <text class="h" x="50" y="72" font-size="38">Bind</text>
+    <text x="152" y="72" font-size="20" font-weight="300" fill="#6b7394">— how a payment actually moves</text>
+    <text x="0" y="112" font-size="15.5" font-weight="400" fill="#a7b0cc">
+      An agent can only spend what it said it would spend it on. Everything left of the vault is advice; only the vault decides.
+    </text>
+  </g>
+
+  <!-- ───────────────────── the spine (money path) ───────────────── -->
+  <rect x="70" y="171" width="1540" height="2" fill="url(#spine)"/>
+
+  <!-- ══════════════ COLUMN 1 — something asks ══════════════ -->
+  <g transform="translate(70,0)">
+    <text class="lane" x="0" y="206" fill="#4f7bf0">1 · Something asks</text>
+
+    <g transform="translate(0,230)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Any dApp</text>
+      <text class="box-s" x="20" y="62">Connects over the Wallet Standard</text>
+      <text class="mono"  x="20" y="82">sui:signTransaction</text>
+    </g>
+
+    <g transform="translate(0,350)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Your agent</text>
+      <text class="box-s" x="20" y="62">Tool order fixed by activeTools</text>
+      <text class="mono"  x="20" y="82">groq · openai/gpt-oss-120b</text>
+    </g>
+
+    <g transform="translate(0,470)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">An MCP client</text>
+      <text class="box-s" x="20" y="62">Five tools, JSON-RPC over HTTP</text>
+      <text class="mono"  x="20" y="82">propose_payment · list_activity</text>
+    </g>
+
+    <text class="box-s" x="0" y="606" font-size="12.5" fill="#6b7394">All three are untrusted. None of them holds a key.</text>
+  </g>
+
+  <!-- ══════════════ COLUMN 2 — what it may ask for ══════════════ -->
+  <g transform="translate(470,0)">
+    <text class="lane" x="0" y="206" fill="#4f7bf0">2 · Bounded before it asks</text>
+
+    <g transform="translate(0,230)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Connection grant</text>
+      <text class="box-s" x="20" y="62">One origin, a TTL, an action budget</text>
+      <text class="mono"  x="20" y="82">revocable, per site</text>
+    </g>
+
+    <g transform="translate(0,350)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Agent brief</text>
+      <text class="box-s" x="20" y="62">AGENT.md, written by the operator</text>
+      <text class="mono"  x="20" y="82">shapes intent, never authority</text>
+    </g>
+
+    <g transform="translate(0,470)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Guardrails</text>
+      <text class="box-s" x="20" y="62">Per-payment · window · daily · risk</text>
+      <text class="mono"  x="20" y="82">allow-list · ban-list · coin types</text>
+    </g>
+
+    <text class="box-s" x="0" y="606" font-size="12.5" fill="#6b7394">Set by you. A site can only ever be granted less.</text>
+  </g>
+
+  <!-- ══════════════ COLUMN 3 — what would happen ══════════════ -->
+  <g transform="translate(870,0)">
+    <text class="lane" x="0" y="206" fill="#4f7bf0">3 · Checked against what would happen</text>
+
+    <g transform="translate(0,230)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Simulate</text>
+      <text class="box-s" x="20" y="62">Run it before signing anything</text>
+      <text class="mono"  x="20" y="82">simulateTransaction · gRPC</text>
+      <g transform="translate(296,48)">
+        <circle r="26" fill="#0a1338" stroke="#4da2ff" stroke-width="1.5"/>
+        <text class="mono-w" y="6" text-anchor="middle" fill="#4da2ff">SUI</text>
+        <!-- Official logo: drop the file at docs/logos/sui.png and uncomment.
+             <image x="-26" y="-26" width="52" height="52" clip-path="url(#clip-sui)"
+                    href="logos/sui.png" preserveAspectRatio="xMidYMid slice"/> -->
+      </g>
+    </g>
+
+    <g transform="translate(0,350)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Diff</text>
+      <text class="box-s" x="20" y="62">Declared intent vs actual effects</text>
+      <text class="mono"  x="20" y="82">every recipient, every coin</text>
+    </g>
+
+    <g transform="translate(0,470)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Screen</text>
+      <text class="box-s" x="20" y="62">Who is actually being paid</text>
+      <text class="mono"  x="20" y="82">counterparty risk score</text>
+      <g transform="translate(296,48)">
+        <circle r="26" fill="#1a0f1f" stroke="#c084fc" stroke-width="1.5"/>
+        <text class="mono-w" y="6" text-anchor="middle" fill="#c084fc">IC</text>
+        <!-- Official logo: drop the file at docs/logos/intercepta.png and uncomment.
+             <image x="-26" y="-26" width="52" height="52" clip-path="url(#clip-intercepta)"
+                    href="logos/intercepta.png" preserveAspectRatio="xMidYMid slice"/> -->
+      </g>
+    </g>
+
+    <g transform="translate(0,590)">
+      <rect width="340" height="96" rx="16" fill="#1a1508" stroke="#f5b942" stroke-opacity=".5"/>
+      <text class="box-t" x="20" y="38" fill="#f5b942">Or it stops for a human</text>
+      <text class="box-s" x="20" y="62">One verified person, not a keyholder</text>
+      <text class="mono"  x="20" y="82">World ID · one human, once</text>
+      <g transform="translate(296,48)">
+        <circle r="26" fill="#14140f" stroke="#eef3ff" stroke-width="1.5"/>
+        <text class="mono-w" y="6" text-anchor="middle" fill="#eef3ff">W</text>
+        <!-- Official logo: drop the file at docs/logos/world.png and uncomment.
+             <image x="-26" y="-26" width="52" height="52" clip-path="url(#clip-world)"
+                    href="logos/world.png" preserveAspectRatio="xMidYMid slice"/> -->
+      </g>
+    </g>
+
+    <text class="box-s" x="0" y="726" font-size="12.5" fill="#6b7394">A refusal here is the wallet working, not failing.</text>
+  </g>
+
+  <!-- ══════════════ COLUMN 4 — the chain ══════════════ -->
+  <g transform="translate(1270,0)">
+    <text class="lane" x="0" y="206" fill="#33d17a">4 · Enforced on Sui</text>
+
+    <g transform="translate(0,230)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Declaration</text>
+      <text class="box-s" x="20" y="62">Recipient, max, expiry — minted first</text>
+      <text class="mono"  x="20" y="82">declaration.move</text>
+    </g>
+
+    <g transform="translate(0,350)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">MatchProof</text>
+      <text class="box-s" x="20" y="62">Signed: the diff came back clean</text>
+      <text class="mono"  x="20" y="82">ed25519_verify on chain</text>
+    </g>
+
+    <g transform="translate(0,470)">
+      <rect width="340" height="126" rx="16" fill="#0a1a12" stroke="#33d17a"/>
+      <text class="box-t" x="20" y="36" fill="#33d17a">execute_declared</text>
+      <text class="box-s" x="20" y="60" fill="#c8f5da">Takes both objects and destroys them</text>
+      <text class="box-s" x="20" y="80" fill="#c8f5da">on the way in.</text>
+      <text class="mono"  x="20" y="106" fill="#5fa77f">no flag to forget · no path to refactor away</text>
+    </g>
+
+    <g transform="translate(0,620)">
+      <rect width="340" height="96" rx="16" fill="#0d1120" stroke="#1e2540"/>
+      <text class="box-t" x="20" y="38">Vault&lt;SUI&gt;</text>
+      <text class="box-s" x="20" y="62">Capped, allow-listed, freezable</text>
+      <text class="mono"  x="20" y="82">owner_withdraw · owner-only</text>
+    </g>
+
+    <text class="box-s" x="0" y="756" font-size="12.5" fill="#6b7394">grep "balance::split" finds three call sites. That is the whole surface.</text>
+  </g>
+
+  <!-- ───────────────────────── arrows ───────────────────────── -->
+  <g stroke="#4f7bf0" stroke-width="1.6" fill="none" marker-end="url(#arrow)" opacity=".8">
+    <path d="M412,278 L466,278"/>
+    <path d="M412,398 L466,398"/>
+    <path d="M412,518 L466,518"/>
+    <path d="M812,278 L866,278"/>
+    <path d="M812,398 L866,398"/>
+    <path d="M812,518 L866,518"/>
+    <path d="M1212,278 L1266,278"/>
+    <path d="M1212,398 L1266,398"/>
+  </g>
+  <!-- the branch: a breach doesn't die, it goes to a person -->
+  <g stroke="#f5b942" stroke-width="1.6" fill="none" marker-end="url(#arrow-stop)" opacity=".85" stroke-dasharray="5 4">
+    <path d="M1040,566 L1040,590"/>
+  </g>
+  <g stroke="#33d17a" stroke-width="1.6" fill="none" marker-end="url(#arrow)" opacity=".7">
+    <path d="M1212,638 C1240,638 1240,545 1266,545"/>
+  </g>
+
+  <!-- ─────────────────────── the guarantee ─────────────────────── -->
+  <g transform="translate(70,790)">
+    <rect width="1540" height="92" rx="18" fill="#0a0d18" stroke="#1e2540"/>
+    <text class="tag" x="28" y="34" fill="#33d17a">The guarantee</text>
+    <text class="h" x="28" y="72" font-size="27">
+      An agent can be completely fooled and still be structurally incapable of paying anyone it didn't declare.
+    </text>
+  </g>
+
+  <g transform="translate(70,930)">
+    <text class="sponsor" x="0" y="0">SUI — vault, declaration and proof objects · simulation · settlement</text>
+    <text class="sponsor" x="560" y="0">WORLD — one verified human behind every override</text>
+    <text class="sponsor" x="1105" y="0">INTERCEPTA — counterparty screening before signature</text>
+  </g>
+</svg>
