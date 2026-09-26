@@ -8,14 +8,47 @@
 # (`sui client gas` should list at least one coin — see the faucet at
 # https://faucet.sui.io/?address=<your address> if not).
 #
-# [VERIFY before relying on this]: this was written without a funded
-# address to test against (faucet was rate-limited throughout the build —
-# see BIND_PRD.md's own honesty-register habit). The Move package itself
-# is real and fully unit-tested (bind/tests/); this script's CLI
-# argument encoding — especially the vector<u8> pubkey arg to
-# set_attestor_pubkey — is the one part that has NOT been exercised
-# end-to-end and may need a small fix.
+# Sizes are overridable and default to demo scale, not the round numbers
+# this script used to hardcode. It asked for a 5 SUI vault with a 2 SUI
+# per-payment cap, which failed outright on a testnet key holding less than
+# 5 SUI and, when it did run, set a cap forty times larger than anything
+# the demo spends (feeds cost 0.02 SUI). A cap that nothing can reach is
+# not a cap anyone can see working.
+#
+#   VAULT_SUI=0.3 PER_TX_CAP_SUI=0.05 ./scripts/deploy.sh
 set -euo pipefail
+
+VAULT_SUI="${VAULT_SUI:-0.3}"
+PER_TX_CAP_SUI="${PER_TX_CAP_SUI:-0.05}"
+WINDOW_MS="${WINDOW_MS:-60000}"
+# Publishing, three calls and the split; measured at ~0.09 SUI, doubled.
+GAS_HEADROOM_SUI="${GAS_HEADROOM_SUI:-0.25}"
+
+sui_to_mist() { node -e "process.stdout.write(String(Math.round(Number(process.argv[1]) * 1e9)))" "$1"; }
+VAULT_MIST=$(sui_to_mist "$VAULT_SUI")
+PER_TX_CAP_MIST=$(sui_to_mist "$PER_TX_CAP_SUI")
+HEADROOM_MIST=$(sui_to_mist "$GAS_HEADROOM_SUI")
+
+ACTIVE=$(sui client active-address)
+echo "==> Preflight: $ACTIVE on $(sui client active-env)"
+
+# Fail here with a number rather than three calls in with a CLI error.
+# `sui client gas --json` returns { gasCoins: [...] } on current CLI
+# versions and a bare array on older ones. Handle both.
+BALANCE_MIST=$(sui client gas --json | node -e '
+  const d = JSON.parse(require("fs").readFileSync(0, "utf8"));
+  const coins = Array.isArray(d) ? d : (d.gasCoins ?? []);
+  console.log(coins.reduce((n, c) => n + Number(c.mistBalance ?? c.balance ?? 0), 0));
+')
+NEEDED_MIST=$((VAULT_MIST + HEADROOM_MIST))
+if [ "$BALANCE_MIST" -lt "$NEEDED_MIST" ]; then
+  echo "Not enough SUI. Holding $(node -e "console.log($BALANCE_MIST/1e9)"), need about $(node -e "console.log($NEEDED_MIST/1e9)")."
+  echo "Either top up at https://faucet.sui.io/?address=$ACTIVE"
+  echo "or run with a smaller vault, e.g. VAULT_SUI=0.1 $0"
+  exit 1
+fi
+echo "    holding $(node -e "console.log($BALANCE_MIST/1e9)") SUI; vault $VAULT_SUI, cap $PER_TX_CAP_SUI"
+
 cd "$(dirname "$0")/../bind"
 
 echo "==> Publishing bind package to $(sui client active-env)"
@@ -68,12 +101,17 @@ sui client call \
   --args "$REGISTRY_ID" "$PUBKEY_BYTES" \
   --gas-budget 50000000
 
-echo "==> Creating a 5 SUI demo vault (per-tx cap 2 SUI, 60s window)"
+echo "==> Creating a $VAULT_SUI SUI vault (per-tx cap $PER_TX_CAP_SUI SUI, ${WINDOW_MS}ms window)"
+# Largest coin, not the first one listed — splitting has to come out of a
+# coin that can actually cover it.
 COIN_ID=$(sui client gas --json | node -e '
   const d = JSON.parse(require("fs").readFileSync(0,"utf8"));
-  console.log(d[0].gasCoinId ?? d[0].id?.id ?? d[0].coinObjectId);
+  const coins = Array.isArray(d) ? d : (d.gasCoins ?? []);
+  const biggest = coins.slice().sort((a, b) =>
+    Number(b.mistBalance ?? b.balance ?? 0) - Number(a.mistBalance ?? a.balance ?? 0))[0];
+  console.log(biggest.gasCoinId ?? biggest.id?.id ?? biggest.coinObjectId);
 ')
-SPLIT_JSON=$(sui client split-coin --coin-id "$COIN_ID" --amounts 5000000000 --gas-budget 50000000 --json)
+SPLIT_JSON=$(sui client split-coin --coin-id "$COIN_ID" --amounts "$VAULT_MIST" --gas-budget 50000000 --json)
 VAULT_COIN_ID=$(echo "$SPLIT_JSON" | node -e '
   const d = JSON.parse(require("fs").readFileSync(0,"utf8"));
   const c = d.objectChanges.find(x => x.type === "created" && x.objectType?.includes("coin::Coin"));
@@ -84,7 +122,7 @@ AGENT_ADDR=$(sui client active-address)
 CREATE_JSON=$(sui client call \
   --package "$PACKAGE_ID" --module allowance_vault --function create_vault \
   --type-args 0x2::sui::SUI \
-  --args "$AGENT_ADDR" 2000000000 60000 "$VAULT_COIN_ID" 0x6 \
+  --args "$AGENT_ADDR" "$PER_TX_CAP_MIST" "$WINDOW_MS" "$VAULT_COIN_ID" 0x6 \
   --gas-budget 100000000 --json)
 VAULT_ID=$(echo "$CREATE_JSON" | node -e '
   const d = JSON.parse(require("fs").readFileSync(0,"utf8"));
@@ -115,16 +153,31 @@ EXECUTOR_KEY=$(sui keytool export --key-identity "$AGENT_ADDR" --json | node -e 
   console.log(d.exportedPrivateKey ?? d.privateKey ?? d.key);
 ')
 
-cat >> .env.local <<EOF
+# Replace in place rather than append. Appending left two BIND_PACKAGE_ID
+# lines in the file and relied on the reader taking the last one, which is
+# a parser detail to be betting a demo on.
+node -e '
+const fs = require("fs");
+const path = ".env.local";
+const next = {
+  BIND_PACKAGE_ID: process.argv[1],
+  BIND_REGISTRY_ID: process.argv[2],
+  BIND_VAULT_ID: process.argv[3],
+  BIND_AGENT_CAP_ID: process.argv[4],
+  BIND_EXECUTOR_KEY: process.argv[5],
+  BIND_ATTEST_PRIVKEY: process.argv[6],
+  BIND_DEMO_SENDER: process.argv[7],
+};
+let lines = fs.existsSync(path) ? fs.readFileSync(path, "utf8").split("\n") : [];
+for (const [k, v] of Object.entries(next)) {
+  const i = lines.findIndex((l) => l.startsWith(k + "="));
+  if (i >= 0) lines[i] = `${k}=${v}`;
+  else lines.push(`${k}=${v}`);
+}
+fs.writeFileSync(path, lines.join("\n").replace(/\n+$/, "") + "\n");
+' "$PACKAGE_ID" "$REGISTRY_ID" "$VAULT_ID" "$AGENT_CAP_ID" "$EXECUTOR_KEY" "$ATTEST_PRIV" "$AGENT_ADDR"
 
-# --- written by scripts/deploy.sh on $(date -u +%FT%TZ) ---
-BIND_PACKAGE_ID=$PACKAGE_ID
-BIND_REGISTRY_ID=$REGISTRY_ID
-BIND_VAULT_ID=$VAULT_ID
-BIND_AGENT_CAP_ID=$AGENT_CAP_ID
-BIND_EXECUTOR_KEY=$EXECUTOR_KEY
-BIND_ATTEST_PRIVKEY=$ATTEST_PRIV
-BIND_DEMO_SENDER=$AGENT_ADDR
-EOF
-
-echo "==> Done. Appended live config to .env.local"
+echo "==> Done."
+echo "    package $PACKAGE_ID"
+echo "    vault   $VAULT_ID  ($VAULT_SUI SUI, cap $PER_TX_CAP_SUI)"
+echo "    Restart the dev server so it picks up the new .env.local."
