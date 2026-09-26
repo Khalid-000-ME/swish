@@ -8,7 +8,8 @@
     "tabs"
   ],
   "host_permissions": [
-    "http://localhost:3000/*",
+    "http://localhost:*/*",
+    "http://127.0.0.1:*/*",
     "https://*/*"
   ],
   "background": {
