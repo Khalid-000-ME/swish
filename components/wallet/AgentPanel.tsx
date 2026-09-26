@@ -7,6 +7,7 @@ import { OutcomePill, TrustBars, WindowMeter, EmptyState } from "./bits";
 import { DiffView } from "./DiffView";
 import { GuardrailsEditor } from "./GuardrailsEditor";
 import { ExplorerLink } from "./ExplorerLink";
+import { FundAgent } from "./FundAgent";
 
 export function AgentPanel({
   agent,
@@ -83,6 +84,8 @@ export function AgentPanel({
           </button>
         </div>
       </header>
+
+      <FundAgent agent={agent} onChanged={onChanged} />
 
       {agent.status === "frozen" && (
         <div

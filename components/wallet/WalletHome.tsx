@@ -140,6 +140,13 @@ function AgentList({ snap }: { snap: WalletSnapshot }) {
                     {a.status}
                   </span>
                 )}
+                {/* An agent with no key looks perfectly healthy otherwise,
+                    and then refuses everything a site asks for. */}
+                {!a.signable && (
+                  <span className="text-[10px] uppercase" style={{ color: "var(--bind-danger)" }}>
+                    no key
+                  </span>
+                )}
               </div>
               <div className="mt-0.5 flex items-center gap-2">
                 <span className="truncate text-[12px] text-[var(--bind-fg-faint)]">{a.role}</span>

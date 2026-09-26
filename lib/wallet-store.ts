@@ -171,6 +171,17 @@ function seed(): WalletState {
 }
 
 const g = globalThis as unknown as { __bindWallet?: WalletState };
+/**
+ * Throws away the wallet and starts from an empty one.
+ *
+ * Only this in-memory view: the keystore keeps the old agents' sealed
+ * secrets, so an address that was funded before a reset isn't stranded —
+ * it can be brought back by hand if it turns out to matter.
+ */
+export function resetWalletState(): void {
+  g.__bindWallet = seed();
+}
+
 export function walletState(): WalletState {
   if (!g.__bindWallet) g.__bindWallet = seed();
   return g.__bindWallet;

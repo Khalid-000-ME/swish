@@ -245,6 +245,28 @@ export async function addToAllowlistOnChain(input: {
 }
 
 /**
+ * Sends SUI from the operator's own key to an agent's address.
+ *
+ * Nothing about the vault — an agent's address is an ordinary Sui
+ * address, and it needs a coin of its own before it can pay for a single
+ * transaction. This is the operator topping up their agent.
+ */
+export async function fundAgentAddress(input: {
+  recipient: string;
+  amountMist: bigint;
+}): Promise<{ digest: string }> {
+  const { keypair, address } = executor();
+  const tx = new Transaction();
+  tx.setSender(address);
+
+  const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(input.amountMist)]);
+  tx.transferObjects([coin], tx.pure.address(input.recipient));
+
+  const t = await callAndGetEffects(tx, keypair, address);
+  return { digest: t.digest };
+}
+
+/**
  * Takes an address back off the on-chain allow-list.
  *
  * The mirror of the above, and for the same reason: withdrawing standing
