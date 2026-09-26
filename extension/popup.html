@@ -7,12 +7,12 @@
       :root { color-scheme: dark; }
       * { box-sizing: border-box; }
       body {
-        margin: 0; width: 340px; padding: 18px 16px 16px;
+        margin: 0; width: 344px; padding: 16px 16px 14px;
         background: #05070c; color: #eef1fb;
         font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
       }
       .top { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-      .dot { width: 7px; height: 7px; border-radius: 999px; background: #4f7bf0; }
+      .dot { width: 7px; height: 7px; border-radius: 999px; background: #4f7bf0; flex: none; }
       h1 { font-size: 15px; font-weight: 600; margin: 0; }
       .muted { color: #6b7394; font-size: 11px; }
       .card {
@@ -20,23 +20,38 @@
         border-radius: 12px; padding: 12px; margin-bottom: 8px;
       }
       .row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+      .label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #6b7394; }
       .name { font-size: 13px; font-weight: 500; }
-      .addr { font-family: ui-monospace, monospace; font-size: 10px; color: #6b7394; margin-top: 3px; }
+      .addr {
+        font-family: ui-monospace, monospace; font-size: 11px; color: #a7b0cc;
+        margin-top: 4px; cursor: pointer; display: inline-block;
+      }
+      .addr:hover { color: #4f7bf0; }
       .bal { font-size: 13px; color: #a7b0cc; }
-      label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #6b7394; margin-bottom: 5px; }
+      .total { font-size: 22px; font-weight: 600; letter-spacing: -.01em; margin-top: 2px; }
+      details { margin-top: 10px; }
+      summary { font-size: 11px; color: #6b7394; cursor: pointer; list-style: none; }
+      summary::-webkit-details-marker { display: none; }
+      summary:hover { color: #a7b0cc; }
       input {
         width: 100%; background: rgba(0,0,0,.3); border: 1px solid rgba(238,243,255,.22);
         border-radius: 8px; padding: 8px 10px; color: #eef1fb; font-size: 12px; outline: none;
+        font-family: ui-monospace, monospace;
       }
       input:focus { border-color: #4f7bf0; }
       button {
-        width: 100%; margin-top: 10px; padding: 9px; border: 0; border-radius: 999px;
+        width: 100%; margin-top: 8px; padding: 9px; border: 0; border-radius: 999px;
         background: #eef3ff; color: #05070c; font-size: 12px; font-weight: 600; cursor: pointer;
         font-family: inherit;
       }
       button.ghost { background: transparent; color: #a7b0cc; border: 1px solid rgba(238,243,255,.22); }
-      .empty { color: #6b7394; font-size: 12px; line-height: 1.5; padding: 6px 0 10px; }
-      a { color: #4f7bf0; }
+      button:disabled { opacity: .5; cursor: default; }
+      .empty { color: #6b7394; font-size: 12px; line-height: 1.5; padding: 4px 0 8px; }
+      .note { font-size: 10px; color: #6b7394; margin-top: 6px; line-height: 1.45; }
+      .ok { color: #33d17a; }
+      .warn { color: #f5b942; }
+      .bad { color: #f04f5c; }
+      .site { font-size: 12px; padding: 4px 0; display: flex; justify-content: space-between; gap: 8px; }
     </style>
   </head>
   <body>
@@ -46,15 +61,20 @@
       <span class="muted" style="margin-left:auto" id="status">checking…</span>
     </div>
 
-    <div id="agents"></div>
-    <div id="sites"></div>
+    <div id="body"></div>
 
-    <div class="card" style="margin-top:12px">
-      <label for="url">Wallet address</label>
-      <input id="url" placeholder="http://localhost:3000" />
-      <button id="save">Save</button>
-      <button class="ghost" id="open">Open full wallet</button>
-    </div>
+    <details id="settings">
+      <summary>Settings</summary>
+      <div class="card" style="margin-top:8px">
+        <div class="label">Wallet server</div>
+        <div class="note" style="margin:4px 0 7px">
+          Where your Bind wallet is running. Not a blockchain address.
+        </div>
+        <input id="url" placeholder="http://localhost:3000" spellcheck="false" />
+        <button id="save">Save</button>
+        <div class="note" id="saveNote"></div>
+      </div>
+    </details>
 
     <script src="popup.js"></script>
   </body>
